@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>COD Admin Dashboard — Cash-on-Delivery Order Management</title>
+    <meta name="description" content="Modern Apple-styled admin dashboard for managing Cash-on-Delivery (COD) orders with Supabase." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+      // Defend against third-party polyfills attempting to assign to getter-only window.fetch
+      try {
+        let currentFetch = window.fetch ? window.fetch.bind(window) : undefined;
+        Object.defineProperty(window, 'fetch', {
+          get() {
+            return currentFetch;
+          },
+          set(fn) {
+            currentFetch = typeof fn === 'function' ? fn.bind(window) : fn;
+          },
+          configurable: true,
+          enumerable: true,
+        });
+      } catch (e) {
+        // Ignore if already non-configurable
+      }
+    </script>
+  </head>
+  <body class="bg-slate-50 font-sans text-slate-900 antialiased selection:bg-blue-600 selection:text-white min-h-screen">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

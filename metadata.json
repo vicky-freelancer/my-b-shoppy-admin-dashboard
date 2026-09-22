@@ -1,0 +1,6 @@
+{
+  "name": "MY B SHOPPY Management",
+  "description": "Luxury jewellery catalog and e-commerce admin management dashboard with product inventory, cover images, pricing, stock control, COD order dispatch tracking, and Supabase integration.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
