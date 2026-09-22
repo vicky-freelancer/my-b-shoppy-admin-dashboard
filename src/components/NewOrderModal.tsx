@@ -28,18 +28,15 @@ const COMMON_CITIES = [
 ];
 
 const COMMON_CATEGORIES = [
+  'Hair Accessories',
+  'Artificial Jewels',
+  'Bows',
+  'Scrunchies',
+  'Handbags',
   'Earrings',
-  'Chains',
   'Necklaces',
-  'Rings',
   'Bracelets',
-  'Pendants',
-  'Bangles',
-  'Anklets',
-  'Nose Pins',
-  'Sets & Combos',
-  'Jewellery',
-  'General',
+  'Rings',
 ];
 
 export const NewOrderModal: React.FC<NewOrderModalProps> = ({

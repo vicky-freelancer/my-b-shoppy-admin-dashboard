@@ -26,16 +26,15 @@ interface ProductModalProps {
 }
 
 const COMMON_CATEGORIES = [
+  'Hair Accessories',
+  'Artificial Jewels',
+  'Bows',
+  'Scrunchies',
+  'Handbags',
   'Earrings',
-  'Chains',
   'Necklaces',
-  'Rings',
   'Bracelets',
-  'Pendants',
-  'Bangles',
-  'Anklets',
-  'Nose Pins',
-  'Sets & Combos',
+  'Rings',
 ];
 
 const PRESET_BADGES = [
