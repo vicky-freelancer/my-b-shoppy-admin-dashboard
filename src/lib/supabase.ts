@@ -206,25 +206,28 @@ export async function getOrders(): Promise<{ orders: Order[]; error?: string; so
     if (data && data.length > 0) {
       const normalizedOrders: Order[] = data.map((item) => {
         const qty = typeof item.quantity === 'number' ? item.quantity : Number(item.quantity) || 1;
-        const unitPrice =
+        // Resolve unit price from every price column both apps may write
+        const storedUnit =
           typeof item.price_per_unit === 'number'
             ? item.price_per_unit
             : typeof item.sale_price === 'number'
             ? item.sale_price
             : typeof item.price === 'number'
             ? item.price
-            : item.amount
-            ? Number(item.amount) / Math.max(1, qty)
-            : 149;
+            : 0;
+        const amountFromTotal = item.amount ? Number(item.amount) : 0;
+        const amountFromGrand = item.total_amount ? Number(item.total_amount) : 0;
+        const amountFromCod = item.cod_amount ? Number(item.cod_amount) : 0;
+        const bestAmount = amountFromTotal || amountFromGrand || amountFromCod;
 
-        const totalAmount =
-          typeof item.amount === 'number'
-            ? item.amount
-            : item.amount
-            ? Number(item.amount)
-            : typeof item.cod_amount === 'number'
-            ? item.cod_amount
-            : qty * unitPrice;
+        const unitPrice = storedUnit > 0 ? storedUnit : bestAmount > 0 ? bestAmount / Math.max(1, qty) : 149;
+
+        const totalAmount = bestAmount > 0 ? bestAmount : qty * unitPrice;
+
+        // Storefront online orders are written with status "paid" — treat them
+        // as confirmed so they appear under the admin's Confirmed workflow.
+        const rawStatus = item.status ? String(item.status).toLowerCase() : 'pending';
+        const status = rawStatus === 'paid' ? 'confirmed' : rawStatus;
 
         return {
           id: item.id || `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -233,18 +236,19 @@ export async function getOrders(): Promise<{ orders: Order[]; error?: string; so
           phone: item.phone || '',
           city: item.city || 'Unspecified',
           address: item.address || '',
+          country: item.country || '',
           category: item.category || 'General',
           product_variant: item.product_variant || item.product_name || item.title || 'Standard Product',
           product_id: item.product_id,
           quantity: qty,
-          status: (item.status ? String(item.status).toLowerCase() : 'pending') as OrderStatus,
+          status: status as OrderStatus,
           created_at: item.created_at || new Date().toISOString(),
           amount: totalAmount,
           price: unitPrice,
           sale_price: unitPrice,
           price_per_unit: unitPrice,
           mrp: typeof item.mrp === 'number' ? item.mrp : Number(item.mrp) || 0,
-          payment_method: item.payment_method || 'Cash on Delivery (COD)',
+          payment_method: item.payment_method || (status === 'confirmed' ? 'Online (Razorpay)' : 'Cash on Delivery (COD)'),
           notes: item.notes || '',
           tracking_number: item.tracking_number || '',
         };
@@ -468,13 +472,15 @@ export async function createOrder(
 }
 
 /**
- * Whether an order id is a valid database primary key (integer or UUID).
- * Locally-generated ids like "ORD-1000" never exist in Supabase and would
- * otherwise trigger "invalid input syntax for type uuid" 400 errors.
+ * Whether an order id is a valid database primary key (numeric, UUID, or the
+ * admin's "ORD-xxxxx" default). Locally-generated ids like "MBS-100000" never
+ * exist in Supabase and would otherwise trigger "invalid input syntax for type
+ * uuid" 400 errors.
  */
 function isDatabaseOrderId(id: string | number | undefined | null): boolean {
   const s = String(id);
   if (/^\d+$/.test(s)) return true;
+  if (/^ORD-\d{4,}$/i.test(s)) return true;
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(s);
 }
 

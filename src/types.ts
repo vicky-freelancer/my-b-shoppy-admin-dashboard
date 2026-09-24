@@ -20,6 +20,17 @@ export interface Product {
   badges: string[]; // e.g. ['Bestseller', 'Featured', 'New Arrival']
   description?: string;
   material?: string;
+  // Shared storefront-compatible columns (kept in sync with my B shoppy frontend)
+  slug?: string;
+  subtitle?: string;
+  original_price?: number;
+  category_id?: string;
+  badge?: string;
+  rating?: number;
+  reviews_count?: number;
+  stone?: string;
+  variants?: string[];
+  in_stock?: boolean;
   created_at?: string;
   updated_at?: string;
 }
@@ -31,6 +42,7 @@ export interface Order {
   phone: string;
   city: string;
   address: string;
+  country?: string;
   category?: string;
   product_variant: string;
   product_id?: string | number;
