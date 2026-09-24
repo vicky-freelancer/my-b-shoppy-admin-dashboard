@@ -1045,6 +1045,126 @@ export async function updateProduct(
 }
 
 /**
+ * Reduce a product's available stock after an order is created.
+ * Keeps `quantity`, `stock`, and `in_stock` in sync so both the admin
+ * dashboard and the front store immediately show the reduced stock.
+ */
+export async function decrementProductStock(
+  productId: string | number | undefined | null,
+  orderedQty: number
+): Promise<{ success: boolean; product?: Product; error?: string }> {
+  try {
+    if (productId === undefined || productId === null || String(productId) === 'CUSTOM') {
+      return { success: false, error: 'No catalog product linked to this order.' };
+    }
+
+    const qtyToDeduct = Math.max(1, Math.round(Number(orderedQty) || 1));
+    const cached = getCachedProducts();
+    const cachedProduct = cached.find((p) => String(p.id) === String(productId));
+
+    // 1. Locate the matching Supabase row
+    let targetDbId: string | number | null = isValidDatabaseId(productId) ? productId : null;
+    let dbRow: any = null;
+
+    if (targetDbId) {
+      const res = await supabase
+        .from('products')
+        .select('id, quantity, stock, in_stock')
+        .eq('id', targetDbId)
+        .maybeSingle();
+      dbRow = res.data;
+    }
+
+    // Synthetic ids (PRD-xxxx / uuid): resolve the real row via SKU or title
+    if (!dbRow && cachedProduct) {
+      const matchField: [string, string] | null = cachedProduct.sku
+        ? ['sku', cachedProduct.sku]
+        : cachedProduct.title
+        ? ['title', cachedProduct.title]
+        : null;
+      if (matchField) {
+        const res = await supabase
+          .from('products')
+          .select('id, quantity, stock, in_stock')
+          .eq(matchField[0], matchField[1])
+          .maybeSingle();
+        dbRow = res.data;
+        if (dbRow?.id) targetDbId = dbRow.id;
+      }
+    }
+
+    // 2. Compute the new stock level (DB value wins over the local cache)
+    const currentStock =
+      dbRow && (dbRow.quantity !== null || dbRow.stock !== null)
+        ? Number(dbRow.quantity ?? dbRow.stock) || 0
+        : Number(cachedProduct?.quantity) || 0;
+    const newStock = Math.max(0, currentStock - qtyToDeduct);
+
+    // 3. Write it back, retrying if a column is missing from the live schema
+    let updateError: any = null;
+    if (targetDbId) {
+      const payload: any = {
+        quantity: newStock,
+        stock: newStock,
+        in_stock: newStock > 0,
+        updated_at: new Date().toISOString(),
+      };
+      const droppedCols = new Set<string>();
+
+      for (let attempt = 0; attempt < 5; attempt++) {
+        const res = await supabase
+          .from('products')
+          .update(payload)
+          .eq('id', targetDbId)
+          .select()
+          .single();
+        if (!res.error && res.data) {
+          updateError = null;
+          break;
+        }
+        updateError = res.error;
+        const missingCol = updateError ? extractMissingColumn(updateError.message) : null;
+        if (!missingCol || droppedCols.has(missingCol)) break;
+        droppedCols.add(missingCol);
+        if (missingCol === 'quantity') payload.stock = newStock;
+        if (missingCol === 'stock') payload.quantity = newStock;
+        delete payload[missingCol];
+        if (Object.keys(payload).length === 0) break;
+      }
+    }
+
+    // 4. Mirror the change in the local cache for an instant UI update
+    let updatedProduct: Product | undefined;
+    const updatedList = cached.map((p) => {
+      if (String(p.id) === String(productId)) {
+        updatedProduct = {
+          ...p,
+          quantity: newStock,
+          in_stock: newStock > 0,
+          updated_at: new Date().toISOString(),
+        };
+        return updatedProduct;
+      }
+      return p;
+    });
+    saveCachedProducts(updatedList);
+
+    if (updateError) {
+      console.error('Supabase stock reduction error:', updateError.message);
+      return { success: false, product: updatedProduct, error: updateError.message };
+    }
+    if (!targetDbId && !cachedProduct) {
+      return { success: false, error: 'Product not found for stock reduction.' };
+    }
+
+    return { success: true, product: updatedProduct };
+  } catch (err: any) {
+    console.error('Error decrementing product stock:', err);
+    return { success: false, error: err.message || 'Failed to reduce stock.' };
+  }
+}
+
+/**
  * Delete a product from Supabase and local cache
  */
 export async function deleteProduct(id: string | number): Promise<{ success: boolean; error?: string }> {

@@ -149,6 +149,21 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
       return;
     }
 
+    const requestedQty = Math.max(1, Number(quantity) || 1);
+    const selectedCatalogProduct =
+      selectedProductId === 'CUSTOM' ? null : products.find((p) => String(p.id) === selectedProductId) || null;
+
+    // Prevent ordering more than what is currently available in stock
+    if (selectedCatalogProduct) {
+      const available = Number(selectedCatalogProduct.quantity) || 0;
+      if (requestedQty > available) {
+        setFormError(
+          `Only ${available} unit${available === 1 ? '' : 's'} left in stock for "${selectedCatalogProduct.title}".`
+        );
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     try {
       await onSubmit({
@@ -159,7 +174,8 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
         city: selectedCity.trim(),
         address: address.trim(),
         product_variant: productVariant.trim(),
-        quantity: Math.max(1, Number(quantity) || 1),
+        product_id: selectedCatalogProduct ? selectedCatalogProduct.id : undefined,
+        quantity: requestedQty,
         status: status,
         created_at: new Date().toISOString(),
         amount: totalAmount,
@@ -327,11 +343,15 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
                   onChange={(e) => handleProductChange(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl border border-[#2d251a] bg-[#18140f] text-[#f3e7c4] focus:outline-none focus:border-[#e5c158] mb-2"
                 >
-                  {products.map((p) => (
-                    <option key={p.id} value={String(p.id)} className="bg-[#18140f] text-[#f3e7c4]">
-                      {p.title} ({p.sku}) — {currencySymbol}{p.sale_price}
-                    </option>
-                  ))}
+                  {products.map((p) => {
+                    const available = Number(p.quantity) || 0;
+                    return (
+                      <option key={p.id} value={String(p.id)} className="bg-[#18140f] text-[#f3e7c4]">
+                        {p.title} ({p.sku}) — {currencySymbol}{p.sale_price}
+                        {` — ${available > 0 ? `${available} in stock` : 'Out of stock'}`}
+                      </option>
+                    );
+                  })}
                   <option value="CUSTOM" className="bg-[#18140f] text-[#f3e7c4]">
                     -- Custom / Other Item --
                   </option>

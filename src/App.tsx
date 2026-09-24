@@ -15,6 +15,7 @@ import {
   updateProduct,
   deleteProduct,
   duplicateProduct,
+  decrementProductStock,
   computeProductStats,
 } from './lib/products';
 import { computeStats } from './lib/utils';
@@ -286,7 +287,21 @@ export default function App() {
     const res = await createOrder(orderData);
     if (res.success && res.order) {
       setOrders((prev) => [res.order!, ...prev]);
-      showToast(`Order #${res.order.id} created successfully!`);
+      if (orderData.product_id) {
+        // Reduce the product's available stock so the storefront reflects it
+        const stockRes = await decrementProductStock(orderData.product_id, orderData.quantity || 1);
+        await loadProducts();
+        if (stockRes.success) {
+          showToast(`Order #${res.order.id} created — stock reduced for "${orderData.product_variant}"`);
+        } else {
+          showToast(
+            `Order #${res.order.id} created, but stock was not reduced: ${stockRes.error || 'unknown error'}`,
+            'error'
+          );
+        }
+      } else {
+        showToast(`Order #${res.order.id} created successfully!`);
+      }
     } else {
       showToast(res.error || 'Failed to create order', 'error');
     }
