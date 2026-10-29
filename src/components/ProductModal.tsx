@@ -1,3 +1,4 @@
+import { DEFAULT_CATEGORY_NAMES } from '../lib/subcategories';
 import React, { useState, useEffect, useRef } from 'react';
 import { Product, Category, Subcategory } from '../types';
 import { PRESET_JEWELLERY_IMAGES } from '../lib/products';
@@ -28,13 +29,7 @@ interface ProductModalProps {
   subcategories?: Subcategory[];
 }
 
-const COMMON_CATEGORIES = [
-  'Hair Accessories',
-  'AD Jewellery',
-  'Bags',
-  'Anti Tarnish Jewellery',
-  'Stationery and Gifts',
-];
+const COMMON_CATEGORIES = DEFAULT_CATEGORY_NAMES;
 
 const PRESET_BADGES = [
   'Bestseller',

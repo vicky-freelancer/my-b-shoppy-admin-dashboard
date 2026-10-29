@@ -1,3 +1,4 @@
+import { DEFAULT_CATEGORY_NAMES } from '../lib/subcategories';
 import React, { useState, useEffect } from 'react';
 import { Order, OrderStatus, Product } from '../types';
 import { X, Plus, User, Phone, MapPin, Package, FileText, Check, ShieldCheck, Tag, DollarSign } from 'lucide-react';
@@ -27,13 +28,7 @@ const COMMON_CITIES = [
   'Chicago',
 ];
 
-const COMMON_CATEGORIES = [
-  'Hair Accessories',
-  'AD Jewellery',
-  'Bags',
-  'Anti Tarnish Jewellery',
-  'Stationery and Gifts',
-];
+const COMMON_CATEGORIES = DEFAULT_CATEGORY_NAMES;
 
 export const NewOrderModal: React.FC<NewOrderModalProps> = ({
   isOpen,

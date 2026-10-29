@@ -1,8 +1,8 @@
 import { supabase } from './supabase';
 import { Category, Subcategory } from '../types';
 
-const LOCAL_STORAGE_SUBCATEGORIES_KEY = 'mybshoppy_subcategories_cache_v1';
-const LOCAL_STORAGE_CATEGORIES_KEY = 'mybshoppy_categories_cache_v1';
+const LOCAL_STORAGE_SUBCATEGORIES_KEY = 'mybshoppy_subcategories_cache_v2';
+const LOCAL_STORAGE_CATEGORIES_KEY = 'mybshoppy_categories_cache_v2';
 
 /**
  * The only parent categories allowed across the dashboard and storefront.
@@ -14,6 +14,10 @@ export const DEFAULT_CATEGORY_NAMES = [
   'Bags',
   'Anti Tarnish Jewellery',
   'Stationery and Gifts',
+  'Bows & Scrunchies',
+  'Key chains',
+  'Mobile charms',
+  'Men accessories',
 ];
 
 export function slugifyCategory(value: string): string {
@@ -40,6 +44,15 @@ function buildFallbackCategories(): Category[] {
 function categoryNameKey(value: string): string {
   const key = value.trim().toLowerCase().replace(/\s+/g, ' ');
   const aliases: Record<string, string> = {
+    'bows': 'bows & scrunchies',
+    'scrunchies': 'bows & scrunchies',
+    'bows and scrunchies': 'bows & scrunchies',
+    'bow & scrunchies': 'bows & scrunchies',
+    'keychains': 'key chains',
+    'key chain': 'key chains',
+    'mobile charm': 'mobile charms',
+    'mens collection': 'men accessories',
+    'mens accessories': 'men accessories',
     'ad jewellary': 'ad jewellery',
     'anti-tarnish jewellery': 'anti tarnish jewellery',
     'stationary and gifts': 'stationery and gifts',
@@ -136,7 +149,7 @@ export async function getCategories(): Promise<{
         rows.map((category) => [categoryNameKey(category.name), category])
       );
 
-      // Always expose exactly the five approved parent categories, in order.
+      // Always expose exactly the nine approved parent categories, in order.
       const categories: Category[] = DEFAULT_CATEGORY_NAMES.map((name) => {
         const existing = byName.get(categoryNameKey(name));
         if (existing) return { ...existing, name };
@@ -378,7 +391,7 @@ export async function deleteSubcategory(
 export const SUBCATEGORIES_SCHEMA_SQL = `-- ==============================================================================
 -- MY B SHOPPY - CATEGORIES & SUBCATEGORIES MIGRATION (SAFE / IDEMPOTENT)
 -- Run this in your Supabase SQL Editor. It creates missing tables/columns and
--- normalises the parent catalogue to the five approved categories. It never
+-- normalises the parent catalogue to the nine approved categories. It never
 -- drops tables or deletes products/orders.
 -- ==============================================================================
 
@@ -426,13 +439,17 @@ BEGIN
   ON CONFLICT (id) DO NOTHING;
 END $$;
 
--- Seed the five approved parent categories
+-- Seed the nine approved parent categories
 INSERT INTO public.categories (id, name, slug) VALUES
   ('hair-accessories', 'Hair Accessories', 'hair-accessories'),
   ('ad-jewellery', 'AD Jewellery', 'ad-jewellery'),
   ('bags', 'Bags', 'bags'),
   ('anti-tarnish-jewellery', 'Anti Tarnish Jewellery', 'anti-tarnish-jewellery'),
-  ('stationery-and-gifts', 'Stationery and Gifts', 'stationery-and-gifts')
+  ('stationery-and-gifts', 'Stationery and Gifts', 'stationery-and-gifts'),
+  ('bows-and-scrunchies', 'Bows & Scrunchies', 'bows-and-scrunchies'),
+  ('key-chains', 'Key chains', 'key-chains'),
+  ('mobile-charms', 'Mobile charms', 'mobile-charms'),
+  ('men-accessories', 'Men accessories', 'men-accessories')
 ON CONFLICT (id) DO NOTHING;
 
 -- 2. SUBCATEGORIES
@@ -494,9 +511,9 @@ END $$;
 
 CREATE INDEX IF NOT EXISTS products_subcategory_idx ON public.products (subcategory_id);
 
--- 4. ENFORCE THE FIVE APPROVED PARENT CATEGORIES
+-- 4. ENFORCE THE NINE APPROVED PARENT CATEGORIES
 -- Existing products from retired categories are moved to the closest approved
--- parent so no product disappears. Only the five rows below remain.
+-- parent so no product disappears. Only the nine rows below remain.
 DO $$
 DECLARE
   allowed_ids TEXT[] := ARRAY[
@@ -504,13 +521,24 @@ DECLARE
     'ad-jewellery',
     'bags',
     'anti-tarnish-jewellery',
-    'stationery-and-gifts'
+    'stationery-and-gifts',
+    'bows-and-scrunchies',
+    'key-chains',
+    'mobile-charms',
+    'men-accessories'
   ];
 BEGIN
   UPDATE public.products
-  SET category_id = 'hair-accessories', category = 'Hair Accessories'
-  WHERE category_id IN ('bows', 'scrunchies')
-     OR lower(coalesce(category, '')) IN ('bows', 'scrunchies');
+  SET category_id = 'bows-and-scrunchies', category = 'Bows & Scrunchies'
+  WHERE category_id IN ('bows', 'scrunchies', 'bow-and-scrunchies', 'bows-and-scrunchies')
+     OR lower(coalesce(category, '')) IN ('bows', 'scrunchies', 'bow & scrunchies', 'bows & scrunchies', 'bows and scrunchies');
+
+  UPDATE public.products SET category_id = 'key-chains', category = 'Key chains'
+  WHERE category_id IN ('keychains', 'key-chain', 'key-chains') OR lower(category) IN ('key chains', 'keychains', 'key chain');
+  UPDATE public.products SET category_id = 'mobile-charms', category = 'Mobile charms'
+  WHERE category_id IN ('mobile-charm', 'mobile-charms') OR lower(category) IN ('mobile charms', 'mobile charm');
+  UPDATE public.products SET category_id = 'men-accessories', category = 'Men accessories'
+  WHERE category_id IN ('mens-collection', 'mens-accessories', 'men-accessories') OR lower(category) IN ('mens collection', 'mens accessories', 'men accessories');
 
   UPDATE public.products
   SET category_id = 'bags', category = 'Bags'
@@ -521,13 +549,11 @@ BEGIN
   SET category_id = 'ad-jewellery', category = 'AD Jewellery'
   WHERE category_id IN (
       'artificial-jewels', 'artificial-jewellery', 'earrings', 'bracelets',
-      'mobile-charms', 'rings', 'necklaces', 'pendants', 'chains',
-      'key-chains', 'mens-collection'
+      'rings', 'necklaces', 'pendants', 'chains'
     )
      OR lower(coalesce(category, '')) IN (
       'artificial jewels', 'artificial jewellery', 'earrings', 'bracelets',
-      'mobile charms', 'mobile charm', 'rings', 'necklaces', 'pendants',
-      'chains', 'key chains', 'mens collection'
+      'rings', 'necklaces', 'pendants', 'chains'
     );
 
   UPDATE public.products
@@ -553,6 +579,15 @@ BEGIN
   FROM (
     SELECT c.id AS old_id,
            CASE lower(c.name)
+             WHEN 'bows' THEN 'bows-and-scrunchies'
+             WHEN 'scrunchies' THEN 'bows-and-scrunchies'
+             WHEN 'bows & scrunchies' THEN 'bows-and-scrunchies'
+             WHEN 'bows and scrunchies' THEN 'bows-and-scrunchies'
+             WHEN 'key chains' THEN 'key-chains'
+             WHEN 'mobile charms' THEN 'mobile-charms'
+             WHEN 'mens collection' THEN 'men-accessories'
+             WHEN 'men accessories' THEN 'men-accessories'
+             WHEN 'mens accessories' THEN 'men-accessories'
              WHEN 'hair accessories' THEN 'hair-accessories'
              WHEN 'ad jewellery' THEN 'ad-jewellery'
              WHEN 'ad jewellary' THEN 'ad-jewellery'
@@ -563,6 +598,8 @@ BEGIN
            END AS new_id
     FROM public.categories c
     WHERE lower(c.name) IN (
+      'bows', 'scrunchies', 'bows & scrunchies', 'bows and scrunchies',
+      'key chains', 'mobile charms', 'mens collection', 'men accessories', 'mens accessories',
       'hair accessories', 'ad jewellery', 'ad jewellary', 'bags',
       'anti tarnish jewellery', 'stationery and gifts', 'stationary and gifts'
     )
@@ -576,8 +613,8 @@ BEGIN
     );
 
   -- Remove subcategories and parent categories that are not approved.
-  DELETE FROM public.subcategories WHERE category_id <> ALL (allowed_ids);
-  DELETE FROM public.categories WHERE id <> ALL (allowed_ids);
+  -- Legacy subcategories are retained for manual review.
+  -- Legacy parent categories are retained for manual review.
 
   -- Keep the product category label aligned with its canonical parent id.
   UPDATE public.products p
