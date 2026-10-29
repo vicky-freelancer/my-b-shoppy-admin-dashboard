@@ -79,8 +79,8 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 mt-1.5 w-52 rounded-xl bg-[#16120d] shadow-2xl border border-[#2d251a] py-1.5 z-50 text-xs font-medium animate-in fade-in zoom-in-95 duration-150">
-          <div className="px-3 py-1 text-[10px] font-semibold text-[#8c7a4f] uppercase tracking-wider">
+        <div className="absolute left-0 mt-1.5 w-52 rounded-xl bg-[#ffffff] shadow-2xl border border-black py-1.5 z-50 text-xs font-medium animate-in fade-in zoom-in-95 duration-150">
+          <div className="px-3 py-1 text-[10px] font-semibold text-[#475569] uppercase tracking-wider">
             Update Order Status
           </div>
           {AVAILABLE_STATUSES.map((item) => {
@@ -95,15 +95,15 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
                   onStatusChange(item.key);
                   setIsOpen(false);
                 }}
-                className={`w-full text-left px-3 py-2 flex items-center justify-between hover:bg-[#241e17] transition-colors ${
-                  isSelected ? 'bg-[#261f14] text-[#e5c158] font-semibold' : 'text-[#e8ded1]'
+                className={`w-full text-left px-3 py-2 flex items-center justify-between hover:bg-[#e2e8f0] transition-colors ${
+                  isSelected ? 'bg-[#fffbeb] text-[#a16207] font-semibold' : 'text-[#1e293b]'
                 }`}
               >
                 <div className="flex items-center gap-2">
                   <span className={`w-2 h-2 rounded-full ${itemCfg.dotColor}`} />
                   <span>{item.label}</span>
                 </div>
-                {isSelected && <Check className="w-3.5 h-3.5 text-[#e5c158]" />}
+                {isSelected && <Check className="w-3.5 h-3.5 text-[#a16207]" />}
               </button>
             );
           })}

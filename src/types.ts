@@ -6,7 +6,36 @@ export type OrderStatus =
   | 'cancelled'
   | 'returned';
 
-export type NavTab = 'dashboard' | 'products' | 'orders' | 'customers' | 'analytics';
+export type NavTab =
+  | 'dashboard'
+  | 'products'
+  | 'subcategories'
+  | 'orders'
+  | 'customers'
+  | 'analytics';
+
+export interface Category {
+  id: string;
+  name: string;
+  slug?: string;
+  image_url?: string;
+  is_active?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface Subcategory {
+  id: string | number;
+  category_id: string;
+  name: string;
+  slug: string;
+  featured_image: string;
+  is_active: boolean;
+  sort_order?: number;
+  created_at?: string;
+  updated_at?: string;
+  category_name?: string;
+}
 
 export interface Product {
   id: string | number;
@@ -25,6 +54,8 @@ export interface Product {
   subtitle?: string;
   original_price?: number;
   category_id?: string;
+  subcategory_id?: string;
+  subcategory?: string;
   badge?: string;
   rating?: number;
   reviews_count?: number;

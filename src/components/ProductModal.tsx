@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Product } from '../types';
+import { Product, Category, Subcategory } from '../types';
 import { PRESET_JEWELLERY_IMAGES } from '../lib/products';
+import { slugifyCategory } from '../lib/subcategories';
 import {
   X,
   Upload,
@@ -23,18 +24,16 @@ interface ProductModalProps {
   editingProduct?: Product | null;
   currencySymbol?: string;
   onOpenSqlSetup?: () => void;
+  categories?: Category[];
+  subcategories?: Subcategory[];
 }
 
 const COMMON_CATEGORIES = [
   'Hair Accessories',
-  'Artificial Jewels',
-  'Bows',
-  'Scrunchies',
-  'Handbags',
-  'Earrings',
-  'Necklaces',
-  'Bracelets',
-  'Rings',
+  'AD Jewellery',
+  'Bags',
+  'Anti Tarnish Jewellery',
+  'Stationery and Gifts',
 ];
 
 const PRESET_BADGES = [
@@ -53,11 +52,14 @@ export const ProductModal: React.FC<ProductModalProps> = ({
   editingProduct,
   currencySymbol = '₹',
   onOpenSqlSetup,
+  categories = [],
+  subcategories = [],
 }) => {
   const [title, setTitle] = useState('');
   const [sku, setSku] = useState('');
   const [category, setCategory] = useState(COMMON_CATEGORIES[0]);
   const [customCategory, setCustomCategory] = useState('');
+  const [subcategoryId, setSubcategoryId] = useState('');
   const [coverImage, setCoverImage] = useState(PRESET_JEWELLERY_IMAGES[0].url);
   const [mrp, setMrp] = useState<number | ''>(400);
   const [salePrice, setSalePrice] = useState<number | ''>(149);
@@ -76,16 +78,38 @@ export const ProductModal: React.FC<ProductModalProps> = ({
 
   // Initialize or reset form when modal opens or editingProduct changes
   useEffect(() => {
+    const categoryNames = categories.length > 0 ? categories.map((c) => c.name) : COMMON_CATEGORIES;
     if (editingProduct) {
       setTitle(editingProduct.title || '');
       setSku(editingProduct.sku || '');
-      if (COMMON_CATEGORIES.includes(editingProduct.category)) {
+      if (categoryNames.includes(editingProduct.category)) {
         setCategory(editingProduct.category);
         setCustomCategory('');
       } else {
         setCategory('OTHER');
         setCustomCategory(editingProduct.category || '');
       }
+      const categoryId =
+        categories.find(
+          (categoryItem) =>
+            categoryItem.name.trim().toLowerCase() ===
+            (editingProduct.category || '').trim().toLowerCase()
+        )?.id || slugifyCategory(editingProduct.category || '');
+      const matchedSubcategory = subcategories.find(
+        (subcategory) =>
+          (editingProduct.subcategory_id &&
+            String(subcategory.id) === String(editingProduct.subcategory_id)) ||
+          (editingProduct.subcategory &&
+            subcategory.category_id === categoryId &&
+            subcategory.name.toLowerCase() === editingProduct.subcategory.toLowerCase())
+      );
+      setSubcategoryId(
+        matchedSubcategory
+          ? String(matchedSubcategory.id)
+          : editingProduct.subcategory_id
+          ? String(editingProduct.subcategory_id)
+          : ''
+      );
       setCoverImage(editingProduct.cover_image || PRESET_JEWELLERY_IMAGES[0].url);
       setMrp(editingProduct.mrp ?? 0);
       setSalePrice(editingProduct.sale_price ?? 0);
@@ -97,8 +121,9 @@ export const ProductModal: React.FC<ProductModalProps> = ({
       // Default empty new product values for manual entry
       setTitle('');
       setSku(`LK-${Math.random().toString(36).substring(2, 5).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`);
-      setCategory(COMMON_CATEGORIES[0]);
+      setCategory(categoryNames[0]);
       setCustomCategory('');
+      setSubcategoryId('');
       setCoverImage('');
       setMrp('');
       setSalePrice('');
@@ -111,6 +136,18 @@ export const ProductModal: React.FC<ProductModalProps> = ({
   }, [editingProduct, isOpen]);
 
   if (!isOpen) return null;
+
+  const categoryOptions =
+    categories.length > 0 ? categories.map((categoryItem) => categoryItem.name) : COMMON_CATEGORIES;
+  const selectedCategoryName = category === 'OTHER' ? customCategory.trim() : category;
+  const selectedCategoryId =
+    categories.find(
+      (categoryItem) =>
+        categoryItem.name.trim().toLowerCase() === selectedCategoryName.trim().toLowerCase()
+    )?.id || slugifyCategory(selectedCategoryName);
+  const availableSubcategories = subcategories.filter(
+    (subcategory) => subcategory.category_id === selectedCategoryId
+  );
 
   // Auto generate SKU based on title and category
   const generateSku = () => {
@@ -198,15 +235,22 @@ export const ProductModal: React.FC<ProductModalProps> = ({
 
     setIsSubmitting(true);
     try {
+      const selectedSubcategory = availableSubcategories.find(
+        (subcategory) => String(subcategory.id) === String(subcategoryId)
+      );
       await onSubmit({
         title: title.trim(),
         sku: sku.trim().toUpperCase(),
         category: finalCategory,
+        category_id: selectedCategoryId || undefined,
+        subcategory_id: selectedSubcategory ? String(selectedSubcategory.id) : undefined,
+        subcategory: selectedSubcategory ? selectedSubcategory.name : undefined,
         cover_image: coverImage || PRESET_JEWELLERY_IMAGES[0].url,
         mrp: Number(mrp) || Number(salePrice),
         sale_price: Number(salePrice),
         quantity: Number(quantity),
         badges: badges,
+        badge: badges && badges.length > 0 ? badges[0] : undefined,
         description: description.trim(),
         material: material.trim(),
       });
@@ -221,29 +265,29 @@ export const ProductModal: React.FC<ProductModalProps> = ({
   return (
     <div
       id="product-modal-backdrop"
-      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+      className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
         id="product-modal-content"
-        className="bg-[#12100e] border border-[#2d251a] w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden text-[#d8cca8] my-auto animate-in fade-in zoom-in-95 duration-150"
+        className="bg-[#f8fafc] border border-black w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden text-[#334155] my-auto animate-in fade-in zoom-in-95 duration-150"
       >
         {/* Modal Header */}
-        <div className="px-6 py-4 border-b border-[#241e17] flex items-center justify-between bg-[#16120d]">
+        <div className="px-6 py-4 border-b border-black flex items-center justify-between bg-[#ffffff]">
           <div>
-            <h2 className="text-base font-serif font-bold text-[#e5c158] uppercase tracking-wide">
+            <h2 className="text-base font-serif font-bold text-[#a16207] uppercase tracking-wide">
               {editingProduct ? 'Edit Product' : 'Add New Product'}
             </h2>
-            <p className="text-xs text-[#8c7a4f] mt-0.5">
+            <p className="text-xs text-[#475569] mt-0.5">
               {editingProduct ? `Updating inventory item #${editingProduct.sku}` : 'Fill in the details to publish a new jewellery piece.'}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg text-[#8c7a4f] hover:text-[#e5c158] hover:bg-[#201a14] transition-colors"
+            className="p-1.5 rounded-lg text-[#475569] hover:text-[#a16207] hover:bg-[#e2e8f0] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -252,21 +296,21 @@ export const ProductModal: React.FC<ProductModalProps> = ({
         {/* Modal Body / Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-5 max-h-[80vh] overflow-y-auto text-xs">
           {formError && (
-            <div className="p-3.5 rounded-xl bg-[#241414] border border-rose-800/60 text-rose-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="p-3.5 rounded-xl bg-[#fef2f2] border border-rose-200 text-rose-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-start gap-2.5 min-w-0">
-                <AlertCircle className="w-4 h-4 shrink-0 text-rose-400 mt-0.5" />
+                <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 mt-0.5" />
                 <div className="min-w-0">
-                  <p className="font-semibold text-rose-200">Database Storage Notice</p>
-                  <p className="text-[11px] text-rose-300/90 break-words mt-0.5">{formError}</p>
+                  <p className="font-semibold text-rose-800">Database Storage Notice</p>
+                  <p className="text-[11px] text-rose-700/90 break-words mt-0.5">{formError}</p>
                 </div>
               </div>
               {onOpenSqlSetup && (
                 <button
                   type="button"
                   onClick={onOpenSqlSetup}
-                  className="px-3 py-1.5 rounded-lg bg-[#2e1d1d] hover:bg-[#3d2424] text-[#e5c158] border border-[#523030] font-medium text-[11px] flex items-center gap-1.5 shrink-0 self-start sm:self-center transition-colors"
+                  className="px-3 py-1.5 rounded-lg bg-[#fef2f2] hover:bg-[#fee2e2] text-[#a16207] border border-[#fecaca] font-medium text-[11px] flex items-center gap-1.5 shrink-0 self-start sm:self-center transition-colors"
                 >
-                  <Database className="w-3.5 h-3.5 text-[#e5c158]" />
+                  <Database className="w-3.5 h-3.5 text-[#a16207]" />
                   <span>Fix Supabase Table</span>
                 </button>
               )}
@@ -275,13 +319,13 @@ export const ProductModal: React.FC<ProductModalProps> = ({
 
           {/* 1. Cover Image Upload & Selection */}
           <div className="space-y-2">
-            <label className="block text-xs font-semibold text-[#e5c158] uppercase tracking-wider">
-              Product Cover Image <span className="text-rose-400">*</span>
+            <label className="block text-xs font-semibold text-[#a16207] uppercase tracking-wider">
+              Product Cover Image <span className="text-rose-600">*</span>
             </label>
 
             <div className="flex flex-col sm:flex-row gap-4 items-start">
               {/* Image Preview Box */}
-              <div className="relative w-28 h-28 rounded-xl overflow-hidden border-2 border-[#3d3220] bg-[#1a1611] shrink-0 group shadow-inner">
+              <div className="relative w-28 h-28 rounded-xl overflow-hidden border-2 border-black bg-[#f1f5f9] shrink-0 group shadow-inner">
                 {coverImage ? (
                   <img
                     src={coverImage}
@@ -292,7 +336,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                     }}
                   />
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center text-[#736342]">
+                  <div className="w-full h-full flex flex-col items-center justify-center text-[#64748b]">
                     <ImageIcon className="w-6 h-6 mb-1" />
                     <span className="text-[10px]">No image</span>
                   </div>
@@ -301,7 +345,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="text-[10px] text-[#e5c158] font-bold underline"
+                    className="text-[10px] text-[#a16207] font-bold underline"
                   >
                     Change
                   </button>
@@ -310,14 +354,14 @@ export const ProductModal: React.FC<ProductModalProps> = ({
 
               {/* Upload Tabs */}
               <div className="flex-1 w-full space-y-2">
-                <div className="flex gap-2 border-b border-[#241e17] pb-1.5">
+                <div className="flex gap-2 border-b border-black pb-1.5">
                   <button
                     type="button"
                     onClick={() => setImageTab('upload')}
                     className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
                       imageTab === 'upload'
-                        ? 'bg-[#241e15] text-[#e5c158] border border-[#d4af37]/40'
-                        : 'text-[#8c7a4f] hover:text-[#d8cca8]'
+                        ? 'bg-[#fffbeb] text-[#a16207] border border-[#d97706]/40'
+                        : 'text-[#475569] hover:text-[#334155]'
                     }`}
                   >
                     Upload File
@@ -327,8 +371,8 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                     onClick={() => setImageTab('presets')}
                     className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
                       imageTab === 'presets'
-                        ? 'bg-[#241e15] text-[#e5c158] border border-[#d4af37]/40'
-                        : 'text-[#8c7a4f] hover:text-[#d8cca8]'
+                        ? 'bg-[#fffbeb] text-[#a16207] border border-[#d97706]/40'
+                        : 'text-[#475569] hover:text-[#334155]'
                     }`}
                   >
                     Sample Gallery
@@ -338,8 +382,8 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                     onClick={() => setImageTab('url')}
                     className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
                       imageTab === 'url'
-                        ? 'bg-[#241e15] text-[#e5c158] border border-[#d4af37]/40'
-                        : 'text-[#8c7a4f] hover:text-[#d8cca8]'
+                        ? 'bg-[#fffbeb] text-[#a16207] border border-[#d97706]/40'
+                        : 'text-[#475569] hover:text-[#334155]'
                     }`}
                   >
                     Image URL
@@ -357,8 +401,8 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                     onClick={() => fileInputRef.current?.click()}
                     className={`border-2 border-dashed rounded-xl p-3 text-center cursor-pointer transition-all ${
                       isDragging
-                        ? 'border-[#e5c158] bg-[#241e15]'
-                        : 'border-[#2d251a] hover:border-[#8c7a4f] bg-[#16120d]'
+                        ? 'border-[#a16207] bg-[#fffbeb]'
+                        : 'border-black hover:border-[#475569] bg-[#ffffff]'
                     }`}
                   >
                     <input
@@ -372,11 +416,11 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                         }
                       }}
                     />
-                    <Upload className="w-5 h-5 mx-auto text-[#8c7a4f] mb-1" />
-                    <p className="text-xs text-[#d8cca8] font-medium">
+                    <Upload className="w-5 h-5 mx-auto text-[#475569] mb-1" />
+                    <p className="text-xs text-[#334155] font-medium">
                       Click to upload or drag & drop cover image
                     </p>
-                    <p className="text-[10px] text-[#736342] mt-0.5">
+                    <p className="text-[10px] text-[#64748b] mt-0.5">
                       PNG, JPG, WEBP up to 5MB
                     </p>
                   </div>
@@ -391,8 +435,8 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                         onClick={() => setCoverImage(preset.url)}
                         className={`relative rounded-lg overflow-hidden border h-14 group transition-all ${
                           coverImage === preset.url
-                            ? 'border-[#e5c158] ring-2 ring-[#e5c158]/50'
-                            : 'border-[#2d251a] hover:border-[#8c7a4f]'
+                            ? 'border-[#a16207] ring-2 ring-[#a16207]/50'
+                            : 'border-black hover:border-[#475569]'
                         }`}
                         title={preset.name}
                       >
@@ -416,7 +460,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                       value={coverImage}
                       onChange={(e) => setCoverImage(e.target.value)}
                       placeholder="https://example.com/image.jpg"
-                      className="w-full px-3 py-2 rounded-xl bg-[#16120d] border border-[#2d251a] text-[#f3e7c4] placeholder:text-[#736342] focus:outline-none focus:border-[#d4af37]"
+                      className="w-full px-3 py-2 rounded-xl bg-[#ffffff] border border-black text-[#0f172a] placeholder:text-[#64748b] focus:outline-none focus:border-[#d97706]"
                     />
                   </div>
                 )}
@@ -427,8 +471,8 @@ export const ProductModal: React.FC<ProductModalProps> = ({
           {/* 2. Title & SKU */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="sm:col-span-2">
-              <label className="block text-xs font-semibold text-[#e5c158] uppercase tracking-wider mb-1">
-                Product Title <span className="text-rose-400">*</span>
+              <label className="block text-xs font-semibold text-[#a16207] uppercase tracking-wider mb-1">
+                Product Title <span className="text-rose-600">*</span>
               </label>
               <input
                 type="text"
@@ -436,19 +480,19 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. Pearl Petal Bloom Earrings"
-                className="w-full px-3 py-2 rounded-xl bg-[#16120d] border border-[#2d251a] text-[#f3e7c4] placeholder:text-[#736342] focus:outline-none focus:border-[#d4af37]"
+                className="w-full px-3 py-2 rounded-xl bg-[#ffffff] border border-black text-[#0f172a] placeholder:text-[#64748b] focus:outline-none focus:border-[#d97706]"
               />
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="block text-xs font-semibold text-[#e5c158] uppercase tracking-wider">
-                  SKU <span className="text-rose-400">*</span>
+                <label className="block text-xs font-semibold text-[#a16207] uppercase tracking-wider">
+                  SKU <span className="text-rose-600">*</span>
                 </label>
                 <button
                   type="button"
                   onClick={generateSku}
-                  className="text-[10px] text-[#e5c158] hover:underline flex items-center gap-0.5"
+                  className="text-[10px] text-[#a16207] hover:underline flex items-center gap-0.5"
                 >
                   <Sparkles className="w-2.5 h-2.5" /> Auto
                 </button>
@@ -459,7 +503,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                 value={sku}
                 onChange={(e) => setSku(e.target.value.toUpperCase())}
                 placeholder="e.g. LK-EAR-001"
-                className="w-full px-3 py-2 rounded-xl bg-[#16120d] border border-[#2d251a] text-[#f3e7c4] font-mono placeholder:text-[#736342] focus:outline-none focus:border-[#d4af37]"
+                className="w-full px-3 py-2 rounded-xl bg-[#ffffff] border border-black text-[#0f172a] font-mono placeholder:text-[#64748b] focus:outline-none focus:border-[#d97706]"
               />
             </div>
           </div>
@@ -467,15 +511,18 @@ export const ProductModal: React.FC<ProductModalProps> = ({
           {/* 3. Category & Badges */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#e5c158] uppercase tracking-wider mb-1">
-                Category <span className="text-rose-400">*</span>
+              <label className="block text-xs font-semibold text-[#a16207] uppercase tracking-wider mb-1">
+                Category <span className="text-rose-600">*</span>
               </label>
               <select
                 value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-[#16120d] border border-[#2d251a] text-[#f3e7c4] focus:outline-none focus:border-[#d4af37] mb-2"
+                onChange={(e) => {
+                  setCategory(e.target.value);
+                  setSubcategoryId('');
+                }}
+                className="w-full px-3 py-2 rounded-xl bg-[#ffffff] border border-black text-[#0f172a] focus:outline-none focus:border-[#d97706] mb-2"
               >
-                {COMMON_CATEGORIES.map((cat) => (
+                {categoryOptions.map((cat) => (
                   <option key={cat} value={cat}>
                     {cat}
                   </option>
@@ -488,15 +535,39 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                   type="text"
                   required
                   value={customCategory}
-                  onChange={(e) => setCustomCategory(e.target.value)}
+                  onChange={(e) => {
+                    setCustomCategory(e.target.value);
+                    setSubcategoryId('');
+                  }}
                   placeholder="Enter custom category (e.g. Luxury Brooches)"
-                  className="w-full px-3 py-2 rounded-xl bg-[#16120d] border border-[#2d251a] text-[#f3e7c4] placeholder:text-[#736342] focus:outline-none focus:border-[#d4af37]"
+                  className="w-full px-3 py-2 rounded-xl bg-[#ffffff] border border-black text-[#0f172a] placeholder:text-[#64748b] focus:outline-none focus:border-[#d97706]"
                 />
               )}
+
+              <label className="block text-xs font-semibold text-[#a16207] uppercase tracking-wider mt-3 mb-1">
+                Subcategory <span className="text-[#64748b] font-normal normal-case">(optional)</span>
+              </label>
+              <select
+                value={subcategoryId}
+                onChange={(e) => setSubcategoryId(e.target.value)}
+                disabled={availableSubcategories.length === 0}
+                className="w-full px-3 py-2 rounded-xl bg-[#ffffff] border border-black text-[#0f172a] focus:outline-none focus:border-[#d97706] disabled:opacity-60"
+              >
+                <option value="">
+                  {availableSubcategories.length > 0
+                    ? 'No subcategory (show under parent only)'
+                    : 'No subcategories for this category'}
+                </option>
+                {availableSubcategories.map((subcategory) => (
+                  <option key={subcategory.id} value={String(subcategory.id)}>
+                    {subcategory.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#e5c158] uppercase tracking-wider mb-1">
+              <label className="block text-xs font-semibold text-[#a16207] uppercase tracking-wider mb-1">
                 Material / Finish
               </label>
               <input
@@ -504,17 +575,17 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                 value={material}
                 onChange={(e) => setMaterial(e.target.value)}
                 placeholder="e.g. 18K Gold Plated Brass, Zircon"
-                className="w-full px-3 py-2 rounded-xl bg-[#16120d] border border-[#2d251a] text-[#f3e7c4] placeholder:text-[#736342] focus:outline-none focus:border-[#d4af37]"
+                className="w-full px-3 py-2 rounded-xl bg-[#ffffff] border border-black text-[#0f172a] placeholder:text-[#64748b] focus:outline-none focus:border-[#d97706]"
               />
             </div>
           </div>
 
           {/* 4. Pricing & Inventory */}
-          <div className="p-4 rounded-xl bg-[#16120d] border border-[#241e17] space-y-3">
-            <h3 className="text-xs font-semibold text-[#e5c158] uppercase tracking-wider flex items-center justify-between">
+          <div className="p-4 rounded-xl bg-[#ffffff] border border-black space-y-3">
+            <h3 className="text-xs font-semibold text-[#a16207] uppercase tracking-wider flex items-center justify-between">
               <span>Pricing & Stock Inventory</span>
               {discountPercent > 0 && (
-                <span className="px-2 py-0.5 rounded-full bg-[#3d2e14] text-[#e5c158] border border-[#d4af37]/40 text-[10px] font-bold">
+                <span className="px-2 py-0.5 rounded-full bg-[#fffbeb] text-[#a16207] border border-[#d97706]/40 text-[10px] font-bold">
                   {discountPercent}% DISCOUNT
                 </span>
               )}
@@ -522,11 +593,11 @@ export const ProductModal: React.FC<ProductModalProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="block text-[#a39882] mb-1 font-medium">
+                <label className="block text-[#475569] mb-1 font-medium">
                   MRP (Original Price)
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8c7a4f] font-bold">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#475569] font-bold">
                     {currencySymbol}
                   </span>
                   <input
@@ -536,17 +607,17 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                     value={mrp}
                     onChange={(e) => setMrp(e.target.value === '' ? '' : Number(e.target.value))}
                     placeholder="400"
-                    className="w-full pl-8 pr-3 py-2 rounded-xl bg-[#1c1813] border border-[#2d251a] text-[#f3e7c4] focus:outline-none focus:border-[#d4af37]"
+                    className="w-full pl-8 pr-3 py-2 rounded-xl bg-[#f8fafc] border border-black text-[#0f172a] focus:outline-none focus:border-[#d97706]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[#e5c158] mb-1 font-semibold">
-                  Sale Price <span className="text-rose-400">*</span>
+                <label className="block text-[#a16207] mb-1 font-semibold">
+                  Sale Price <span className="text-rose-600">*</span>
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#e5c158] font-bold">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#a16207] font-bold">
                     {currencySymbol}
                   </span>
                   <input
@@ -557,14 +628,14 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                     value={salePrice}
                     onChange={(e) => setSalePrice(e.target.value === '' ? '' : Number(e.target.value))}
                     placeholder="149"
-                    className="w-full pl-8 pr-3 py-2 rounded-xl bg-[#1c1813] border border-[#d4af37]/60 text-[#e5c158] font-bold focus:outline-none focus:ring-1 focus:ring-[#d4af37]"
+                    className="w-full pl-8 pr-3 py-2 rounded-xl bg-[#f8fafc] border border-[#d97706]/60 text-[#a16207] font-bold focus:outline-none focus:ring-1 focus:ring-[#d97706]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[#a39882] mb-1 font-medium">
-                  Stock Quantity <span className="text-rose-400">*</span>
+                <label className="block text-[#475569] mb-1 font-medium">
+                  Stock Quantity <span className="text-rose-600">*</span>
                 </label>
                 <input
                   type="number"
@@ -574,7 +645,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value === '' ? '' : Number(e.target.value))}
                   placeholder="20"
-                  className="w-full px-3 py-2 rounded-xl bg-[#1c1813] border border-[#2d251a] text-[#f3e7c4] font-medium focus:outline-none focus:border-[#d4af37]"
+                  className="w-full px-3 py-2 rounded-xl bg-[#f8fafc] border border-black text-[#0f172a] font-medium focus:outline-none focus:border-[#d97706]"
                 />
               </div>
             </div>
@@ -582,7 +653,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
 
           {/* 5. Product Badges Selector */}
           <div>
-            <label className="block text-xs font-semibold text-[#e5c158] uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-semibold text-[#a16207] uppercase tracking-wider mb-1.5">
               Badges / Promotion Tags
             </label>
             <div className="flex flex-wrap items-center gap-2 mb-2">
@@ -596,9 +667,9 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                     className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all ${
                       isSelected
                         ? b === 'Bestseller'
-                          ? 'bg-[#7c5310] text-[#ffdf88] border border-[#d4af37]'
-                          : 'bg-[#4c2d77] text-[#d6bbfb] border border-[#8b5cf6]'
-                        : 'bg-[#18140f] text-[#8c7a4f] border border-[#2d251a] hover:border-[#8c7a4f]'
+                          ? 'bg-[#fef3c7] text-[#92400e] border border-[#d97706]'
+                          : 'bg-[#ddd6fe] text-[#6d28d9] border border-[#7c3aed]'
+                        : 'bg-[#ffffff] text-[#475569] border border-black hover:border-[#475569]'
                     }`}
                   >
                     {isSelected && <Check className="w-3 h-3" />}
@@ -621,12 +692,12 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                   }
                 }}
                 placeholder="Add custom badge (e.g. Handmade)"
-                className="flex-1 px-3 py-1.5 rounded-lg bg-[#16120d] border border-[#2d251a] text-[#f3e7c4] placeholder:text-[#736342] focus:outline-none focus:border-[#d4af37]"
+                className="flex-1 px-3 py-1.5 rounded-lg bg-[#ffffff] border border-black text-[#0f172a] placeholder:text-[#64748b] focus:outline-none focus:border-[#d97706]"
               />
               <button
                 type="button"
                 onClick={addCustomBadge}
-                className="px-3 py-1.5 rounded-lg bg-[#241e15] border border-[#3b3223] text-[#e5c158] font-medium hover:bg-[#30281b]"
+                className="px-3 py-1.5 rounded-lg bg-[#fffbeb] border border-black text-[#a16207] font-medium hover:bg-[#e2e8f0]"
               >
                 <Plus className="w-3.5 h-3.5" />
               </button>
@@ -635,7 +706,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
 
           {/* 6. Description */}
           <div>
-            <label className="block text-xs font-semibold text-[#e5c158] uppercase tracking-wider mb-1">
+            <label className="block text-xs font-semibold text-[#a16207] uppercase tracking-wider mb-1">
               Description & Specifications
             </label>
             <textarea
@@ -643,17 +714,17 @@ export const ProductModal: React.FC<ProductModalProps> = ({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Exquisite handcrafted jewellery piece designed for timeless elegance..."
-              className="w-full px-3 py-2 rounded-xl bg-[#16120d] border border-[#2d251a] text-[#f3e7c4] placeholder:text-[#736342] focus:outline-none focus:border-[#d4af37] resize-none"
+              className="w-full px-3 py-2 rounded-xl bg-[#ffffff] border border-black text-[#0f172a] placeholder:text-[#64748b] focus:outline-none focus:border-[#d97706] resize-none"
             />
           </div>
 
           {/* Modal Footer */}
-          <div className="pt-4 border-t border-[#241e17] flex items-center justify-end gap-3">
+          <div className="pt-4 border-t border-black flex items-center justify-end gap-3">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2 rounded-xl bg-[#1c1813] border border-[#2d251a] text-[#a39882] hover:text-[#f3e7c4] hover:bg-[#252019] transition-colors"
+              className="px-4 py-2 rounded-xl bg-[#f8fafc] border border-black text-[#475569] hover:text-[#0f172a] hover:bg-[#f1f5f9] transition-colors"
             >
               Cancel
             </button>
@@ -661,9 +732,9 @@ export const ProductModal: React.FC<ProductModalProps> = ({
               type="submit"
               id="submit-product-btn"
               disabled={isSubmitting}
-              className="px-6 py-2 rounded-xl bg-[#e5c158] hover:bg-[#f0cf6a] text-[#0c0a09] font-bold shadow-lg shadow-[#d4af37]/20 flex items-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50"
+              className="px-6 py-2 rounded-xl bg-[#a16207] hover:bg-[#854d0e] text-[#ffffff] font-bold shadow-lg shadow-[#d97706]/20 flex items-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50"
             >
-              <Sparkles className="w-4 h-4 text-[#0c0a09]" />
+              <Sparkles className="w-4 h-4 text-[#ffffff]" />
               <span>{isSubmitting ? 'Saving...' : editingProduct ? 'Update Product' : 'Add Product'}</span>
             </button>
           </div>

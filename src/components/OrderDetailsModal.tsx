@@ -151,18 +151,18 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
 
   if (showPrintView) {
     return (
-      <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
-        <div className="bg-[#120f0b] rounded-2xl max-w-xl w-full p-8 shadow-2xl relative text-[#f3e7c4] border border-[#2d251a]">
-          <div className="flex justify-between items-start border-b border-[#241e17] pb-4 mb-6">
+      <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="bg-[#f8fafc] rounded-2xl max-w-xl w-full p-8 shadow-2xl relative text-[#0f172a] border border-black">
+          <div className="flex justify-between items-start border-b border-black pb-4 mb-6">
             <div>
-              <h2 className="text-xl font-bold font-serif text-[#f3e7c4]">{appName}</h2>
-              <p className="text-xs text-[#8c7a4f] font-mono">COD PACKING SLIP & RECEIPT</p>
+              <h2 className="text-xl font-bold font-serif text-[#0f172a]">{appName}</h2>
+              <p className="text-xs text-[#475569] font-mono">COD PACKING SLIP & RECEIPT</p>
             </div>
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => window.print()}
-                className="px-3.5 py-1.5 bg-[#e5c158] text-[#0c0a09] font-bold rounded-lg text-xs flex items-center gap-1.5 hover:bg-[#f3cf65] transition-colors shadow-sm"
+                className="px-3.5 py-1.5 bg-[#a16207] text-[#ffffff] font-bold rounded-lg text-xs flex items-center gap-1.5 hover:bg-[#854d0e] transition-colors shadow-sm"
               >
                 <Printer className="w-3.5 h-3.5" />
                 Print
@@ -170,31 +170,31 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
               <button
                 type="button"
                 onClick={() => setShowPrintView(false)}
-                className="p-1.5 text-[#8c7a4f] hover:text-[#f3e7c4] rounded-lg hover:bg-[#18140f] transition-colors"
+                className="p-1.5 text-[#475569] hover:text-[#0f172a] rounded-lg hover:bg-[#f1f5f9] transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 text-xs mb-6 pb-4 border-b border-[#241e17]">
+          <div className="grid grid-cols-2 gap-4 text-xs mb-6 pb-4 border-b border-black">
             <div>
-              <p className="text-[#8c7a4f] font-medium mb-1 uppercase tracking-wider text-[10px]">Customer / Ship To:</p>
-              <p className="font-bold text-[#f3e7c4] text-sm">{order.customer_name}</p>
-              <p className="text-[#c4b595]">{order.address}</p>
-              <p className="text-[#c4b595] font-medium">{order.city}</p>
-              <p className="text-[#c4b595] mt-1">Tel: {order.phone}</p>
-              {order.email && <p className="text-[#8c7a4f]">{order.email}</p>}
+              <p className="text-[#475569] font-medium mb-1 uppercase tracking-wider text-[10px]">Customer / Ship To:</p>
+              <p className="font-bold text-[#0f172a] text-sm">{order.customer_name}</p>
+              <p className="text-[#334155]">{order.address}</p>
+              <p className="text-[#334155] font-medium">{order.city}</p>
+              <p className="text-[#334155] mt-1">Tel: {order.phone}</p>
+              {order.email && <p className="text-[#475569]">{order.email}</p>}
             </div>
             <div className="text-right">
-              <p className="text-[#8c7a4f] font-medium mb-1 uppercase tracking-wider text-[10px]">Order Details:</p>
-              <p className="font-mono font-bold text-[#f3e7c4]">#{order.id}</p>
-              <p className="text-[#8c7a4f]">{formatDate(order.created_at)}</p>
-              <p className="text-xs font-semibold text-[#e5c158] bg-[#241e17] inline-block px-2 py-0.5 rounded mt-1 border border-[#e5c158]/30">
+              <p className="text-[#475569] font-medium mb-1 uppercase tracking-wider text-[10px]">Order Details:</p>
+              <p className="font-mono font-bold text-[#0f172a]">#{order.id}</p>
+              <p className="text-[#475569]">{formatDate(order.created_at)}</p>
+              <p className="text-xs font-semibold text-[#a16207] bg-[#e2e8f0] inline-block px-2 py-0.5 rounded mt-1 border border-[#a16207]/30">
                 PAYMENT: CASH ON DELIVERY
               </p>
               {order.tracking_number && (
-                <p className="text-[#8c7a4f] font-mono mt-1 text-[11px]">AWB: {order.tracking_number}</p>
+                <p className="text-[#475569] font-mono mt-1 text-[11px]">AWB: {order.tracking_number}</p>
               )}
             </div>
           </div>
@@ -203,39 +203,39 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
           <div className="mb-6">
             <table className="w-full text-xs">
               <thead>
-                <tr className="border-b border-[#241e17] text-[#8c7a4f] text-left">
+                <tr className="border-b border-black text-[#475569] text-left">
                   <th className="py-2">Item / Variant</th>
                   <th className="py-2">Category</th>
                   <th className="py-2 text-center">Qty</th>
                   <th className="py-2 text-right">COD Total</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#1f1a14]">
+              <tbody className="divide-y divide-slate-200">
                 <tr>
-                  <td className="py-3 font-medium text-[#f3e7c4]">{order.product_variant}</td>
-                  <td className="py-3 text-[#c4b595]">{order.category || 'General'}</td>
-                  <td className="py-3 text-center text-[#c4b595]">{order.quantity}</td>
-                  <td className="py-3 text-right font-bold text-[#e5c158]">{formatCurrency(orderAmount, currencySymbol)}</td>
+                  <td className="py-3 font-medium text-[#0f172a]">{order.product_variant}</td>
+                  <td className="py-3 text-[#334155]">{order.category || 'General'}</td>
+                  <td className="py-3 text-center text-[#334155]">{order.quantity}</td>
+                  <td className="py-3 text-right font-bold text-[#a16207]">{formatCurrency(orderAmount, currencySymbol)}</td>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          <div className="bg-[#18140f] p-4 rounded-xl border border-[#262018] flex justify-between items-center mb-6">
+          <div className="bg-[#ffffff] p-4 rounded-xl border border-black flex justify-between items-center mb-6">
             <div>
-              <p className="text-xs text-[#c4b595] font-medium">TOTAL CASH TO COLLECT FROM CUSTOMER</p>
-              <p className="text-[11px] text-[#8c7a4f]">Courier must collect exact amount upon delivery</p>
+              <p className="text-xs text-[#334155] font-medium">TOTAL CASH TO COLLECT FROM CUSTOMER</p>
+              <p className="text-[11px] text-[#475569]">Courier must collect exact amount upon delivery</p>
             </div>
-            <span className="text-xl font-bold text-[#e5c158]">{formatCurrency(orderAmount, currencySymbol)}</span>
+            <span className="text-xl font-bold text-[#a16207]">{formatCurrency(orderAmount, currencySymbol)}</span>
           </div>
 
           {order.notes && (
-            <div className="text-xs text-[#c4b595] bg-[#1a1510] p-3 rounded-lg border border-[#2d251a] mb-6">
-              <span className="font-semibold text-[#e5c158]">Delivery Instructions:</span> {order.notes}
+            <div className="text-xs text-[#334155] bg-[#ffffff] p-3 rounded-lg border border-black mb-6">
+              <span className="font-semibold text-[#a16207]">Delivery Instructions:</span> {order.notes}
             </div>
           )}
 
-          <div className="text-[11px] text-[#8c7a4f] text-center">
+          <div className="text-[11px] text-[#475569] text-center">
             Thank you for shopping with us! Customer support: {supportPhone}
           </div>
         </div>
@@ -244,24 +244,24 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150">
       <div
         id="order-details-modal"
-        className="bg-[#120f0b] w-full max-w-2xl rounded-2xl shadow-2xl border border-[#2d251a] overflow-hidden flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-150 text-[#e8ded1]"
+        className="bg-[#f8fafc] w-full max-w-2xl rounded-2xl shadow-2xl border border-black overflow-hidden flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-150 text-[#1e293b]"
       >
         {/* Header */}
-        <div className="px-6 py-4 border-b border-[#1f1a14] flex items-center justify-between bg-[#0e0c0a]">
+        <div className="px-6 py-4 border-b border-black flex items-center justify-between bg-[#f8fafc]">
           <div className="flex items-center gap-3">
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono font-bold text-[#e5c158]">#{order.id}</span>
+                <span className="text-xs font-mono font-bold text-[#a16207]">#{order.id}</span>
                 <StatusBadge
                   status={order.status}
                   interactive
                   onStatusChange={(newStatus) => onUpdateStatus(order.id, newStatus)}
                 />
               </div>
-              <p className="text-xs text-[#8c7a4f] mt-0.5">
+              <p className="text-xs text-[#475569] mt-0.5">
                 Placed on {formatDate(order.created_at)}
               </p>
             </div>
@@ -272,15 +272,15 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
               type="button"
               id="print-packing-slip-btn"
               onClick={() => setShowPrintView(true)}
-              className="px-3 py-1.5 rounded-lg border border-[#2d251a] text-xs font-medium text-[#d8cca8] hover:bg-[#18140f] flex items-center gap-1.5 transition-colors"
+              className="px-3 py-1.5 rounded-lg border border-black text-xs font-medium text-[#334155] hover:bg-[#f1f5f9] flex items-center gap-1.5 transition-colors"
             >
-              <Printer className="w-3.5 h-3.5 text-[#e5c158]" />
+              <Printer className="w-3.5 h-3.5 text-[#a16207]" />
               Packing Slip
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 text-[#8c7a4f] hover:text-[#f3e7c4] rounded-lg hover:bg-[#18140f] transition-colors"
+              className="p-1.5 text-[#475569] hover:text-[#0f172a] rounded-lg hover:bg-[#f1f5f9] transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -295,34 +295,34 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 min-w-[140px] px-3.5 py-2.5 rounded-lg bg-emerald-950/40 text-emerald-300 border border-emerald-800/50 hover:bg-emerald-950/60 font-medium text-xs flex items-center justify-center gap-2 transition-all"
+              className="flex-1 min-w-[140px] px-3.5 py-2.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 font-medium text-xs flex items-center justify-center gap-2 transition-all"
             >
-              <MessageSquare className="w-4 h-4 text-emerald-400 shrink-0" />
+              <MessageSquare className="w-4 h-4 text-emerald-700 shrink-0" />
               <span>WhatsApp Customer</span>
             </a>
 
             <a
               href={`tel:${order.phone}`}
-              className="flex-1 min-w-[120px] px-3.5 py-2.5 rounded-lg bg-[#18140f] text-[#f3e7c4] border border-[#2d251a] hover:bg-[#241e17] font-medium text-xs flex items-center justify-center gap-2 transition-all"
+              className="flex-1 min-w-[120px] px-3.5 py-2.5 rounded-lg bg-[#ffffff] text-[#0f172a] border border-black hover:bg-[#e2e8f0] font-medium text-xs flex items-center justify-center gap-2 transition-all"
             >
-              <Phone className="w-4 h-4 text-[#e5c158] shrink-0" />
+              <Phone className="w-4 h-4 text-[#a16207] shrink-0" />
               <span>Call ({order.phone})</span>
             </a>
 
             {order.email && (
               <a
                 href={`mailto:${order.email}?subject=Regarding your Order #${order.id}`}
-                className="px-3.5 py-2.5 rounded-lg bg-[#18140f] text-[#f3e7c4] border border-[#2d251a] hover:bg-[#241e17] font-medium text-xs flex items-center justify-center gap-2 transition-all"
+                className="px-3.5 py-2.5 rounded-lg bg-[#ffffff] text-[#0f172a] border border-black hover:bg-[#e2e8f0] font-medium text-xs flex items-center justify-center gap-2 transition-all"
               >
-                <Mail className="w-4 h-4 text-[#e5c158] shrink-0" />
+                <Mail className="w-4 h-4 text-[#a16207] shrink-0" />
                 <span>Email</span>
               </a>
             )}
           </div>
 
           {/* Stepper / Timeline */}
-          <div className="bg-[#18140f] rounded-xl p-4 border border-[#262018]">
-            <h4 className="text-xs font-semibold text-[#8c7a4f] uppercase tracking-wider mb-3">
+          <div className="bg-[#ffffff] rounded-xl p-4 border border-black">
+            <h4 className="text-xs font-semibold text-[#475569] uppercase tracking-wider mb-3">
               Fulfillment Journey
             </h4>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -340,15 +340,15 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                     onClick={() => onUpdateStatus(order.id, step.status)}
                     className={`p-2.5 rounded-lg text-left border transition-all text-xs flex flex-col justify-between ${
                       isCurrent
-                        ? 'bg-[#241e17] border-[#e5c158] ring-1 ring-[#e5c158] text-[#e5c158] font-semibold'
+                        ? 'bg-[#e2e8f0] border-[#a16207] ring-1 ring-[#a16207] text-[#a16207] font-semibold'
                         : isPassedOrCurrent
-                        ? 'bg-[#14100c] border-[#2d251a] text-[#f3e7c4] font-medium'
-                        : 'bg-[#0f0c09] border-[#201a14] text-[#8c7a4f] hover:border-[#382f22]'
+                        ? 'bg-[#f8fafc] border-black text-[#0f172a] font-medium'
+                        : 'bg-[#f8fafc] border-black text-[#475569] hover:border-black'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1.5">
-                      <Icon className={`w-3.5 h-3.5 ${isCurrent ? 'text-[#e5c158]' : isPassedOrCurrent ? 'text-[#f3e7c4]' : 'text-[#8c7a4f]'}`} />
-                      {isPassedOrCurrent && <Check className="w-3 h-3 text-emerald-400" />}
+                      <Icon className={`w-3.5 h-3.5 ${isCurrent ? 'text-[#a16207]' : isPassedOrCurrent ? 'text-[#0f172a]' : 'text-[#475569]'}`} />
+                      {isPassedOrCurrent && <Check className="w-3 h-3 text-emerald-700" />}
                     </div>
                     <span className="truncate">
                       {step.label}
@@ -362,19 +362,19 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
           {/* Two Column details: Customer & Shipping */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Customer info */}
-            <div className="bg-[#18140f] rounded-xl p-4 border border-[#262018] shadow-2xs">
-              <span className="text-xs font-semibold text-[#8c7a4f] uppercase tracking-wider block mb-2">
+            <div className="bg-[#ffffff] rounded-xl p-4 border border-black shadow-2xs">
+              <span className="text-xs font-semibold text-[#475569] uppercase tracking-wider block mb-2">
                 Customer Information
               </span>
-              <p className="font-bold text-[#f3e7c4] text-sm mb-1">{order.customer_name}</p>
-              <div className="space-y-1 text-xs text-[#c4b595]">
+              <p className="font-bold text-[#0f172a] text-sm mb-1">{order.customer_name}</p>
+              <div className="space-y-1 text-xs text-[#334155]">
                 <div className="flex items-center gap-2">
-                  <Phone className="w-3.5 h-3.5 text-[#8c7a4f] shrink-0" />
+                  <Phone className="w-3.5 h-3.5 text-[#475569] shrink-0" />
                   <span className="font-mono">{order.phone}</span>
                 </div>
                 {order.email && (
                   <div className="flex items-center gap-2">
-                    <Mail className="w-3.5 h-3.5 text-[#8c7a4f] shrink-0" />
+                    <Mail className="w-3.5 h-3.5 text-[#475569] shrink-0" />
                     <span className="truncate">{order.email}</span>
                   </div>
                 )}
@@ -382,20 +382,20 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
             </div>
 
             {/* Delivery address */}
-            <div className="bg-[#18140f] rounded-xl p-4 border border-[#262018] shadow-2xs relative">
+            <div className="bg-[#ffffff] rounded-xl p-4 border border-black shadow-2xs relative">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-semibold text-[#8c7a4f] uppercase tracking-wider">
+                <span className="text-xs font-semibold text-[#475569] uppercase tracking-wider">
                   Delivery Destination
                 </span>
                 <button
                   type="button"
                   onClick={handleCopyAddress}
-                  className="text-xs text-[#d8cca8] hover:text-[#f3e7c4] flex items-center gap-1 font-medium bg-[#241e17] px-2 py-0.5 rounded-md hover:bg-[#2d251a] transition-colors border border-[#2d251a]"
+                  className="text-xs text-[#334155] hover:text-[#0f172a] flex items-center gap-1 font-medium bg-[#e2e8f0] px-2 py-0.5 rounded-md hover:bg-[#e2e8f0] transition-colors border border-black"
                 >
                   {copiedAddress ? (
                     <>
-                      <Check className="w-3 h-3 text-emerald-400" />
-                      <span className="text-emerald-300">Copied</span>
+                      <Check className="w-3 h-3 text-emerald-700" />
+                      <span className="text-emerald-700">Copied</span>
                     </>
                   ) : (
                     <>
@@ -405,22 +405,22 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                   )}
                 </button>
               </div>
-              <p className="text-xs font-medium text-[#f3e7c4] mb-1">{order.address}</p>
-              <div className="flex items-center gap-1.5 text-xs text-[#c4b595]">
-                <MapPin className="w-3.5 h-3.5 text-[#8c7a4f] shrink-0" />
-                <span className="font-semibold text-[#e5c158]">{order.city}</span>
+              <p className="text-xs font-medium text-[#0f172a] mb-1">{order.address}</p>
+              <div className="flex items-center gap-1.5 text-xs text-[#334155]">
+                <MapPin className="w-3.5 h-3.5 text-[#475569] shrink-0" />
+                <span className="font-semibold text-[#a16207]">{order.city}</span>
               </div>
             </div>
           </div>
 
           {/* Product & COD Financial Summary */}
-          <div className="bg-[#18140f] rounded-xl p-4 border border-[#262018] shadow-2xs">
+          <div className="bg-[#ffffff] rounded-xl p-4 border border-black shadow-2xs">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-[#8c7a4f] uppercase tracking-wider block">
+                <span className="text-xs font-semibold text-[#475569] uppercase tracking-wider block">
                   Order Items & Pricing
                 </span>
-                <span className="text-[11px] font-medium text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 px-2 py-0.5 rounded-full">
+                <span className="text-[11px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
                   Order Price = COD Price
                 </span>
               </div>
@@ -428,7 +428,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
               <button
                 type="button"
                 onClick={() => setIsEditingProduct(!isEditingProduct)}
-                className="text-xs text-[#e5c158] hover:underline flex items-center gap-1 font-medium"
+                className="text-xs text-[#a16207] hover:underline flex items-center gap-1 font-medium"
               >
                 <Edit3 className="w-3.5 h-3.5" />
                 {isEditingProduct ? 'Cancel Edit' : 'Edit Product / Price'}
@@ -437,42 +437,75 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
 
             {/* If not editing, display cleanly */}
             {!isEditingProduct ? (
-              <div className="flex items-start justify-between pb-3 border-b border-[#241e17]">
+              <div className="flex items-start justify-between pb-3 border-b border-black">
                 <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-[#241e17] text-[#e5c158] shrink-0">
-                    <Package className="w-5 h-5" />
-                  </div>
+                  {(() => {
+                    const variant = (order.product_variant || '').toLowerCase();
+                    const cleanedVariant = variant.replace(/standard/gi, '').replace(/x\s*\d+/gi, '').replace(/qty/gi, '').replace(/\d+/g, '').trim();
+                    let matchedProduct = products.find(
+                      (p) =>
+                        (order.product_id && String(p.id) === String(order.product_id)) ||
+                        (p.sku && variant.includes(p.sku.toLowerCase())) ||
+                        (p.title && variant === p.title.toLowerCase()) ||
+                        (p.title && variant.includes(p.title.toLowerCase())) ||
+                        (p.title && cleanedVariant && cleanedVariant.length > 2 && p.title.toLowerCase().includes(cleanedVariant)) ||
+                        (order.category && p.category && order.category.toLowerCase() === p.category.toLowerCase())
+                    );
+                    if (!matchedProduct && products.length > 0) {
+                      matchedProduct = products[0];
+                    }
+                    const img = matchedProduct?.cover_image || matchedProduct?.image_url || (order as any).product_image || (order as any).image;
+                    if (img) {
+                      return (
+                        <div className="w-14 h-14 rounded-xl overflow-hidden border border-[#d97706]/40 bg-[#f1f5f9] shrink-0 shadow-sm">
+                          <img
+                            src={img}
+                            alt={order.product_variant || 'Product'}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = 'none';
+                            }}
+                          />
+                        </div>
+                      );
+                    }
+                    return (
+                      <div className="p-2 rounded-lg bg-[#e2e8f0] text-[#a16207] shrink-0">
+                        <Package className="w-5 h-5" />
+                      </div>
+                    );
+                  })()}
                   <div>
-                    <h4 className="font-semibold text-[#f3e7c4] text-sm">{order.product_variant}</h4>
+                    <h4 className="font-semibold text-[#0f172a] text-sm">{order.product_variant}</h4>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs text-[#8c7a4f]">Qty: {order.quantity} unit(s)</span>
-                      <span className="text-[#3d3324]">•</span>
-                      <span className="inline-flex items-center text-xs font-medium text-[#c4b595] bg-[#241e17] px-2 py-0.5 rounded border border-[#2d251a]">
-                        <Tag className="w-3 h-3 mr-1 text-[#8c7a4f]" />
+                      <span className="text-xs text-[#475569]">Qty: {order.quantity} unit(s)</span>
+                      <span className="text-[#cbd5e1]">•</span>
+                      <span className="inline-flex items-center text-xs font-medium text-[#334155] bg-[#e2e8f0] px-2 py-0.5 rounded border border-black">
+                        <Tag className="w-3 h-3 mr-1 text-[#475569]" />
                         {order.category || 'General'}
                       </span>
                     </div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="text-xs text-[#8c7a4f] block">Order & COD Amount</span>
-                  <span className="font-bold text-base text-[#e5c158]">
+                  <span className="text-xs text-[#475569] block">Order & COD Amount</span>
+                  <span className="font-bold text-base text-[#a16207]">
                     {formatCurrency(orderAmount, currencySymbol)}
                   </span>
-                  <span className="text-[10px] text-[#8c7a4f] block">Cash on Delivery</span>
+                  <span className="text-[10px] text-[#475569] block">Cash on Delivery</span>
                 </div>
               </div>
             ) : (
               /* If editing product / price */
-              <div className="p-3 bg-[#120f0b] rounded-lg border border-[#3d3324] mb-3 space-y-3">
+              <div className="p-3 bg-[#f8fafc] rounded-lg border border-black mb-3 space-y-3">
                 {products.length > 0 && (
                   <div>
-                    <label className="block text-[11px] font-medium text-[#8c7a4f] mb-1">
+                    <label className="block text-[11px] font-medium text-[#475569] mb-1">
                       Assign from Catalog Product (Auto-syncs price & details):
                     </label>
                     <select
                       onChange={(e) => handleSelectCatalogProduct(e.target.value)}
-                      className="w-full px-3 py-1.5 text-xs rounded-lg border border-[#2d251a] bg-[#1a1510] text-[#f3e7c4] focus:outline-none focus:border-[#e5c158]"
+                      className="w-full px-3 py-1.5 text-xs rounded-lg border border-black bg-[#ffffff] text-[#0f172a] focus:outline-none focus:border-[#a16207]"
                     >
                       <option value="">-- Choose Catalog Product --</option>
                       {products.map((p) => (
@@ -486,42 +519,42 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   <div>
-                    <label className="block text-[11px] font-medium text-[#8c7a4f] mb-1">Product Variant Title:</label>
+                    <label className="block text-[11px] font-medium text-[#475569] mb-1">Product Variant Title:</label>
                     <input
                       type="text"
                       value={editVariant}
                       onChange={(e) => setEditVariant(e.target.value)}
                       placeholder="e.g. blue hand bag"
-                      className="w-full px-2.5 py-1.5 text-xs rounded border border-[#2d251a] bg-[#1a1510] text-[#f3e7c4] focus:outline-none focus:border-[#e5c158]"
+                      className="w-full px-2.5 py-1.5 text-xs rounded border border-black bg-[#ffffff] text-[#0f172a] focus:outline-none focus:border-[#a16207]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-medium text-[#8c7a4f] mb-1">Category:</label>
+                    <label className="block text-[11px] font-medium text-[#475569] mb-1">Category:</label>
                     <input
                       type="text"
                       value={editCategory}
                       onChange={(e) => setEditCategory(e.target.value)}
                       placeholder="e.g. bag, rings"
-                      className="w-full px-2.5 py-1.5 text-xs rounded border border-[#2d251a] bg-[#1a1510] text-[#f3e7c4] focus:outline-none focus:border-[#e5c158]"
+                      className="w-full px-2.5 py-1.5 text-xs rounded border border-black bg-[#ffffff] text-[#0f172a] focus:outline-none focus:border-[#a16207]"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2.5">
                   <div>
-                    <label className="block text-[11px] font-medium text-[#8c7a4f] mb-1">Quantity:</label>
+                    <label className="block text-[11px] font-medium text-[#475569] mb-1">Quantity:</label>
                     <input
                       type="number"
                       min="1"
                       value={editQty}
                       onChange={(e) => setEditQty(Math.max(1, parseInt(e.target.value) || 1))}
-                      className="w-full px-2.5 py-1.5 text-xs rounded border border-[#2d251a] bg-[#1a1510] text-[#f3e7c4] focus:outline-none focus:border-[#e5c158]"
+                      className="w-full px-2.5 py-1.5 text-xs rounded border border-black bg-[#ffffff] text-[#0f172a] focus:outline-none focus:border-[#a16207]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-medium text-[#8c7a4f] mb-1">
+                    <label className="block text-[11px] font-medium text-[#475569] mb-1">
                       Unit Sale Price ({currencySymbol}):
                     </label>
                     <input
@@ -529,15 +562,15 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                       min="0"
                       value={editUnitPrice}
                       onChange={(e) => setEditUnitPrice(Math.max(0, parseFloat(e.target.value) || 0))}
-                      className="w-full px-2.5 py-1.5 text-xs rounded border border-[#2d251a] bg-[#1a1510] text-[#f3e7c4] focus:outline-none focus:border-[#e5c158]"
+                      className="w-full px-2.5 py-1.5 text-xs rounded border border-black bg-[#ffffff] text-[#0f172a] focus:outline-none focus:border-[#a16207]"
                     />
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-2 border-t border-[#241e17]">
+                <div className="flex items-center justify-between pt-2 border-t border-black">
                   <div className="text-xs">
-                    <span className="text-[#8c7a4f]">New Calculated COD Total: </span>
-                    <span className="font-bold text-[#e5c158] text-sm">
+                    <span className="text-[#475569]">New Calculated COD Total: </span>
+                    <span className="font-bold text-[#a16207] text-sm">
                       {formatCurrency(Math.max(1, editQty) * Math.max(0, editUnitPrice), currencySymbol)}
                     </span>
                   </div>
@@ -546,7 +579,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                     type="button"
                     onClick={handleSaveItemChanges}
                     disabled={isSavingItem}
-                    className="px-3 py-1.5 rounded-lg bg-[#e5c158] text-[#0c0a09] font-bold text-xs hover:bg-[#f3cf65] disabled:opacity-50 transition-colors shadow-sm"
+                    className="px-3 py-1.5 rounded-lg bg-[#a16207] text-[#ffffff] font-bold text-xs hover:bg-[#854d0e] disabled:opacity-50 transition-colors shadow-sm"
                   >
                     {isSavingItem ? 'Saving to Database...' : 'Save Product & Price'}
                   </button>
@@ -557,7 +590,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
             {/* Tracking ID update */}
             <div className="pt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex-1">
-                <label className="block text-xs font-medium text-[#8c7a4f] mb-1">
+                <label className="block text-xs font-medium text-[#475569] mb-1">
                   Courier Tracking / AWB Number:
                 </label>
                 <div className="flex gap-2">
@@ -566,13 +599,13 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                     value={trackingNumber}
                     onChange={(e) => setTrackingNumber(e.target.value)}
                     placeholder="e.g. FEDEX-992019 or DHL-3312"
-                    className="flex-1 px-3 py-1.5 text-xs rounded-lg border border-[#2d251a] bg-[#120f0b] text-[#f3e7c4] focus:outline-none focus:border-[#e5c158]"
+                    className="flex-1 px-3 py-1.5 text-xs rounded-lg border border-black bg-[#f8fafc] text-[#0f172a] focus:outline-none focus:border-[#a16207]"
                   />
                   <button
                     type="button"
                     onClick={handleSaveTracking}
                     disabled={isSavingTracking}
-                    className="px-3 py-1.5 rounded-lg bg-[#e5c158] text-[#0c0a09] font-bold text-xs hover:bg-[#f3cf65] disabled:opacity-50 transition-colors"
+                    className="px-3 py-1.5 rounded-lg bg-[#a16207] text-[#ffffff] font-bold text-xs hover:bg-[#854d0e] disabled:opacity-50 transition-colors"
                   >
                     {isSavingTracking ? 'Saving...' : 'Save AWB'}
                   </button>
@@ -582,17 +615,17 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
           </div>
 
           {/* Internal Notes */}
-          <div className="bg-[#18140f] rounded-xl p-4 border border-[#262018]">
+          <div className="bg-[#ffffff] rounded-xl p-4 border border-black">
             <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-semibold text-[#8c7a4f] uppercase tracking-wider flex items-center gap-1.5">
-                <Edit3 className="w-3.5 h-3.5 text-[#e5c158]" />
+              <label className="text-xs font-semibold text-[#475569] uppercase tracking-wider flex items-center gap-1.5">
+                <Edit3 className="w-3.5 h-3.5 text-[#a16207]" />
                 Admin / Dispatch Notes
               </label>
               <button
                 type="button"
                 onClick={handleSaveNotes}
                 disabled={isSavingNotes}
-                className="text-xs font-medium text-[#e5c158] hover:underline"
+                className="text-xs font-medium text-[#a16207] hover:underline"
               >
                 {isSavingNotes ? 'Saved' : 'Save Notes'}
               </button>
@@ -602,21 +635,21 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Add courier notes, customer preferences, or verification details..."
-              className="w-full p-2.5 text-xs rounded-lg border border-[#2d251a] bg-[#120f0b] text-[#f3e7c4] focus:outline-none focus:border-[#e5c158] resize-none"
+              className="w-full p-2.5 text-xs rounded-lg border border-black bg-[#f8fafc] text-[#0f172a] focus:outline-none focus:border-[#a16207] resize-none"
             />
           </div>
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3.5 bg-[#0e0c0a] border-t border-[#1f1a14] flex items-center justify-between text-xs">
+        <div className="px-6 py-3.5 bg-[#f8fafc] border-t border-black flex items-center justify-between text-xs">
           <div className="flex items-center gap-3">
-            <span className="text-[#8c7a4f]">Order #{order.id}</span>
+            <span className="text-[#475569]">Order #{order.id}</span>
             {onDeleteOrder && (
               <button
                 type="button"
                 id="modal-delete-order-btn"
                 onClick={() => setIsDeleteModalOpen(true)}
-                className="text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1 text-xs font-medium"
+                className="text-rose-600 hover:text-rose-700 hover:bg-rose-100 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1 text-xs font-medium"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 <span>Delete Order</span>
@@ -626,7 +659,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 bg-[#241e17] text-[#f3e7c4] hover:bg-[#2d251a] rounded-lg font-medium transition-colors"
+            className="px-4 py-2 bg-[#e2e8f0] text-[#0f172a] hover:bg-[#e2e8f0] rounded-lg font-medium transition-colors"
           >
             Close
           </button>

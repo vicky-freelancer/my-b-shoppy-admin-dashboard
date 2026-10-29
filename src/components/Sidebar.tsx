@@ -11,7 +11,8 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
-  Sparkles
+  Sparkles,
+  Layers
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -24,6 +25,7 @@ interface SidebarProps {
   onToggleCollapse?: () => void;
   ordersCount?: number;
   productsCount?: number;
+  subcategoriesCount?: number;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -36,12 +38,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onToggleCollapse,
   ordersCount = 0,
   productsCount = 0,
+  subcategoriesCount = 0,
 }) => {
   const navItems: { id: NavTab; label: string; icon: React.FC<{ className?: string }>; badge?: number }[] = [
     {
       id: 'dashboard',
       label: 'Dashboard',
       icon: LayoutDashboard,
+    },
+    {
+      id: 'subcategories',
+      label: 'Subcategories',
+      icon: Layers,
+      badge: subcategoriesCount,
     },
     {
       id: 'products',
@@ -69,26 +78,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside
-      className={`bg-[#0c0a09] border-r border-[#241e17] flex flex-col justify-between shrink-0 transition-all duration-300 z-30 select-none ${
+      className={`bg-[#ffffff] border-r border-black flex flex-col justify-between shrink-0 transition-all duration-300 z-30 select-none ${
         isCollapsed ? 'w-20' : 'w-64'
       }`}
     >
       {/* Top Brand Header */}
       <div>
-        <div className="p-5 border-b border-[#1f1a14] flex items-center justify-between">
+        <div className="px-5 py-4 bg-[#f8fafc] border-b border-black flex items-center justify-between">
           {!isCollapsed ? (
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-sm font-serif font-black tracking-widest text-[#e5c158] uppercase">
+                <span className="text-sm font-serif font-black tracking-widest text-[#a16207] uppercase">
                   MY B SHOPPY
                 </span>
               </div>
-              <p className="text-[10px] uppercase font-bold tracking-[0.25em] text-[#8c7a4f] mt-0.5">
+              <p className="text-[10px] uppercase font-bold tracking-[0.25em] text-[#475569] mt-0.5">
                 MANAGEMENT
               </p>
             </div>
           ) : (
-            <div className="mx-auto w-10 h-10 rounded-xl bg-[#1c1813] border border-[#d4af37]/40 flex items-center justify-center text-[#e5c158] font-serif font-bold text-base shadow-sm shadow-[#d4af37]/10">
+            <div className="mx-auto w-10 h-10 rounded-xl bg-[#f8fafc] border border-[#d97706]/40 flex items-center justify-center text-[#a16207] font-serif font-bold text-base shadow-sm shadow-[#d97706]/10">
               B
             </div>
           )}
@@ -97,7 +106,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               type="button"
               onClick={onToggleCollapse}
-              className="p-1 rounded-lg text-[#8c7a4f] hover:text-[#e5c158] hover:bg-[#1a1612] transition-colors"
+              className="p-1 rounded-lg text-[#475569] hover:text-[#a16207] hover:bg-[#f1f5f9] transition-colors"
               title="Collapse sidebar"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -105,8 +114,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
         </div>
 
+        {!isCollapsed && (
+          <div className="mx-4 mt-4 mb-2 px-2.5 py-1.5 rounded-lg bg-[#f8fafc] border border-black text-[9px] font-bold uppercase tracking-[0.2em] text-[#64748b]">
+            Navigation
+          </div>
+        )}
+
         {/* Navigation Links */}
-        <nav className="p-3 space-y-1.5 mt-2">
+        <nav className={`px-3 pb-4 space-y-1.5 ${isCollapsed ? 'mt-4' : ''}`}>
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -119,14 +134,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 onClick={() => onSelectTab(item.id)}
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all group ${
                   isActive
-                    ? 'bg-[#1a1611] text-[#e5c158] border border-[#d4af37]/60 shadow-md shadow-black/40 font-semibold'
-                    : 'text-[#a39882] hover:text-[#f3e7c4] hover:bg-[#15120e] border border-transparent'
+                    ? 'bg-[#fffbeb] text-[#a16207] border border-[#d97706]/50 shadow-sm font-semibold'
+                    : 'text-[#475569] hover:text-[#0f172a] hover:bg-[#f8fafc] border border-transparent'
                 }`}
                 title={item.label}
               >
                 <div
                   className={`flex items-center justify-center ${
-                    isActive ? 'text-[#e5c158]' : 'text-[#8c7a4f] group-hover:text-[#e5c158]'
+                    isActive ? 'text-[#a16207]' : 'text-[#475569] group-hover:text-[#a16207]'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -142,8 +157,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <span
                     className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
                       isActive
-                        ? 'bg-[#e5c158] text-[#0c0a09]'
-                        : 'bg-[#211c16] text-[#c9b787] border border-[#382f23]'
+                        ? 'bg-[#a16207] text-[#ffffff]'
+                        : 'bg-[#e2e8f0] text-[#475569] border border-black'
                     }`}
                   >
                     {item.badge}
@@ -156,9 +171,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Bottom Profile / Quick Settings */}
-      <div className="p-3 border-t border-[#1f1a14] space-y-2">
+      <div className="p-3 border-t border-black bg-[#f8fafc] space-y-2">
         <div
-          className={`flex items-center gap-3 p-2 rounded-xl bg-[#14100c] border border-[#241e17] ${
+          className={`flex items-center gap-3 p-2 rounded-xl bg-[#ffffff] border border-black shadow-sm ${
             isCollapsed ? 'justify-center' : 'justify-between'
           }`}
         >
@@ -168,15 +183,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className="flex items-center gap-2.5 min-w-0 text-left hover:opacity-90 transition-opacity"
             title="Open Settings"
           >
-            <div className="w-8 h-8 rounded-lg bg-[#211c15] border border-[#3b3223] flex items-center justify-center text-[#e5c158] shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-[#fffbeb] border border-[#d97706]/40 flex items-center justify-center text-[#a16207] shrink-0">
               <Settings className="w-4 h-4" />
             </div>
             {!isCollapsed && (
               <div className="min-w-0">
-                <p className="text-xs font-semibold text-[#f3e7c4] leading-tight truncate">
+                <p className="text-xs font-semibold text-[#0f172a] leading-tight truncate">
                   {adminUser?.name || 'Admin'}
                 </p>
-                <p className="text-[10px] text-[#8c7a4f] truncate">
+                <p className="text-[10px] text-[#475569] truncate">
                   my B shoppy
                 </p>
               </div>
@@ -187,7 +202,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               type="button"
               onClick={onToggleCollapse}
-              className="p-1 rounded-lg text-[#8c7a4f] hover:text-[#e5c158] hover:bg-[#1a1612] transition-colors"
+              className="p-1 rounded-lg text-[#475569] hover:text-[#a16207] hover:bg-[#f1f5f9] transition-colors"
               title="Expand sidebar"
             >
               <ChevronRight className="w-4 h-4" />
@@ -198,7 +213,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               type="button"
               onClick={onLogout}
-              className="p-1.5 rounded-lg text-[#8c7a4f] hover:text-rose-400 hover:bg-[#1e1414] transition-colors"
+              className="p-1.5 rounded-lg text-[#475569] hover:text-rose-600 hover:bg-[#fef2f2] transition-colors"
               title="Logout"
             >
               <LogOut className="w-3.5 h-3.5" />

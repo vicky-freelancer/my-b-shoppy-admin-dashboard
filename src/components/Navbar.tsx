@@ -50,7 +50,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   }, [profileOpen]);
 
   return (
-    <header className="sticky top-0 z-40 bg-white border-b border-slate-200 transition-all">
+    <header className="sticky top-0 z-40 bg-white border-b border-black transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
         {/* Left: Brand / App Name */}
         <div className="flex items-center gap-3 min-w-0">
@@ -74,7 +74,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Center: Live Supabase Status */}
-        <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full bg-slate-50 border border-slate-200 text-xs">
+        <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full bg-slate-50 border border-black text-xs">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
@@ -127,9 +127,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                 type="button"
                 id="navbar-profile-btn"
                 onClick={() => setProfileOpen(!profileOpen)}
-                className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-200"
+                className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-slate-50 transition-colors border border-transparent hover:border-black"
               >
-                <div className="w-7 h-7 rounded-full bg-slate-200 text-slate-700 border border-slate-300 flex items-center justify-center font-bold text-xs uppercase">
+                <div className="w-7 h-7 rounded-full bg-slate-200 text-slate-700 border border-black flex items-center justify-center font-bold text-xs uppercase">
                   {adminUser.name.charAt(0)}
                 </div>
                 <div className="hidden sm:block text-left text-xs">
@@ -140,8 +140,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
 
               {profileOpen && (
-                <div className="absolute right-0 mt-2 w-56 rounded-xl bg-white shadow-lg border border-slate-200 py-1.5 z-50 text-xs animate-in fade-in zoom-in-95 duration-150">
-                  <div className="px-4 py-2.5 border-b border-slate-100">
+                <div className="absolute right-0 mt-2 w-56 rounded-xl bg-white shadow-lg border border-black py-1.5 z-50 text-xs animate-in fade-in zoom-in-95 duration-150">
+                  <div className="px-4 py-2.5 border-b border-black">
                     <p className="font-semibold text-slate-900">{adminUser.name}</p>
                     <p className="text-slate-500 text-[11px] truncate">{adminUser.email}</p>
                     <span className="inline-block mt-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200/60">

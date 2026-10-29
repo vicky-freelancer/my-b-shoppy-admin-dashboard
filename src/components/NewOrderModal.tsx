@@ -29,14 +29,10 @@ const COMMON_CITIES = [
 
 const COMMON_CATEGORIES = [
   'Hair Accessories',
-  'Artificial Jewels',
-  'Bows',
-  'Scrunchies',
-  'Handbags',
-  'Earrings',
-  'Necklaces',
-  'Bracelets',
-  'Rings',
+  'AD Jewellery',
+  'Bags',
+  'Anti Tarnish Jewellery',
+  'Stationery and Gifts',
 ];
 
 export const NewOrderModal: React.FC<NewOrderModalProps> = ({
@@ -192,21 +188,21 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150">
       <div
         id="new-order-modal"
-        className="bg-[#120f0b] w-full max-w-xl rounded-2xl shadow-2xl border border-[#2d251a] overflow-hidden flex flex-col max-h-[94vh] animate-in zoom-in-95 duration-150 text-[#e8ded1]"
+        className="bg-[#f8fafc] w-full max-w-xl rounded-2xl shadow-2xl border border-black overflow-hidden flex flex-col max-h-[94vh] animate-in zoom-in-95 duration-150 text-[#1e293b]"
       >
         {/* Header */}
-        <div className="px-6 py-4 border-b border-[#1f1a14] flex items-center justify-between bg-[#0e0c0a]">
+        <div className="px-6 py-4 border-b border-black flex items-center justify-between bg-[#f8fafc]">
           <div>
-            <h2 className="text-base font-serif font-bold text-[#f3e7c4]">Create New COD Order</h2>
-            <p className="text-xs text-[#8c7a4f]">Order Price & COD Price remain exactly the same (₹ to collect)</p>
+            <h2 className="text-base font-serif font-bold text-[#0f172a]">Create New COD Order</h2>
+            <p className="text-xs text-[#475569]">Order Price & COD Price remain exactly the same (₹ to collect)</p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 text-[#8c7a4f] hover:text-[#f3e7c4] rounded-lg hover:bg-[#18140f] transition-colors"
+            className="p-1.5 text-[#475569] hover:text-[#0f172a] rounded-lg hover:bg-[#f1f5f9] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -215,20 +211,20 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-4 text-xs">
           {formError && (
-            <div className="p-3 bg-rose-950/40 text-rose-300 rounded-lg border border-rose-800/50 text-xs font-medium">
+            <div className="p-3 bg-rose-50 text-rose-700 rounded-lg border border-rose-200 text-xs font-medium">
               {formError}
             </div>
           )}
 
           {/* Customer info */}
           <div className="space-y-3">
-            <h3 className="text-xs font-semibold text-[#8c7a4f] uppercase tracking-wider">
+            <h3 className="text-xs font-semibold text-[#475569] uppercase tracking-wider">
               Customer Information
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-[#d8cca8] font-medium mb-1">
-                  Customer Name <span className="text-rose-400">*</span>
+                <label className="block text-[#334155] font-medium mb-1">
+                  Customer Name <span className="text-rose-600">*</span>
                 </label>
                 <input
                   type="text"
@@ -236,13 +232,13 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
                   placeholder="e.g. Ananya Sharma"
-                  className="w-full px-3 py-2 rounded-xl border border-[#2d251a] bg-[#18140f] text-[#f3e7c4] placeholder:text-[#8c7a4f] focus:outline-none focus:border-[#e5c158]"
+                  className="w-full px-3 py-2 rounded-xl border border-black bg-[#ffffff] text-[#0f172a] placeholder:text-[#475569] focus:outline-none focus:border-[#a16207]"
                 />
               </div>
 
               <div>
-                <label className="block text-[#d8cca8] font-medium mb-1">
-                  Phone Number <span className="text-rose-400">*</span>
+                <label className="block text-[#334155] font-medium mb-1">
+                  Phone Number <span className="text-rose-600">*</span>
                 </label>
                 <input
                   type="tel"
@@ -250,13 +246,13 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="e.g. +91 98765 43210"
-                  className="w-full px-3 py-2 rounded-xl border border-[#2d251a] bg-[#18140f] text-[#f3e7c4] placeholder:text-[#8c7a4f] font-mono focus:outline-none focus:border-[#e5c158]"
+                  className="w-full px-3 py-2 rounded-xl border border-black bg-[#ffffff] text-[#0f172a] placeholder:text-[#475569] font-mono focus:outline-none focus:border-[#a16207]"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-[#d8cca8] font-medium mb-1">
+              <label className="block text-[#334155] font-medium mb-1">
                 Email Address (Optional)
               </label>
               <input
@@ -264,40 +260,40 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="customer@example.com"
-                className="w-full px-3 py-2 rounded-xl border border-[#2d251a] bg-[#18140f] text-[#f3e7c4] placeholder:text-[#8c7a4f] focus:outline-none focus:border-[#e5c158]"
+                className="w-full px-3 py-2 rounded-xl border border-black bg-[#ffffff] text-[#0f172a] placeholder:text-[#475569] focus:outline-none focus:border-[#a16207]"
               />
             </div>
           </div>
 
           {/* Destination */}
-          <div className="space-y-3 pt-3 border-t border-[#1f1a14]">
-            <h3 className="text-xs font-semibold text-[#8c7a4f] uppercase tracking-wider">
+          <div className="space-y-3 pt-3 border-t border-black">
+            <h3 className="text-xs font-semibold text-[#475569] uppercase tracking-wider">
               Shipping Destination
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-[#d8cca8] font-medium mb-1">
-                  City <span className="text-rose-400">*</span>
+                <label className="block text-[#334155] font-medium mb-1">
+                  City <span className="text-rose-600">*</span>
                 </label>
                 <select
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-[#2d251a] bg-[#18140f] text-[#f3e7c4] focus:outline-none focus:border-[#e5c158]"
+                  className="w-full px-3 py-2 rounded-xl border border-black bg-[#ffffff] text-[#0f172a] focus:outline-none focus:border-[#a16207]"
                 >
                   {COMMON_CITIES.map((c) => (
-                    <option key={c} value={c} className="bg-[#18140f] text-[#f3e7c4]">
+                    <option key={c} value={c} className="bg-[#ffffff] text-[#0f172a]">
                       {c}
                     </option>
                   ))}
-                  <option value="OTHER" className="bg-[#18140f] text-[#f3e7c4]">Other / Custom City</option>
+                  <option value="OTHER" className="bg-[#ffffff] text-[#0f172a]">Other / Custom City</option>
                 </select>
               </div>
 
               {city === 'OTHER' && (
                 <div>
-                  <label className="block text-[#d8cca8] font-medium mb-1">
-                    Enter City Name <span className="text-rose-400">*</span>
+                  <label className="block text-[#334155] font-medium mb-1">
+                    Enter City Name <span className="text-rose-600">*</span>
                   </label>
                   <input
                     type="text"
@@ -305,15 +301,15 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
                     value={customCity}
                     onChange={(e) => setCustomCity(e.target.value)}
                     placeholder="e.g. Pune"
-                    className="w-full px-3 py-2 rounded-xl border border-[#2d251a] bg-[#18140f] text-[#f3e7c4] placeholder:text-[#8c7a4f] focus:outline-none focus:border-[#e5c158]"
+                    className="w-full px-3 py-2 rounded-xl border border-black bg-[#ffffff] text-[#0f172a] placeholder:text-[#475569] focus:outline-none focus:border-[#a16207]"
                   />
                 </div>
               )}
             </div>
 
             <div>
-              <label className="block text-[#d8cca8] font-medium mb-1">
-                Full Street Address <span className="text-rose-400">*</span>
+              <label className="block text-[#334155] font-medium mb-1">
+                Full Street Address <span className="text-rose-600">*</span>
               </label>
               <textarea
                 rows={2}
@@ -321,38 +317,38 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 placeholder="House / Flat No, Street, Landmark, Pincode"
-                className="w-full px-3 py-2 rounded-xl border border-[#2d251a] bg-[#18140f] text-[#f3e7c4] placeholder:text-[#8c7a4f] focus:outline-none focus:border-[#e5c158] resize-none"
+                className="w-full px-3 py-2 rounded-xl border border-black bg-[#ffffff] text-[#0f172a] placeholder:text-[#475569] focus:outline-none focus:border-[#a16207] resize-none"
               />
             </div>
           </div>
 
           {/* Product & COD */}
-          <div className="space-y-3 pt-3 border-t border-[#1f1a14]">
-            <h3 className="text-xs font-semibold text-[#8c7a4f] uppercase tracking-wider">
+          <div className="space-y-3 pt-3 border-t border-black">
+            <h3 className="text-xs font-semibold text-[#475569] uppercase tracking-wider">
               Product & Price Details
             </h3>
 
             {/* Select from catalog if available */}
             {products.length > 0 && (
               <div>
-                <label className="block text-[#d8cca8] font-medium mb-1">
+                <label className="block text-[#334155] font-medium mb-1">
                   Select from Store Catalog
                 </label>
                 <select
                   value={selectedProductId}
                   onChange={(e) => handleProductChange(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-[#2d251a] bg-[#18140f] text-[#f3e7c4] focus:outline-none focus:border-[#e5c158] mb-2"
+                  className="w-full px-3 py-2 rounded-xl border border-black bg-[#ffffff] text-[#0f172a] focus:outline-none focus:border-[#a16207] mb-2"
                 >
                   {products.map((p) => {
                     const available = Number(p.quantity) || 0;
                     return (
-                      <option key={p.id} value={String(p.id)} className="bg-[#18140f] text-[#f3e7c4]">
+                      <option key={p.id} value={String(p.id)} className="bg-[#ffffff] text-[#0f172a]">
                         {p.title} ({p.sku}) — {currencySymbol}{p.sale_price}
                         {` — ${available > 0 ? `${available} in stock` : 'Out of stock'}`}
                       </option>
                     );
                   })}
-                  <option value="CUSTOM" className="bg-[#18140f] text-[#f3e7c4]">
+                  <option value="CUSTOM" className="bg-[#ffffff] text-[#0f172a]">
                     -- Custom / Other Item --
                   </option>
                 </select>
@@ -360,8 +356,8 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
             )}
 
             <div>
-              <label className="block text-[#d8cca8] font-medium mb-1">
-                Product Name / Variant <span className="text-rose-400">*</span>
+              <label className="block text-[#334155] font-medium mb-1">
+                Product Name / Variant <span className="text-rose-600">*</span>
               </label>
               <input
                 type="text"
@@ -369,26 +365,26 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
                 value={productVariant}
                 onChange={(e) => setProductVariant(e.target.value)}
                 placeholder="e.g. Pearl Petal Bloom Earrings"
-                className="w-full px-3 py-2 rounded-xl border border-[#2d251a] bg-[#18140f] text-[#f3e7c4] placeholder:text-[#8c7a4f] focus:outline-none focus:border-[#e5c158]"
+                className="w-full px-3 py-2 rounded-xl border border-black bg-[#ffffff] text-[#0f172a] placeholder:text-[#475569] focus:outline-none focus:border-[#a16207]"
               />
             </div>
 
             {/* Category selection */}
             <div>
-              <label className="block text-[#d8cca8] font-medium mb-1">
-                Category <span className="text-rose-400">*</span>
+              <label className="block text-[#334155] font-medium mb-1">
+                Category <span className="text-rose-600">*</span>
               </label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-[#2d251a] bg-[#18140f] text-[#f3e7c4] focus:outline-none focus:border-[#e5c158] mb-2"
+                className="w-full px-3 py-2 rounded-xl border border-black bg-[#ffffff] text-[#0f172a] focus:outline-none focus:border-[#a16207] mb-2"
               >
                 {COMMON_CATEGORIES.map((c) => (
-                  <option key={c} value={c} className="bg-[#18140f] text-[#f3e7c4]">
+                  <option key={c} value={c} className="bg-[#ffffff] text-[#0f172a]">
                     {c}
                   </option>
                 ))}
-                <option value="OTHER" className="bg-[#18140f] text-[#f3e7c4]">Other / Custom Category...</option>
+                <option value="OTHER" className="bg-[#ffffff] text-[#0f172a]">Other / Custom Category...</option>
               </select>
 
               {category === 'OTHER' && (
@@ -398,7 +394,7 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
                   value={customCategory}
                   onChange={(e) => setCustomCategory(e.target.value)}
                   placeholder="Enter custom category name (e.g. Luxury Bangles)"
-                  className="w-full px-3 py-2 rounded-xl border border-[#2d251a] bg-[#18140f] text-[#f3e7c4] placeholder:text-[#8c7a4f] focus:outline-none focus:border-[#e5c158]"
+                  className="w-full px-3 py-2 rounded-xl border border-black bg-[#ffffff] text-[#0f172a] placeholder:text-[#475569] focus:outline-none focus:border-[#a16207]"
                 />
               )}
             </div>
@@ -406,83 +402,83 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
             {/* Quantity, Unit Price, and Identical Order/COD Price calculation */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               <div>
-                <label className="block text-[#d8cca8] font-medium mb-1">Quantity</label>
+                <label className="block text-[#334155] font-medium mb-1">Quantity</label>
                 <input
                   type="number"
                   min={1}
                   value={quantity}
                   onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                  className="w-full px-3 py-2 rounded-xl border border-[#2d251a] bg-[#18140f] text-center font-semibold text-[#f3e7c4] focus:outline-none focus:border-[#e5c158]"
+                  className="w-full px-3 py-2 rounded-xl border border-black bg-[#ffffff] text-center font-semibold text-[#0f172a] focus:outline-none focus:border-[#a16207]"
                 />
               </div>
 
               <div>
-                <label className="block text-[#d8cca8] font-medium mb-1">Unit Price ({currencySymbol})</label>
+                <label className="block text-[#334155] font-medium mb-1">Unit Price ({currencySymbol})</label>
                 <input
                   type="number"
                   min={0}
                   step="any"
                   value={unitPrice}
                   onChange={(e) => setUnitPrice(Math.max(0, parseFloat(e.target.value) || 0))}
-                  className="w-full px-3 py-2 rounded-xl border border-[#2d251a] bg-[#18140f] font-mono text-center text-[#f3e7c4] focus:outline-none focus:border-[#e5c158]"
+                  className="w-full px-3 py-2 rounded-xl border border-black bg-[#ffffff] font-mono text-center text-[#0f172a] focus:outline-none focus:border-[#a16207]"
                 />
               </div>
 
-              <div className="col-span-2 sm:col-span-1 bg-[#18140f] p-2.5 rounded-xl border border-[#3b301f] flex flex-col justify-center text-center">
-                <span className="text-[10px] font-semibold text-[#8c7a4f] uppercase tracking-wider">Order & COD Price</span>
-                <span className="text-sm font-bold text-[#e5c158]">{formatCurrency(totalAmount, currencySymbol)}</span>
+              <div className="col-span-2 sm:col-span-1 bg-[#ffffff] p-2.5 rounded-xl border border-black flex flex-col justify-center text-center">
+                <span className="text-[10px] font-semibold text-[#475569] uppercase tracking-wider">Order & COD Price</span>
+                <span className="text-sm font-bold text-[#a16207]">{formatCurrency(totalAmount, currencySymbol)}</span>
               </div>
             </div>
 
             {/* Guarantee Note: Order price and COD price are the same */}
-            <div className="p-2.5 rounded-xl bg-[#16120d] border border-[#292217] flex items-center gap-2 text-[11px] text-[#c4b595]">
-              <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+            <div className="p-2.5 rounded-xl bg-[#ffffff] border border-black flex items-center gap-2 text-[11px] text-[#334155]">
+              <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
               <span>
-                <strong>Same Price Rule:</strong> Order Price = COD Collectable Price (<span className="text-[#e5c158] font-semibold">{formatCurrency(totalAmount, currencySymbol)}</span>). No extra COD fee or price alteration.
+                <strong>Same Price Rule:</strong> Order Price = COD Collectable Price (<span className="text-[#a16207] font-semibold">{formatCurrency(totalAmount, currencySymbol)}</span>). No extra COD fee or price alteration.
               </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-[#d8cca8] font-medium mb-1">Initial Status</label>
+                <label className="block text-[#334155] font-medium mb-1">Initial Status</label>
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value as OrderStatus)}
-                  className="w-full px-3 py-2 rounded-xl border border-[#2d251a] bg-[#18140f] text-[#f3e7c4] focus:outline-none focus:border-[#e5c158]"
+                  className="w-full px-3 py-2 rounded-xl border border-black bg-[#ffffff] text-[#0f172a] focus:outline-none focus:border-[#a16207]"
                 >
-                  <option value="pending" className="bg-[#18140f] text-[#f3e7c4]">Pending Verification</option>
-                  <option value="confirmed" className="bg-[#18140f] text-[#f3e7c4]">Confirmed</option>
-                  <option value="shipped" className="bg-[#18140f] text-[#f3e7c4]">Shipped</option>
+                  <option value="pending" className="bg-[#ffffff] text-[#0f172a]">Pending Verification</option>
+                  <option value="confirmed" className="bg-[#ffffff] text-[#0f172a]">Confirmed</option>
+                  <option value="shipped" className="bg-[#ffffff] text-[#0f172a]">Shipped</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-[#d8cca8] font-medium mb-1">Order Notes (Optional)</label>
+                <label className="block text-[#334155] font-medium mb-1">Order Notes (Optional)</label>
                 <input
                   type="text"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="e.g. Call before delivery"
-                  className="w-full px-3 py-2 rounded-xl border border-[#2d251a] bg-[#18140f] text-[#f3e7c4] placeholder:text-[#8c7a4f] focus:outline-none focus:border-[#e5c158]"
+                  className="w-full px-3 py-2 rounded-xl border border-black bg-[#ffffff] text-[#0f172a] placeholder:text-[#475569] focus:outline-none focus:border-[#a16207]"
                 />
               </div>
             </div>
           </div>
 
           {/* Footer actions */}
-          <div className="pt-4 border-t border-[#1f1a14] flex items-center justify-end gap-2.5">
+          <div className="pt-4 border-t border-black flex items-center justify-end gap-2.5">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2 rounded-xl border border-[#2d251a] text-[#d8cca8] hover:bg-[#18140f] font-medium transition-colors"
+              className="px-4 py-2 rounded-xl border border-black text-[#334155] hover:bg-[#f1f5f9] font-medium transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2 rounded-xl bg-[#e5c158] hover:bg-[#f3cf65] text-[#0c0a09] font-bold transition-all flex items-center gap-2 disabled:opacity-50 shadow-lg shadow-[#d4af37]/20 active:scale-[0.98]"
+              className="px-5 py-2 rounded-xl bg-[#a16207] hover:bg-[#854d0e] text-[#ffffff] font-bold transition-all flex items-center gap-2 disabled:opacity-50 shadow-lg shadow-[#d97706]/20 active:scale-[0.98]"
             >
               {isSubmitting ? (
                 <span>Saving to Database...</span>

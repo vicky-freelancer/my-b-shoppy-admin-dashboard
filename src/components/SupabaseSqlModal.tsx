@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { Database, Copy, Check, X, ExternalLink, ShieldCheck, Terminal, AlertCircle, ShoppingBag, Package, Layers } from 'lucide-react';
 import { SUPABASE_UNIFIED_SCHEMA_SQL } from '../lib/products';
+import { SUBCATEGORIES_SCHEMA_SQL } from '../lib/subcategories';
 import { SUPABASE_URL } from '../lib/supabase';
 
 interface SupabaseSqlModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialError?: string | null;
-  defaultTab?: 'unified' | 'orders' | 'products';
+  defaultTab?: 'unified' | 'orders' | 'products' | 'subcategories';
 }
 
 const ORDERS_ONLY_SQL = `-- ==============================================================================
@@ -337,7 +338,10 @@ export const SupabaseSqlModal: React.FC<SupabaseSqlModalProps> = ({
   initialError,
   defaultTab = 'unified',
 }) => {
-  const [activeTab, setActiveTab] = useState<'unified' | 'orders' | 'products'>(defaultTab);
+  const [activeTab, setActiveTab] = useState<'unified' | 'orders' | 'products' | 'subcategories'>(
+    () =>
+      initialError && /subcategor|categories/i.test(initialError) ? 'subcategories' : defaultTab
+  );
   const [copied, setCopied] = useState(false);
 
   if (!isOpen) return null;
@@ -347,7 +351,9 @@ export const SupabaseSqlModal: React.FC<SupabaseSqlModalProps> = ({
       ? SUPABASE_UNIFIED_SCHEMA_SQL
       : activeTab === 'orders'
       ? ORDERS_ONLY_SQL
-      : PRODUCTS_ONLY_SQL;
+      : activeTab === 'products'
+      ? PRODUCTS_ONLY_SQL
+      : SUBCATEGORIES_SCHEMA_SQL;
 
   const handleCopy = (sqlText: string = currentSql) => {
     navigator.clipboard.writeText(sqlText);
@@ -363,26 +369,26 @@ export const SupabaseSqlModal: React.FC<SupabaseSqlModalProps> = ({
   return (
     <div
       id="supabase-sql-modal-backdrop"
-      className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-150"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
         id="supabase-sql-modal"
-        className="bg-[#12100e] border border-[#2d251a] w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden text-[#d8cca8] my-auto animate-in zoom-in-95 duration-150"
+        className="bg-[#f8fafc] border border-black w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden text-[#334155] my-auto animate-in zoom-in-95 duration-150"
       >
         {/* Header */}
-        <div className="px-6 py-4 border-b border-[#241e17] flex items-center justify-between bg-[#16120d]">
+        <div className="px-6 py-4 border-b border-black flex items-center justify-between bg-[#ffffff]">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-[#e5c158] text-[#0c0a09] shadow-sm">
+            <div className="p-2 rounded-xl bg-[#a16207] text-[#ffffff] shadow-sm">
               <Database className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-serif font-bold text-[#f3e7c4] tracking-wide">
+              <h2 className="text-base font-serif font-bold text-[#0f172a] tracking-wide">
                 Unified Supabase SQL Database Schema
               </h2>
-              <p className="text-xs text-[#8c7a4f]">
+              <p className="text-xs text-[#475569]">
                 Common, aligned schema for Products & COD Orders with price, status & RLS security
               </p>
             </div>
@@ -390,21 +396,21 @@ export const SupabaseSqlModal: React.FC<SupabaseSqlModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg text-[#8c7a4f] hover:text-[#f3e7c4] hover:bg-[#201a14] transition-colors"
+            className="p-1.5 rounded-lg text-[#475569] hover:text-[#0f172a] hover:bg-[#e2e8f0] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Tab Selection */}
-        <div className="px-6 pt-3 bg-[#16120d] border-b border-[#241e17] flex items-center gap-2">
+        <div className="px-6 pt-3 bg-[#ffffff] border-b border-black flex items-center gap-2 overflow-x-auto">
           <button
             type="button"
             onClick={() => setActiveTab('unified')}
             className={`px-3.5 py-2 text-xs font-semibold rounded-t-lg border-b-2 flex items-center gap-1.5 transition-all ${
               activeTab === 'unified'
-                ? 'border-[#e5c158] text-[#e5c158] bg-[#1d1711]'
-                : 'border-transparent text-[#8c7a4f] hover:text-[#f3e7c4]'
+                ? 'border-[#a16207] text-[#a16207] bg-[#fffbeb]'
+                : 'border-transparent text-[#475569] hover:text-[#0f172a]'
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
@@ -416,8 +422,8 @@ export const SupabaseSqlModal: React.FC<SupabaseSqlModalProps> = ({
             onClick={() => setActiveTab('orders')}
             className={`px-3.5 py-2 text-xs font-semibold rounded-t-lg border-b-2 flex items-center gap-1.5 transition-all ${
               activeTab === 'orders'
-                ? 'border-[#e5c158] text-[#e5c158] bg-[#1d1711]'
-                : 'border-transparent text-[#8c7a4f] hover:text-[#f3e7c4]'
+                ? 'border-[#a16207] text-[#a16207] bg-[#fffbeb]'
+                : 'border-transparent text-[#475569] hover:text-[#0f172a]'
             }`}
           >
             <Package className="w-3.5 h-3.5" />
@@ -429,25 +435,41 @@ export const SupabaseSqlModal: React.FC<SupabaseSqlModalProps> = ({
             onClick={() => setActiveTab('products')}
             className={`px-3.5 py-2 text-xs font-semibold rounded-t-lg border-b-2 flex items-center gap-1.5 transition-all ${
               activeTab === 'products'
-                ? 'border-[#e5c158] text-[#e5c158] bg-[#1d1711]'
-                : 'border-transparent text-[#8c7a4f] hover:text-[#f3e7c4]'
+                ? 'border-[#a16207] text-[#a16207] bg-[#fffbeb]'
+                : 'border-transparent text-[#475569] hover:text-[#0f172a]'
             }`}
           >
             <ShoppingBag className="w-3.5 h-3.5" />
             <span>Products Table Schema</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('subcategories')}
+            className={`px-3.5 py-2 text-xs font-semibold rounded-t-lg border-b-2 flex items-center gap-1.5 transition-all whitespace-nowrap ${
+              activeTab === 'subcategories'
+                ? 'border-[#a16207] text-[#a16207] bg-[#fffbeb]'
+                : 'border-transparent text-[#475569] hover:text-[#0f172a]'
+            }`}
+          >
+            <Layers className="w-3.5 h-3.5" />
+            <span>Categories &amp; Subcategories</span>
           </button>
         </div>
 
         {/* Content */}
         <div className="p-6 space-y-4 text-xs overflow-y-auto max-h-[70vh]">
           {initialError && (
-            <div className="p-3.5 rounded-xl bg-amber-950/40 border border-amber-800/50 flex items-start gap-2.5 text-amber-200">
-              <AlertCircle className="w-4 h-4 shrink-0 text-amber-400 mt-0.5" />
+            <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-2.5 text-amber-900">
+              <AlertCircle className="w-4 h-4 shrink-0 text-amber-700 mt-0.5" />
               <div>
-                <p className="font-semibold text-amber-300">Supabase Table Sync Notice</p>
-                <p className="text-[11px] text-amber-200/90 mt-0.5 font-mono break-all">{initialError}</p>
-                <p className="text-[11px] text-[#d8cca8] mt-1.5">
-                  Run the SQL script below in your Supabase SQL Editor to add missing price columns and configure permissions.
+                <p className="font-semibold text-amber-800">Supabase Table Sync Notice</p>
+                <p className="text-[11px] text-amber-800/90 mt-0.5 font-mono break-all">{initialError}</p>
+                <p className="text-[11px] text-[#334155] mt-1.5">
+                  Run the SQL script below in your Supabase SQL Editor to add missing columns and configure permissions.
+                  {/subcategor|categories/i.test(initialError) && (
+                    <> Open the <span className="text-[#a16207] font-semibold">Categories &amp; Subcategories</span> tab first.</>
+                  )}
                 </p>
               </div>
             </div>
@@ -455,13 +477,13 @@ export const SupabaseSqlModal: React.FC<SupabaseSqlModalProps> = ({
 
           {/* Quick Steps */}
           <div className="space-y-2">
-            <h3 className="font-semibold text-[#f3e7c4] uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-              <Terminal className="w-3.5 h-3.5 text-[#e5c158]" />
+            <h3 className="font-semibold text-[#0f172a] uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+              <Terminal className="w-3.5 h-3.5 text-[#a16207]" />
               Quick 3-Step Setup in Supabase (10 Seconds)
             </h3>
-            <ol className="list-decimal list-inside space-y-1.5 text-[#d8cca8] bg-[#17130e] p-3.5 rounded-xl border border-[#262018]">
+            <ol className="list-decimal list-inside space-y-1.5 text-[#334155] bg-[#f8fafc] p-3.5 rounded-xl border border-black">
               <li>
-                Click <span className="text-[#e5c158] font-bold">"Copy SQL Script"</span> below.
+                Click <span className="text-[#a16207] font-bold">"Copy SQL Script"</span> below.
               </li>
               <li>
                 Open your Supabase project's{' '}
@@ -469,7 +491,7 @@ export const SupabaseSqlModal: React.FC<SupabaseSqlModalProps> = ({
                   href={sqlEditorUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[#e5c158] hover:underline font-semibold inline-flex items-center gap-1"
+                  className="text-[#a16207] hover:underline font-semibold inline-flex items-center gap-1"
                 >
                   <span>SQL Editor</span>
                   <ExternalLink className="w-3 h-3" />
@@ -477,73 +499,75 @@ export const SupabaseSqlModal: React.FC<SupabaseSqlModalProps> = ({
                 .
               </li>
               <li>
-                Paste the SQL into the editor and click <span className="text-emerald-400 font-bold">RUN</span>. Both your <span className="text-[#e5c158] font-semibold">products</span> and <span className="text-[#e5c158] font-semibold">orders</span> tables will have matching price columns and live synchronization!
+                Paste the SQL into the editor and click <span className="text-emerald-700 font-bold">RUN</span>. Both your <span className="text-[#a16207] font-semibold">products</span> and <span className="text-[#a16207] font-semibold">orders</span> tables will have matching price columns and live synchronization!
               </li>
             </ol>
           </div>
 
           {/* Schema Summary Pills */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-[11px]">
-            <div className="p-2 rounded-lg bg-[#18140f] border border-[#262018]">
-              <span className="text-[#8c7a4f] block text-[10px]">Price Columns</span>
-              <span className="font-semibold text-[#f3e7c4]">price, sale_price, amount, mrp</span>
+            <div className="p-2 rounded-lg bg-[#ffffff] border border-black">
+              <span className="text-[#475569] block text-[10px]">Price Columns</span>
+              <span className="font-semibold text-[#0f172a]">price, sale_price, amount, mrp</span>
             </div>
-            <div className="p-2 rounded-lg bg-[#18140f] border border-[#262018]">
-              <span className="text-[#8c7a4f] block text-[10px]">Product Info</span>
-              <span className="font-semibold text-[#f3e7c4]">variant, category, qty, sku</span>
+            <div className="p-2 rounded-lg bg-[#ffffff] border border-black">
+              <span className="text-[#475569] block text-[10px]">Product Info</span>
+              <span className="font-semibold text-[#0f172a]">variant, category, qty, sku</span>
             </div>
-            <div className="p-2 rounded-lg bg-[#18140f] border border-[#262018]">
-              <span className="text-[#8c7a4f] block text-[10px]">Security</span>
-              <span className="font-semibold text-emerald-400">RLS + Public Policies</span>
+            <div className="p-2 rounded-lg bg-[#ffffff] border border-black">
+              <span className="text-[#475569] block text-[10px]">Security</span>
+              <span className="font-semibold text-emerald-700">RLS + Public Policies</span>
             </div>
-            <div className="p-2 rounded-lg bg-[#18140f] border border-[#262018]">
-              <span className="text-[#8c7a4f] block text-[10px]">Realtime</span>
-              <span className="font-semibold text-[#e5c158]">Broadcast Enabled</span>
+            <div className="p-2 rounded-lg bg-[#ffffff] border border-black">
+              <span className="text-[#475569] block text-[10px]">Realtime</span>
+              <span className="font-semibold text-[#a16207]">Broadcast Enabled</span>
             </div>
           </div>
 
           {/* SQL Code Block */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-mono text-[#8c7a4f]">
+              <span className="text-[11px] font-mono text-[#475569]">
                 {activeTab === 'unified'
                   ? 'Common Schema (Products & Orders)'
                   : activeTab === 'orders'
                   ? 'Orders Table Schema'
-                  : 'Products Table Schema'}{' '}
+                  : activeTab === 'products'
+                  ? 'Products Table Schema'
+                  : 'Categories & Subcategories Migration'}{' '}
                 (SQL)
               </span>
               <button
                 type="button"
                 onClick={() => handleCopy()}
-                className="px-3 py-1 rounded-lg bg-[#241e17] hover:bg-[#2e261d] text-[#f3e7c4] font-medium border border-[#382d20] flex items-center gap-1.5 text-[11px] transition-colors"
+                className="px-3 py-1 rounded-lg bg-[#e2e8f0] hover:bg-[#e2e8f0] text-[#0f172a] font-medium border border-black flex items-center gap-1.5 text-[11px] transition-colors"
               >
                 {copied ? (
                   <>
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
-                    <span className="text-emerald-400 font-semibold">Copied to Clipboard!</span>
+                    <Check className="w-3.5 h-3.5 text-emerald-700" />
+                    <span className="text-emerald-700 font-semibold">Copied to Clipboard!</span>
                   </>
                 ) : (
                   <>
-                    <Copy className="w-3.5 h-3.5 text-[#e5c158]" />
+                    <Copy className="w-3.5 h-3.5 text-[#a16207]" />
                     <span>Copy SQL Script</span>
                   </>
                 )}
               </button>
             </div>
-            <pre className="p-4 rounded-xl bg-[#0a0807] border border-[#241d14] text-[#a39474] font-mono text-[11px] overflow-x-auto max-h-72 selection:bg-[#e5c158] selection:text-black leading-relaxed">
+            <pre className="p-4 rounded-xl bg-[#f1f5f9] border border-black text-[#475569] font-mono text-[11px] overflow-x-auto max-h-72 selection:bg-[#a16207] selection:text-black leading-relaxed">
               <code>{currentSql}</code>
             </pre>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-[#241e17] flex items-center justify-between bg-[#16120d]">
+        <div className="px-6 py-4 border-t border-black flex items-center justify-between bg-[#ffffff]">
           <a
             href={sqlEditorUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-[#e5c158] hover:underline flex items-center gap-1.5 font-medium"
+            className="text-xs text-[#a16207] hover:underline flex items-center gap-1.5 font-medium"
           >
             <span>Open Supabase SQL Editor</span>
             <ExternalLink className="w-3.5 h-3.5" />
@@ -553,7 +577,7 @@ export const SupabaseSqlModal: React.FC<SupabaseSqlModalProps> = ({
             <button
               type="button"
               onClick={() => handleCopy()}
-              className="px-4 py-2 rounded-xl bg-[#e5c158] hover:bg-[#f3cf65] text-[#0c0a09] font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-md shadow-[#d4af37]/20"
+              className="px-4 py-2 rounded-xl bg-[#a16207] hover:bg-[#854d0e] text-[#ffffff] font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-md shadow-[#d97706]/20"
             >
               {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
               <span>{copied ? 'Copied' : 'Copy SQL Script'}</span>
@@ -561,7 +585,7 @@ export const SupabaseSqlModal: React.FC<SupabaseSqlModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-[#2d251a] hover:bg-[#201a14] text-[#d8cca8] font-medium text-xs transition-colors"
+              className="px-4 py-2 rounded-xl border border-black hover:bg-[#e2e8f0] text-[#334155] font-medium text-xs transition-colors"
             >
               Close
             </button>

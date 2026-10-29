@@ -21,58 +21,58 @@ export const DeleteProductModal: React.FC<DeleteProductModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="bg-[#12100e] border border-[#3b2020] w-full max-w-md rounded-2xl shadow-2xl p-6 text-[#d8cca8] animate-in fade-in zoom-in-95 duration-150">
-        <div className="flex items-center justify-between pb-3 border-b border-[#241e17]">
-          <div className="flex items-center gap-2.5 text-rose-400 font-serif font-bold text-base">
-            <div className="w-8 h-8 rounded-lg bg-rose-950/60 border border-rose-800/40 flex items-center justify-center">
-              <AlertTriangle className="w-4 h-4 text-rose-400" />
+      <div className="bg-[#f8fafc] border border-[#fecaca] w-full max-w-md rounded-2xl shadow-2xl p-6 text-[#334155] animate-in fade-in zoom-in-95 duration-150">
+        <div className="flex items-center justify-between pb-3 border-b border-black">
+          <div className="flex items-center gap-2.5 text-rose-600 font-serif font-bold text-base">
+            <div className="w-8 h-8 rounded-lg bg-rose-50 border border-rose-200 flex items-center justify-center">
+              <AlertTriangle className="w-4 h-4 text-rose-600" />
             </div>
             <span>Delete Product</span>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1 rounded-lg text-[#8c7a4f] hover:text-[#e5c158] hover:bg-[#201a14]"
+            className="p-1 rounded-lg text-[#475569] hover:text-[#a16207] hover:bg-[#e2e8f0]"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <div className="py-4 space-y-3 text-xs">
-          <p className="text-[#c9b787]">
+          <p className="text-[#475569]">
             Are you sure you want to permanently delete this product from your inventory?
           </p>
 
-          <div className="p-3 rounded-xl bg-[#1c1813] border border-[#2d251a] flex items-center gap-3">
+          <div className="p-3 rounded-xl bg-[#f8fafc] border border-black flex items-center gap-3">
             <img
               src={product.cover_image}
               alt={product.title}
-              className="w-12 h-12 rounded-lg object-cover border border-[#3b3223]"
+              className="w-12 h-12 rounded-lg object-cover border border-black"
             />
             <div className="min-w-0 flex-1">
-              <h4 className="font-semibold text-[#f3e7c4] truncate">{product.title}</h4>
-              <p className="text-[11px] font-mono text-[#8c7a4f] mt-0.5">SKU: {product.sku}</p>
-              <p className="text-[11px] text-[#e5c158] font-bold mt-0.5">
+              <h4 className="font-semibold text-[#0f172a] truncate">{product.title}</h4>
+              <p className="text-[11px] font-mono text-[#475569] mt-0.5">SKU: {product.sku}</p>
+              <p className="text-[11px] text-[#a16207] font-bold mt-0.5">
                 {currencySymbol} {product.sale_price} &bull; {product.quantity} in stock
               </p>
             </div>
           </div>
 
-          <p className="text-[11px] text-[#8c7a4f]">
+          <p className="text-[11px] text-[#475569]">
             This action will remove the product from your catalog and active orders product pickers.
           </p>
         </div>
 
-        <div className="pt-3 border-t border-[#241e17] flex items-center justify-end gap-3">
+        <div className="pt-3 border-t border-black flex items-center justify-end gap-3">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl bg-[#1c1813] border border-[#2d251a] text-[#a39882] hover:text-[#f3e7c4] hover:bg-[#252019] text-xs font-medium"
+            className="px-4 py-2 rounded-xl bg-[#f8fafc] border border-black text-[#475569] hover:text-[#0f172a] hover:bg-[#f1f5f9] text-xs font-medium"
           >
             Cancel
           </button>
@@ -83,7 +83,7 @@ export const DeleteProductModal: React.FC<DeleteProductModalProps> = ({
               await onConfirm(product.id);
               onClose();
             }}
-            className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold shadow-lg shadow-rose-950/50 flex items-center gap-1.5 transition-all"
+            className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-lg shadow-rose-200 flex items-center gap-1.5 transition-all"
           >
             <Trash2 className="w-3.5 h-3.5" />
             <span>Delete Permanently</span>

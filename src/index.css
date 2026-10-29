@@ -1,1 +1,55 @@
 @import "tailwindcss";
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  font-size: 18px;
+}
+
+*,
+*::before,
+*::after {
+  font-weight: 700 !important;
+}
+
+.text-\[9px\] {
+  font-size: 11px !important;
+}
+
+.text-\[10px\] {
+  font-size: 12px !important;
+}
+
+.text-\[11px\] {
+  font-size: 13px !important;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  background-color: #f1f5f9;
+  color: #0f172a;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background-color: #fde68a;
+  color: #0f172a;
+}
+
+* {
+  scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+input,
+select,
+textarea {
+  color-scheme: light;
+}

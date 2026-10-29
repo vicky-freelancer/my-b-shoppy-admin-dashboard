@@ -137,7 +137,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess, settings }
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200">
+        <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-black">
           {/* Quick Demo Logins */}
           <div className="mb-6">
             <div className="flex items-center justify-between mb-3">
@@ -155,7 +155,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess, settings }
                   type="button"
                   id={`quick-login-${demo.role.toLowerCase().replace(/\s+/g, '-')}`}
                   onClick={() => handleQuickLogin(demo)}
-                  className="w-full p-2.5 rounded-xl border border-slate-200 hover:border-blue-500 hover:bg-blue-50/40 transition-all text-left flex items-center justify-between group active:scale-[0.99]"
+                  className="w-full p-2.5 rounded-xl border border-black hover:border-blue-500 hover:bg-blue-50/40 transition-all text-left flex items-center justify-between group active:scale-[0.99]"
                 >
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
@@ -174,7 +174,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess, settings }
 
           <div className="relative my-6 text-center">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200" />
+              <div className="w-full border-t border-black" />
             </div>
             <span className="relative px-3 bg-white text-[11px] text-slate-400 uppercase tracking-wider font-semibold">
               Or Sign In with Credentials
@@ -206,7 +206,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess, settings }
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@yourstore.com"
-                  className="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-900 text-xs"
+                  className="w-full pl-9 pr-3 py-2 rounded-lg border border-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-900 text-xs"
                 />
               </div>
             </div>
@@ -221,7 +221,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess, settings }
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-900 text-xs"
+                  className="w-full pl-9 pr-3 py-2 rounded-lg border border-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-900 text-xs"
                 />
               </div>
             </div>

@@ -80,6 +80,8 @@ CREATE TABLE IF NOT EXISTS public.products (
   subtitle TEXT,
   original_price NUMERIC,
   category_id TEXT,
+  subcategory_id BIGINT,
+  subcategory TEXT,
   badge TEXT,
   rating NUMERIC DEFAULT 5.0,
   reviews_count INTEGER DEFAULT 0,
@@ -89,9 +91,6 @@ CREATE TABLE IF NOT EXISTS public.products (
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
-
--- Unique index on slug (allows multiple NULLs) so the frontend can upsert its catalog safely
-CREATE UNIQUE INDEX IF NOT EXISTS products_slug_uniq ON public.products(slug);
 
 -- Ensure all product columns exist safely (idempotent migration)
 DO $$ 
@@ -152,6 +151,12 @@ BEGIN
   END IF;
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='products' AND column_name='category_id') THEN
     ALTER TABLE public.products ADD COLUMN category_id TEXT;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='products' AND column_name='subcategory_id') THEN
+    ALTER TABLE public.products ADD COLUMN subcategory_id BIGINT;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='products' AND column_name='subcategory') THEN
+    ALTER TABLE public.products ADD COLUMN subcategory TEXT;
   END IF;
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='products' AND column_name='badge') THEN
     ALTER TABLE public.products ADD COLUMN badge TEXT;
@@ -570,6 +575,8 @@ export async function getProducts(): Promise<{ products: Product[]; error?: stri
           subtitle: item.subtitle || '',
           original_price: item.original_price ? Number(item.original_price) : undefined,
           category_id: item.category_id || undefined,
+          subcategory_id: item.subcategory_id ? String(item.subcategory_id) : undefined,
+          subcategory: item.subcategory || undefined,
           badge: item.badge || undefined,
           rating: item.rating ? Number(item.rating) : undefined,
           reviews_count: item.reviews_count ? Number(item.reviews_count) : undefined,
@@ -661,6 +668,8 @@ async function attemptInsertProductToSupabase(productData: Omit<Product, 'id'>):
     subtitle: productData.subtitle || '',
     original_price: productData.original_price ? Number(productData.original_price) : null,
     category_id: productData.category_id || (productData.category ? productData.category.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') : null),
+    subcategory_id: productData.subcategory_id || null,
+    subcategory: productData.subcategory || null,
     badge: productData.badge || (productData.badges && productData.badges[0]) || null,
     rating: productData.rating ? Number(productData.rating) : 5.0,
     reviews_count: productData.reviews_count ? Number(productData.reviews_count) : 0,
@@ -673,8 +682,8 @@ async function attemptInsertProductToSupabase(productData: Omit<Product, 'id'>):
   const satisfiedNotNullCols = new Set<string>();
   let lastError: any = null;
 
-  // Adaptive retry loop (up to 12 iterations)
-  for (let attempt = 0; attempt < 12; attempt++) {
+  // Adaptive retry loop (covers every optional column on older schemas)
+  for (let attempt = 0; attempt < 24; attempt++) {
     try {
       const { data, error } = await supabase
         .from('products')
@@ -779,6 +788,8 @@ export async function createProduct(
           subtitle: data.subtitle || productData.subtitle || '',
           original_price: data.original_price ? Number(data.original_price) : productData.original_price,
           category_id: data.category_id || productData.category_id,
+          subcategory_id: data.subcategory_id ? String(data.subcategory_id) : productData.subcategory_id,
+          subcategory: data.subcategory || productData.subcategory,
           badge: data.badge || productData.badge,
           rating: data.rating ? Number(data.rating) : productData.rating,
           reviews_count: data.reviews_count ? Number(data.reviews_count) : productData.reviews_count,
@@ -869,6 +880,8 @@ export async function updateProduct(
     if (updates.subtitle !== undefined) updatePayload.subtitle = updates.subtitle;
     if (updates.original_price !== undefined) updatePayload.original_price = updates.original_price;
     if (updates.category_id !== undefined) updatePayload.category_id = updates.category_id;
+    if (updates.subcategory_id !== undefined) updatePayload.subcategory_id = updates.subcategory_id || null;
+    if (updates.subcategory !== undefined) updatePayload.subcategory = updates.subcategory || null;
     if (updates.badge !== undefined) updatePayload.badge = updates.badge;
     if (updates.rating !== undefined) updatePayload.rating = updates.rating;
     if (updates.reviews_count !== undefined) updatePayload.reviews_count = updates.reviews_count;
@@ -910,6 +923,9 @@ export async function updateProduct(
         title: updates.title || existing?.title || 'Jewellery Item',
         sku: updates.sku || existing?.sku || `SKU-${Date.now().toString().slice(-4)}`,
         category: updates.category || existing?.category || 'Jewellery',
+        category_id: updates.category_id || existing?.category_id,
+        subcategory_id: updates.subcategory_id || existing?.subcategory_id,
+        subcategory: updates.subcategory || existing?.subcategory,
         cover_image: updates.cover_image || existing?.cover_image || '',
         mrp: updates.mrp !== undefined ? updates.mrp : (existing?.mrp || 0),
         sale_price: updates.sale_price !== undefined ? updates.sale_price : (existing?.sale_price || 0),
@@ -939,7 +955,7 @@ export async function updateProduct(
     let error: any = null;
     const triedUpdateCols = new Set<string>();
 
-    for (let attempt = 0; attempt < 8; attempt++) {
+    for (let attempt = 0; attempt < 24; attempt++) {
       const res = await supabase
         .from('products')
         .update(updatePayload)
@@ -1222,6 +1238,9 @@ export async function duplicateProduct(
     title: `${source.title} (Copy)`,
     sku: `${source.sku}-COPY`,
     category: source.category,
+    category_id: source.category_id,
+    subcategory_id: source.subcategory_id,
+    subcategory: source.subcategory,
     cover_image: source.cover_image,
     mrp: source.mrp,
     sale_price: source.sale_price,

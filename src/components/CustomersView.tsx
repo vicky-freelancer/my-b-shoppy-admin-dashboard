@@ -12,7 +12,7 @@ interface CustomersViewProps {
 export const CustomersView: React.FC<CustomersViewProps> = ({
   orders,
   products = [],
-  currencySymbol = '₹',
+  currencySymbol = 'Γé╣',
 }) => {
   const [search, setSearch] = useState('');
 
@@ -74,26 +74,26 @@ export const CustomersView: React.FC<CustomersViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-black bg-[#ffffff] px-5 py-4 shadow-sm">
         <div>
-          <h2 className="text-2xl font-serif font-bold text-[#f3e7c4] tracking-wide uppercase">
+          <h2 className="text-2xl font-serif font-bold text-[#0f172a] tracking-wide uppercase border-l-4 border-[#d97706] pl-3">
             CUSTOMERS
           </h2>
-          <p className="text-xs text-[#8c7a4f] mt-1">
+          <p className="text-xs text-[#475569] mt-1">
             Directory of buyers and client contact details.
           </p>
         </div>
       </div>
 
       {/* Search */}
-      <div className="relative max-w-md">
-        <Search className="w-4 h-4 text-[#8c7a4f] absolute left-3.5 top-1/2 -translate-y-1/2" />
+      <div className="relative max-w-md rounded-2xl border border-black bg-[#ffffff] p-2 shadow-sm">
+        <Search className="w-4 h-4 text-[#475569] absolute left-5 top-1/2 -translate-y-1/2" />
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by customer name, phone, city..."
-          className="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl bg-[#14100c] border border-[#272017] text-[#f3e7c4] placeholder:text-[#736342] focus:outline-none focus:border-[#d4af37]"
+          className="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl bg-[#f8fafc] border border-black text-[#0f172a] placeholder:text-[#64748b] focus:outline-none focus:border-[#d97706]"
         />
       </div>
 
@@ -102,39 +102,39 @@ export const CustomersView: React.FC<CustomersViewProps> = ({
         {filtered.map((customer, idx) => (
           <div
             key={idx}
-            className="p-5 rounded-2xl bg-[#12100e] border border-[#241e17] shadow-md hover:border-[#3d3220] transition-all text-xs"
+            className="rounded-2xl bg-[#ffffff] border border-black shadow-md hover:border-black transition-all text-xs overflow-hidden"
           >
-            <div className="flex items-center justify-between pb-3 border-b border-[#1f1a14] mb-3">
+            <div className="flex items-center justify-between px-5 py-3.5 bg-[#f8fafc] border-b border-black">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-full bg-[#1c1813] border border-[#3b3223] flex items-center justify-center font-bold text-[#e5c158]">
+                <div className="w-9 h-9 rounded-full bg-[#fffbeb] border border-[#d97706]/40 flex items-center justify-center font-bold text-[#a16207]">
                   {customer.name.charAt(0)}
                 </div>
                 <div>
-                  <h4 className="font-semibold text-[#f3e7c4]">{customer.name}</h4>
-                  <span className="text-[10px] text-[#8c7a4f]">{customer.orderCount} Order(s)</span>
+                  <h4 className="font-semibold text-[#0f172a]">{customer.name}</h4>
+                  <span className="text-[10px] text-[#475569]">{customer.orderCount} Order(s)</span>
                 </div>
               </div>
               <div className="text-right">
-                <span className="font-bold text-[#e5c158]">
+                <span className="font-bold text-[#a16207]">
                   {currencySymbol} {customer.totalSpent.toLocaleString()}
                 </span>
-                <p className="text-[10px] text-[#8c7a4f]">Total Value</p>
+                <p className="text-[10px] text-[#475569]">Total Value</p>
               </div>
             </div>
 
-            <div className="space-y-2 text-[#a39882]">
+            <div className="p-5 pt-4 space-y-2 text-[#475569]">
               <div className="flex items-center gap-2">
-                <Phone className="w-3.5 h-3.5 text-[#8c7a4f]" />
-                <span className="font-mono text-[#f3e7c4]">{customer.phone || 'No phone'}</span>
+                <Phone className="w-3.5 h-3.5 text-[#475569]" />
+                <span className="font-mono text-[#0f172a]">{customer.phone || 'No phone'}</span>
               </div>
               {customer.email && (
                 <div className="flex items-center gap-2">
-                  <Mail className="w-3.5 h-3.5 text-[#8c7a4f]" />
+                  <Mail className="w-3.5 h-3.5 text-[#475569]" />
                   <span className="truncate">{customer.email}</span>
                 </div>
               )}
               <div className="flex items-start gap-2">
-                <MapPin className="w-3.5 h-3.5 text-[#8c7a4f] shrink-0 mt-0.5" />
+                <MapPin className="w-3.5 h-3.5 text-[#475569] shrink-0 mt-0.5" />
                 <span className="truncate">
                   {customer.address}, {customer.city}
                 </span>
@@ -142,12 +142,12 @@ export const CustomersView: React.FC<CustomersViewProps> = ({
             </div>
 
             {/* Quick action button */}
-            <div className="pt-3 mt-3 border-t border-[#1f1a14] flex justify-end">
+            <div className="px-5 py-3 bg-[#f8fafc] border-t border-black flex justify-end">
               <a
                 href={`https://wa.me/${customer.phone.replace(/[^0-9]/g, '')}`}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1a1611] border border-[#2d251a] hover:border-[#25d366] text-[#25d366] text-[11px] font-semibold transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#f1f5f9] border border-black hover:border-[#15803d] text-[#15803d] text-[11px] font-semibold transition-colors"
               >
                 <MessageSquare className="w-3.5 h-3.5" />
                 <span>WhatsApp Message</span>

@@ -128,9 +128,9 @@ export function getStatusConfig(status: string): StatusConfig {
       return {
         key: 'confirmed',
         label: 'Confirmed',
-        badgeBg: 'bg-blue-950/40',
-        badgeText: 'text-blue-300',
-        badgeBorder: 'border-blue-800/50',
+        badgeBg: 'bg-blue-50',
+        badgeText: 'text-blue-700',
+        badgeBorder: 'border-blue-200',
         dotColor: 'bg-blue-400',
         description: 'Verified with customer, queued for packing',
       };
@@ -138,9 +138,9 @@ export function getStatusConfig(status: string): StatusConfig {
       return {
         key: 'shipped',
         label: 'Shipped',
-        badgeBg: 'bg-sky-950/40',
-        badgeText: 'text-sky-300',
-        badgeBorder: 'border-sky-800/50',
+        badgeBg: 'bg-sky-50',
+        badgeText: 'text-sky-700',
+        badgeBorder: 'border-sky-200',
         dotColor: 'bg-sky-400',
         description: 'Handed over to courier partner for delivery',
       };
@@ -148,9 +148,9 @@ export function getStatusConfig(status: string): StatusConfig {
       return {
         key: 'delivered',
         label: 'Delivered',
-        badgeBg: 'bg-emerald-950/40',
-        badgeText: 'text-emerald-300',
-        badgeBorder: 'border-emerald-800/50',
+        badgeBg: 'bg-emerald-50',
+        badgeText: 'text-emerald-700',
+        badgeBorder: 'border-emerald-200',
         dotColor: 'bg-emerald-400',
         description: 'Successfully delivered and COD cash collected',
       };
@@ -158,9 +158,9 @@ export function getStatusConfig(status: string): StatusConfig {
       return {
         key: 'cancelled',
         label: 'Cancelled',
-        badgeBg: 'bg-rose-950/40',
-        badgeText: 'text-rose-300',
-        badgeBorder: 'border-rose-800/50',
+        badgeBg: 'bg-rose-50',
+        badgeText: 'text-rose-700',
+        badgeBorder: 'border-rose-200',
         dotColor: 'bg-rose-400',
         description: 'Cancelled by customer or failed verification',
       };
@@ -168,9 +168,9 @@ export function getStatusConfig(status: string): StatusConfig {
       return {
         key: 'returned',
         label: 'Returned',
-        badgeBg: 'bg-orange-950/40',
-        badgeText: 'text-orange-300',
-        badgeBorder: 'border-orange-800/50',
+        badgeBg: 'bg-orange-50',
+        badgeText: 'text-orange-700',
+        badgeBorder: 'border-orange-200',
         dotColor: 'bg-orange-400',
         description: 'Customer rejected COD delivery, in return transit',
       };
@@ -179,9 +179,9 @@ export function getStatusConfig(status: string): StatusConfig {
       return {
         key: 'pending',
         label: 'Pending',
-        badgeBg: 'bg-amber-950/40',
-        badgeText: 'text-amber-300',
-        badgeBorder: 'border-amber-800/50',
+        badgeBg: 'bg-amber-50',
+        badgeText: 'text-amber-700',
+        badgeBorder: 'border-amber-200',
         dotColor: 'bg-amber-400',
         description: 'New incoming COD order requiring phone/WhatsApp call',
       };

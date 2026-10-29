@@ -243,13 +243,13 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
     activeStatusFilter !== 'all';
 
   return (
-    <div className="bg-[#120f0b] rounded-2xl border border-[#241e17] shadow-sm overflow-hidden">
+    <div className="bg-[#ffffff] rounded-2xl border border-black shadow-sm overflow-hidden">
       {/* Top Header & Actions Bar */}
-      <div className="p-4 sm:p-5 border-b border-[#1f1a14] flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="p-4 sm:p-5 border-b border-black flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         {/* Search & Category / City / Date Filters */}
         <div className="flex flex-wrap items-center gap-2.5 flex-1">
           <div className="relative min-w-[240px] flex-1 max-w-md">
-            <Search className="w-4 h-4 text-[#8c7a4f] absolute left-4 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[#475569] absolute left-4 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               id="orders-search-input"
@@ -259,13 +259,13 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                 setCurrentPage(1);
               }}
               placeholder="Search orders, customers, category, address, phone..."
-              className="w-full pl-10 pr-8 py-2 text-xs rounded-xl border border-[#2d251a] bg-[#18140f] text-[#f3e7c4] placeholder:text-[#8c7a4f] hover:border-[#3d3324] focus:outline-none focus:ring-1 focus:ring-[#e5c158] transition-all"
+              className="w-full pl-10 pr-8 py-2 text-xs rounded-xl border border-black bg-[#ffffff] text-[#0f172a] placeholder:text-[#475569] hover:border-black focus:outline-none focus:ring-1 focus:ring-[#a16207] transition-all"
             />
             {searchTerm && (
               <button
                 type="button"
                 onClick={() => setSearchTerm('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-[#8c7a4f] hover:text-[#f3e7c4] rounded-full"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-[#475569] hover:text-[#0f172a] rounded-full"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -280,11 +280,11 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
               setSelectedCategory(e.target.value);
               setCurrentPage(1);
             }}
-            className="px-3 py-2 text-xs rounded-xl border border-[#2d251a] bg-[#18140f] text-[#d8cca8] focus:outline-none focus:border-[#e5c158] cursor-pointer font-medium"
+            className="px-3 py-2 text-xs rounded-xl border border-black bg-[#ffffff] text-[#334155] focus:outline-none focus:border-[#a16207] cursor-pointer font-medium"
           >
             <option value="all">All Categories ({uniqueCategories.length})</option>
             {uniqueCategories.map((cat) => (
-              <option key={cat} value={cat} className="bg-[#18140f] text-[#f3e7c4]">
+              <option key={cat} value={cat} className="bg-[#ffffff] text-[#0f172a]">
                 {cat}
               </option>
             ))}
@@ -298,11 +298,11 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
               setSelectedCity(e.target.value);
               setCurrentPage(1);
             }}
-            className="px-3 py-2 text-xs rounded-xl border border-[#2d251a] bg-[#18140f] text-[#d8cca8] focus:outline-none focus:border-[#e5c158] cursor-pointer font-medium"
+            className="px-3 py-2 text-xs rounded-xl border border-black bg-[#ffffff] text-[#334155] focus:outline-none focus:border-[#a16207] cursor-pointer font-medium"
           >
             <option value="all">All Cities ({uniqueCities.length})</option>
             {uniqueCities.map((c) => (
-              <option key={c} value={c} className="bg-[#18140f] text-[#f3e7c4]">
+              <option key={c} value={c} className="bg-[#ffffff] text-[#0f172a]">
                 {c}
               </option>
             ))}
@@ -316,7 +316,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
               setSelectedDateRange(e.target.value as any);
               setCurrentPage(1);
             }}
-            className="px-3 py-2 text-xs rounded-xl border border-[#2d251a] bg-[#18140f] text-[#d8cca8] focus:outline-none focus:border-[#e5c158] cursor-pointer font-medium"
+            className="px-3 py-2 text-xs rounded-xl border border-black bg-[#ffffff] text-[#334155] focus:outline-none focus:border-[#a16207] cursor-pointer font-medium"
           >
             <option value="all">All Time</option>
             <option value="today">Today</option>
@@ -328,7 +328,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
             <button
               type="button"
               onClick={resetFilters}
-              className="px-3 py-2 text-xs text-[#8c7a4f] hover:text-[#f3e7c4] font-medium flex items-center gap-1 transition-colors"
+              className="px-3 py-2 text-xs text-[#475569] hover:text-[#0f172a] font-medium flex items-center gap-1 transition-colors"
             >
               <X className="w-3.5 h-3.5" />
               Clear
@@ -342,10 +342,10 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
             type="button"
             id="export-csv-btn"
             onClick={() => exportOrdersToCSV(filteredOrders, `cod_orders_${Date.now()}.csv`)}
-            className="px-3.5 py-2 rounded-xl border border-[#2d251a] bg-[#18140f] text-xs font-semibold text-[#d8cca8] hover:bg-[#241e17] flex items-center gap-1.5 transition-colors shadow-2xs"
+            className="px-3.5 py-2 rounded-xl border border-black bg-[#ffffff] text-xs font-semibold text-[#334155] hover:bg-[#e2e8f0] flex items-center gap-1.5 transition-colors shadow-2xs"
             title="Export filtered orders to CSV spreadsheet"
           >
-            <Download className="w-3.5 h-3.5 text-[#e5c158]" />
+            <Download className="w-3.5 h-3.5 text-[#a16207]" />
             <span>Export Data</span>
           </button>
 
@@ -353,7 +353,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
             type="button"
             id="create-new-order-btn"
             onClick={onOpenNewOrderModal}
-            className="px-4 py-2 rounded-xl bg-[#e5c158] hover:bg-[#f3cf65] text-[#0c0a09] font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-[#d4af37]/20 transition-all active:scale-[0.98]"
+            className="px-4 py-2 rounded-xl bg-[#a16207] hover:bg-[#854d0e] text-[#ffffff] font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-[#d97706]/20 transition-all active:scale-[0.98]"
           >
             <Plus className="w-4 h-4" />
             <span>New Order</span>
@@ -362,7 +362,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
       </div>
 
       {/* Status Tabs Bar */}
-      <div className="px-4 sm:px-5 py-2 bg-[#0d0b09] border-b border-[#1f1a14] flex items-center gap-1 overflow-x-auto scrollbar-none text-xs">
+      <div className="px-4 sm:px-5 py-2 bg-[#f8fafc] border-b border-black flex items-center gap-1 overflow-x-auto scrollbar-none text-xs">
         {[
           { key: 'all', label: 'All Orders', count: statusCounts.all },
           { key: 'pending', label: 'Pending', count: statusCounts.pending },
@@ -383,14 +383,14 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
               }}
               className={`px-3 py-1.5 rounded-lg font-medium flex items-center gap-1.5 whitespace-nowrap transition-colors ${
                 isSelected
-                  ? 'bg-[#241e17] text-[#e5c158] font-semibold border border-[#e5c158]/30'
-                  : 'text-[#8c7a4f] hover:text-[#f3e7c4] hover:bg-[#18140f]'
+                  ? 'bg-[#e2e8f0] text-[#a16207] font-semibold border border-[#a16207]/30'
+                  : 'text-[#475569] hover:text-[#0f172a] hover:bg-[#f1f5f9]'
               }`}
             >
               <span>{tab.label}</span>
               <span
                 className={`px-1.5 py-0.5 rounded-full text-[10px] font-semibold ${
-                  isSelected ? 'bg-[#e5c158] text-[#0c0a09]' : 'bg-[#18140f] text-[#8c7a4f]'
+                  isSelected ? 'bg-[#a16207] text-[#ffffff]' : 'bg-[#ffffff] text-[#475569]'
                 }`}
               >
                 {tab.count}
@@ -402,13 +402,13 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
 
       {/* Bulk Action Banner (when items are selected) */}
       {selectedOrderIds.size > 0 && (
-        <div className="bg-[#1c1712] text-[#f3e7c4] px-5 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs border-b border-[#2d251a] animate-in slide-in-from-top-2 duration-150">
+        <div className="bg-[#f8fafc] text-[#0f172a] px-5 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs border-b border-black animate-in slide-in-from-top-2 duration-150">
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-[#e5c158]">{selectedOrderIds.size} orders selected</span>
+            <span className="font-semibold text-[#a16207]">{selectedOrderIds.size} orders selected</span>
             <button
               type="button"
               onClick={() => setSelectedOrderIds(new Set())}
-              className="text-[#8c7a4f] hover:text-[#f3e7c4] underline text-[11px] ml-2"
+              className="text-[#475569] hover:text-[#0f172a] underline text-[11px] ml-2"
             >
               Deselect All
             </button>
@@ -418,7 +418,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
             <select
               value={bulkStatus}
               onChange={(e) => setBulkStatus(e.target.value as OrderStatus)}
-              className="px-2.5 py-1 rounded-lg bg-[#14100c] text-[#f3e7c4] text-xs border border-[#2d251a] focus:outline-none"
+              className="px-2.5 py-1 rounded-lg bg-[#f8fafc] text-[#0f172a] text-xs border border-black focus:outline-none"
             >
               <option value="">Change status to...</option>
               <option value="confirmed">Confirmed</option>
@@ -432,7 +432,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
               type="button"
               onClick={handleBulkStatusApply}
               disabled={!bulkStatus}
-              className="px-3 py-1 bg-[#e5c158] text-[#0c0a09] font-bold rounded-lg text-xs hover:bg-[#f3cf65] disabled:opacity-50"
+              className="px-3 py-1 bg-[#a16207] text-[#ffffff] font-bold rounded-lg text-xs hover:bg-[#854d0e] disabled:opacity-50"
             >
               Apply Status
             </button>
@@ -440,7 +440,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
             <button
               type="button"
               onClick={handleExportSelected}
-              className="px-3 py-1 bg-[#241e17] text-[#f3e7c4] font-medium rounded-lg text-xs hover:bg-[#2d251a] flex items-center gap-1"
+              className="px-3 py-1 bg-[#e2e8f0] text-[#0f172a] font-medium rounded-lg text-xs hover:bg-[#e2e8f0] flex items-center gap-1"
             >
               <Download className="w-3 h-3" />
               Export Selected
@@ -450,9 +450,9 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
               type="button"
               id="bulk-delete-orders-btn"
               onClick={() => setIsBulkDeleteModalOpen(true)}
-              className="px-3 py-1 bg-rose-950/60 border border-rose-800/40 text-rose-300 font-semibold rounded-lg text-xs hover:bg-rose-900/60 flex items-center gap-1 transition-colors"
+              className="px-3 py-1 bg-rose-50 border border-rose-200 text-rose-700 font-semibold rounded-lg text-xs hover:bg-rose-100 flex items-center gap-1 transition-colors"
             >
-              <Trash2 className="w-3 h-3 text-rose-400" />
+              <Trash2 className="w-3 h-3 text-rose-600" />
               <span>Delete ({selectedOrderIds.size})</span>
             </button>
           </div>
@@ -462,18 +462,18 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
       {/* Main Table */}
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs border-collapse">
-          <thead className="bg-[#0e0c0a] text-[#8c7a4f] font-semibold uppercase tracking-wider border-b border-[#1f1a14] select-none">
+          <thead className="bg-[#f8fafc] text-[#475569] font-semibold uppercase tracking-wider border-b border-black select-none">
             <tr>
               <th className="py-3.5 px-4 w-10">
                 <button
                   type="button"
                   onClick={toggleSelectAllPage}
-                  className="text-[#8c7a4f] hover:text-[#f3e7c4] flex items-center"
+                  className="text-[#475569] hover:text-[#0f172a] flex items-center"
                 >
                   {isAllPageSelected ? (
-                    <CheckSquare className="w-4 h-4 text-[#e5c158]" />
+                    <CheckSquare className="w-4 h-4 text-[#a16207]" />
                   ) : (
-                    <Square className="w-4 h-4 text-[#3d3324]" />
+                    <Square className="w-4 h-4 text-[#cbd5e1]" />
                   )}
                 </button>
               </th>
@@ -487,7 +487,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                       setSortOrder('desc');
                     }
                   }}
-                  className="flex items-center gap-1 text-[#a39882] hover:text-[#f3e7c4] font-semibold"
+                  className="flex items-center gap-1 text-[#475569] hover:text-[#0f172a] font-semibold"
                 >
                   <span>Order ID / Time</span>
                   <ArrowUpDown className="w-3 h-3 opacity-60" />
@@ -503,15 +503,15 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                       setSortOrder('asc');
                     }
                   }}
-                  className="flex items-center gap-1 text-[#a39882] hover:text-[#f3e7c4] font-semibold"
+                  className="flex items-center gap-1 text-[#475569] hover:text-[#0f172a] font-semibold"
                 >
                   <span>Customer</span>
                   <ArrowUpDown className="w-3 h-3 opacity-60" />
                 </button>
               </th>
-              <th className="py-3.5 px-3 text-[#a39882]">Category</th>
-              <th className="py-3.5 px-3 text-[#a39882]">Address</th>
-              <th className="py-3.5 px-3 text-[#a39882]">Product Variant</th>
+              <th className="py-3.5 px-3 text-[#475569]">Category</th>
+              <th className="py-3.5 px-3 text-[#475569]">Address</th>
+              <th className="py-3.5 px-3 text-[#475569]">Product Variant</th>
               <th className="py-3.5 px-3">
                 <button
                   type="button"
@@ -522,18 +522,18 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                       setSortOrder('desc');
                     }
                   }}
-                  className="flex items-center gap-1 text-[#a39882] hover:text-[#f3e7c4] font-semibold"
+                  className="flex items-center gap-1 text-[#475569] hover:text-[#0f172a] font-semibold"
                 >
                   <span>Order & COD Price</span>
                   <ArrowUpDown className="w-3 h-3 opacity-60" />
                 </button>
               </th>
-              <th className="py-3.5 px-3 text-[#a39882]">Status</th>
-              <th className="py-3.5 px-4 text-right text-[#a39882]">Actions</th>
+              <th className="py-3.5 px-3 text-[#475569]">Status</th>
+              <th className="py-3.5 px-4 text-right text-[#475569]">Actions</th>
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-[#18140f] text-sm">
+          <tbody className="divide-y divide-slate-200 text-sm">
             {paginatedOrders.length > 0 ? (
               paginatedOrders.map((order) => {
                 const isSelected = selectedOrderIds.has(order.id);
@@ -548,8 +548,10 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                     key={order.id}
                     id={`order-row-${order.id}`}
                     onClick={() => onSelectOrder(order)}
-                    className={`hover:bg-[#18140f] transition-colors cursor-pointer group ${
-                      isSelected ? 'bg-[#1e1811]' : ''
+                    className={`transition-colors cursor-pointer group ${
+                      isSelected
+                        ? 'bg-[#fffbeb]'
+                        : 'odd:bg-[#ffffff] even:bg-[#f8fafc] hover:bg-[#f1f5f9]'
                     }`}
                   >
                     {/* Checkbox */}
@@ -560,19 +562,19 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                         toggleSelectOne(order.id);
                       }}
                     >
-                      <button type="button" className="text-[#8c7a4f] hover:text-[#f3e7c4] flex items-center">
+                      <button type="button" className="text-[#475569] hover:text-[#0f172a] flex items-center">
                         {isSelected ? (
-                          <CheckSquare className="w-4 h-4 text-[#e5c158]" />
+                          <CheckSquare className="w-4 h-4 text-[#a16207]" />
                         ) : (
-                          <Square className="w-4 h-4 text-[#3d3324] group-hover:text-[#8c7a4f]" />
+                          <Square className="w-4 h-4 text-[#cbd5e1] group-hover:text-[#475569]" />
                         )}
                       </button>
                     </td>
 
                     {/* Order ID & Time */}
                     <td className="py-3.5 px-3">
-                      <div className="font-mono font-semibold text-[#f3e7c4] text-xs">#{order.id}</div>
-                      <div className="text-[11px] text-[#8c7a4f] flex items-center gap-1 mt-0.5 font-normal">
+                      <div className="font-mono font-semibold text-[#0f172a] text-xs">#{order.id}</div>
+                      <div className="text-[11px] text-[#475569] flex items-center gap-1 mt-0.5 font-normal">
                         <Clock className="w-3 h-3 opacity-60" />
                         <span>{formatRelativeTime(order.created_at)}</span>
                       </div>
@@ -581,44 +583,44 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                     {/* Customer */}
                     <td className="py-3.5 px-3">
                       <div className="flex flex-col">
-                        <span className="font-semibold text-[#e8ded1] text-xs">{order.customer_name}</span>
-                        <span className="text-[11px] text-[#8c7a4f] font-normal font-mono">{order.phone}</span>
+                        <span className="font-semibold text-[#1e293b] text-xs">{order.customer_name}</span>
+                        <span className="text-[11px] text-[#475569] font-normal font-mono">{order.phone}</span>
                       </div>
                     </td>
 
                     {/* Category Column */}
                     <td className="py-3.5 px-3 whitespace-nowrap">
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-[#1a1510] text-[#c4b595] border border-[#2d251a]">
-                        <Tag className="w-3 h-3 mr-1 text-[#8c7a4f]" />
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-[#ffffff] text-[#334155] border border-black">
+                        <Tag className="w-3 h-3 mr-1 text-[#475569]" />
                         {order.category || 'General'}
                       </span>
                     </td>
 
                     {/* Address Column */}
-                    <td className="py-3.5 px-3 max-w-[210px] text-[#a39882] text-xs">
-                      <div className="font-medium text-[#d8cca8] line-clamp-1" title={order.address}>
-                        {order.address || '—'}
+                    <td className="py-3.5 px-3 max-w-[210px] text-[#475569] text-xs">
+                      <div className="font-medium text-[#334155] line-clamp-1" title={order.address}>
+                        {order.address || 'ΓÇö'}
                       </div>
-                      <div className="text-[11px] text-[#8c7a4f] flex items-center gap-1 mt-0.5 font-normal">
-                        <MapPin className="w-3 h-3 text-[#8c7a4f] shrink-0" />
+                      <div className="text-[11px] text-[#475569] flex items-center gap-1 mt-0.5 font-normal">
+                        <MapPin className="w-3 h-3 text-[#475569] shrink-0" />
                         <span className="truncate">{order.city}</span>
                       </div>
                     </td>
 
                     {/* Product & Qty */}
                     <td className="py-3.5 px-3 max-w-[170px]">
-                      <span className="px-2 py-1 bg-[#1a1510] rounded text-[#e5c158] text-xs font-medium inline-block truncate max-w-full border border-[#262018]" title={order.product_variant}>
+                      <span className="px-2 py-1 bg-[#ffffff] rounded text-[#a16207] text-xs font-medium inline-block truncate max-w-full border border-black" title={order.product_variant}>
                         {order.product_variant}
                       </span>
-                      <div className="text-[11px] text-[#8c7a4f] mt-0.5 font-normal">Qty: {order.quantity}</div>
+                      <div className="text-[11px] text-[#475569] mt-0.5 font-normal">Qty: {order.quantity}</div>
                     </td>
 
                     {/* COD Amount */}
                     <td className="py-3.5 px-3">
-                      <div className="font-bold text-[#e5c158] text-xs">
+                      <div className="font-bold text-[#a16207] text-xs">
                         {formatCurrency(orderAmt, currencySymbol)}
                       </div>
-                      <div className="text-[10px] text-[#8c7a4f] font-normal">Order & COD</div>
+                      <div className="text-[10px] text-[#475569] font-normal">Order & COD</div>
                     </td>
 
                     {/* Interactive Status Badge */}
@@ -640,7 +642,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                           target="_blank"
                           rel="noopener noreferrer"
                           title="WhatsApp confirmation message"
-                          className="p-1.5 text-emerald-400 hover:bg-emerald-950/40 rounded-lg transition-colors"
+                          className="p-1.5 text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors"
                         >
                           <MessageSquare className="w-3.5 h-3.5" />
                         </a>
@@ -649,7 +651,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                         <button
                           type="button"
                           onClick={() => onSelectOrder(order)}
-                          className="text-[#e5c158] font-medium hover:underline text-xs"
+                          className="text-[#a16207] font-medium hover:underline text-xs"
                         >
                           Update
                         </button>
@@ -660,7 +662,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                           id={`delete-order-btn-${order.id}`}
                           onClick={() => setDeletingOrder(order)}
                           title="Delete order"
-                          className="p-1 text-[#8c7a4f] hover:text-rose-400 hover:bg-rose-950/30 rounded-lg transition-colors ml-1"
+                          className="p-1 text-[#475569] hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors ml-1"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -671,15 +673,15 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
               })
             ) : (
               <tr>
-                <td colSpan={9} className="py-12 text-center text-[#8c7a4f]">
-                  <Package className="w-8 h-8 mx-auto mb-2 text-[#3d3324]" />
-                  <p className="font-medium text-[#d8cca8] text-xs">No orders match your filter criteria</p>
-                  <p className="text-[11px] text-[#8c7a4f] mt-0.5">Try clearing your filters or searching for another keyword</p>
+                <td colSpan={9} className="py-12 text-center text-[#475569]">
+                  <Package className="w-8 h-8 mx-auto mb-2 text-[#cbd5e1]" />
+                  <p className="font-medium text-[#334155] text-xs">No orders match your filter criteria</p>
+                  <p className="text-[11px] text-[#475569] mt-0.5">Try clearing your filters or searching for another keyword</p>
                   {hasActiveFilters && (
                     <button
                       type="button"
                       onClick={resetFilters}
-                      className="mt-3 px-3.5 py-1.5 bg-[#1f1a14] text-[#e5c158] rounded-xl text-xs font-semibold hover:bg-[#28221a] transition-colors border border-[#2d251a]"
+                      className="mt-3 px-3.5 py-1.5 bg-[#e2e8f0] text-[#a16207] rounded-xl text-xs font-semibold hover:bg-[#e2e8f0] transition-colors border border-black"
                     >
                       Reset All Filters
                     </button>
@@ -692,17 +694,17 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
       </div>
 
       {/* Pagination Footer */}
-      <div className="p-4 border-t border-[#1f1a14] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#8c7a4f]">
+      <div className="p-4 border-t border-black flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#475569]">
         <div>
           Showing{' '}
-          <span className="font-semibold text-[#f3e7c4]">
+          <span className="font-semibold text-[#0f172a]">
             {filteredOrders.length > 0 ? (currentPage - 1) * pageSize + 1 : 0}
           </span>{' '}
           to{' '}
-          <span className="font-semibold text-[#f3e7c4]">
+          <span className="font-semibold text-[#0f172a]">
             {Math.min(currentPage * pageSize, filteredOrders.length)}
           </span>{' '}
-          of <span className="font-semibold text-[#f3e7c4]">{filteredOrders.length}</span> orders
+          of <span className="font-semibold text-[#0f172a]">{filteredOrders.length}</span> orders
         </div>
 
         {totalPages > 1 && (
@@ -712,12 +714,12 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
               id="prev-page-btn"
               disabled={currentPage === 1}
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              className="p-1.5 rounded-lg border border-[#2d251a] hover:bg-[#18140f] text-[#d8cca8] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 rounded-lg border border-black hover:bg-[#f1f5f9] text-[#334155] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
 
-            <span className="px-3 py-1 font-medium text-[#d8cca8]">
+            <span className="px-3 py-1 font-medium text-[#334155]">
               Page {currentPage} of {totalPages}
             </span>
 
@@ -726,7 +728,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
               id="next-page-btn"
               disabled={currentPage === totalPages}
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              className="p-1.5 rounded-lg border border-[#2d251a] hover:bg-[#18140f] text-[#d8cca8] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 rounded-lg border border-black hover:bg-[#f1f5f9] text-[#334155] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronRight className="w-4 h-4" />
             </button>

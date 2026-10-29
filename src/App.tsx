@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Order, OrderStatus, AdminUser, AppSettings, OrderStats, Product, ProductStats, NavTab } from './types';
+import { Order, OrderStatus, AdminUser, AppSettings, OrderStats, Product, ProductStats, NavTab, Category, Subcategory } from './types';
 import {
   getOrders,
   updateOrderStatus,
@@ -18,10 +18,22 @@ import {
   decrementProductStock,
   computeProductStats,
 } from './lib/products';
+import {
+  getCategories,
+  getSubcategories,
+  createSubcategory,
+  updateSubcategory,
+  deleteSubcategory,
+  setSubcategoryActive,
+  SubcategoryInput,
+} from './lib/subcategories';
 import { computeStats } from './lib/utils';
 import { Sidebar } from './components/Sidebar';
 import { TopHeader } from './components/TopHeader';
 import { ProductsView } from './components/ProductsView';
+import { SubcategoriesView } from './components/SubcategoriesView';
+import { SubcategoryModal, SubcategoryFormValues } from './components/SubcategoryModal';
+import { DeleteSubcategoryModal } from './components/DeleteSubcategoryModal';
 import { ProductModal } from './components/ProductModal';
 import { DeleteProductModal } from './components/DeleteProductModal';
 import { DashboardView } from './components/DashboardView';
@@ -93,6 +105,15 @@ export default function App() {
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [isDeleteProductModalOpen, setIsDeleteProductModalOpen] = useState(false);
 
+  // 4b. Catalog taxonomy (categories + subcategories)
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
+  const [isTaxonomyLoading, setIsTaxonomyLoading] = useState(false);
+  const [editingSubcategory, setEditingSubcategory] = useState<Subcategory | null>(null);
+  const [deletingSubcategory, setDeletingSubcategory] = useState<Subcategory | null>(null);
+  const [isSubcategoryModalOpen, setIsSubcategoryModalOpen] = useState(false);
+  const [isDeleteSubcategoryModalOpen, setIsDeleteSubcategoryModalOpen] = useState(false);
+
   // 5. Orders state
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -126,6 +147,25 @@ export default function App() {
     }
   }, []);
 
+  // Fetch categories + subcategories
+  const loadTaxonomy = useCallback(async () => {
+    setIsTaxonomyLoading(true);
+    try {
+      const [categoryRes, subcategoryRes] = await Promise.all([getCategories(), getSubcategories()]);
+      const allowedCategoryIds = new Set(categoryRes.categories.map((category) => category.id));
+      setCategories(categoryRes.categories);
+      setSubcategories(
+        subcategoryRes.subcategories.filter((subcategory) =>
+          allowedCategoryIds.has(subcategory.category_id)
+        )
+      );
+    } catch (err: any) {
+      console.error('Failed to load categories/subcategories:', err);
+    } finally {
+      setIsTaxonomyLoading(false);
+    }
+  }, []);
+
   // Fetch orders from Supabase
   const loadOrders = useCallback(async (isSilent = false) => {
     if (!isSilent) setIsLoading(true);
@@ -144,7 +184,8 @@ export default function App() {
   useEffect(() => {
     loadProducts();
     loadOrders();
-  }, [loadProducts, loadOrders]);
+    loadTaxonomy();
+  }, [loadProducts, loadOrders, loadTaxonomy]);
 
   // Realtime Supabase Subscription & Auto-refresh timer
   useEffect(() => {
@@ -166,6 +207,14 @@ export default function App() {
           showToast('Products catalog updated!', 'info');
         }
       )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'subcategories' },
+        () => {
+          loadTaxonomy();
+          showToast('Subcategories updated!', 'info');
+        }
+      )
       .subscribe();
 
     let intervalId: any = null;
@@ -173,6 +222,7 @@ export default function App() {
       intervalId = setInterval(() => {
         loadOrders(true);
         loadProducts();
+        loadTaxonomy();
       }, settings.autoRefreshInterval * 1000);
     }
 
@@ -180,7 +230,7 @@ export default function App() {
       supabase.removeChannel(channel);
       if (intervalId) clearInterval(intervalId);
     };
-  }, [settings.autoRefreshInterval, loadOrders, loadProducts, showToast]);
+  }, [settings.autoRefreshInterval, loadOrders, loadProducts, loadTaxonomy, showToast]);
 
   // Save settings
   const handleSaveSettings = (newSettings: AppSettings) => {
@@ -213,6 +263,7 @@ export default function App() {
         await loadProducts();
         if (res.error) {
           setSqlModalError(res.error);
+          if (res.isDatabaseError) setIsSqlModalOpen(true);
         }
         showToast(res.error || 'Failed to update product in Supabase', 'error');
       }
@@ -225,6 +276,7 @@ export default function App() {
         await loadProducts();
         if (res.error) {
           setSqlModalError(res.error);
+          if (res.isDatabaseError) setIsSqlModalOpen(true);
         }
         showToast(res.error || 'Failed to add product to Supabase', 'error');
       }
@@ -248,6 +300,63 @@ export default function App() {
       showToast('Product removed from catalog.');
     } else {
       showToast(res.error || 'Failed to delete product', 'error');
+    }
+  };
+
+  // Subcategory CRUD handlers
+  const handleSaveSubcategory = async (values: SubcategoryFormValues) => {
+    const res = editingSubcategory
+      ? await updateSubcategory(editingSubcategory.id, values as SubcategoryInput)
+      : await createSubcategory(values as SubcategoryInput);
+
+    if (!res.success) {
+      if (res.isDatabaseError) {
+        setSqlModalError(res.error || null);
+        setIsSqlModalOpen(true);
+      }
+      showToast(res.error || 'Failed to save subcategory', 'error');
+      throw new Error(res.error || 'Failed to save subcategory');
+    }
+
+    await loadTaxonomy();
+    showToast(
+      editingSubcategory
+        ? `Subcategory "${values.name}" updated successfully.`
+        : `Subcategory "${values.name}" created and published.`
+    );
+  };
+
+  const handleDeleteSubcategory = async (id: string | number) => {
+    const target = subcategories.find((subcategory) => String(subcategory.id) === String(id));
+    const res = await deleteSubcategory(id);
+    if (!res.success) {
+      showToast(res.error || 'Failed to delete subcategory', 'error');
+      throw new Error(res.error || 'Failed to delete subcategory');
+    }
+    setSubcategories((prev) => prev.filter((subcategory) => String(subcategory.id) !== String(id)));
+    await loadTaxonomy();
+    showToast(`Subcategory "${target?.name || id}" deleted.`);
+  };
+
+  const handleToggleSubcategory = async (subcategory: Subcategory) => {
+    const nextActive = !subcategory.is_active;
+    setSubcategories((prev) =>
+      prev.map((item) =>
+        String(item.id) === String(subcategory.id) ? { ...item, is_active: nextActive } : item
+      )
+    );
+    const res = await setSubcategoryActive(subcategory.id, nextActive);
+    if (!res.success) {
+      setSubcategories((prev) =>
+        prev.map((item) =>
+          String(item.id) === String(subcategory.id)
+            ? { ...item, is_active: subcategory.is_active }
+            : item
+        )
+      );
+      showToast(res.error || 'Failed to update subcategory status', 'error');
+    } else {
+      showToast(`"${subcategory.name}" is now ${nextActive ? 'active' : 'inactive'}.`);
     }
   };
 
@@ -363,23 +472,23 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#080706] text-[#e8ded1] font-sans flex antialiased selection:bg-[#e5c158] selection:text-[#0c0a09]">
+    <div className="min-h-screen bg-[#f1f5f9] text-[#1e293b] font-sans flex antialiased selection:bg-[#a16207] selection:text-[#ffffff]">
       {/* Toast Notification */}
       {toast && (
         <div
           id="toast-banner"
-          className="fixed top-4 right-4 z-50 max-w-md bg-[#16120d] text-[#f3e7c4] px-4 py-3 rounded-2xl shadow-2xl border border-[#d4af37]/40 flex items-center gap-3 text-xs animate-in fade-in slide-in-from-top-3 duration-200"
+          className="fixed top-4 right-4 z-50 max-w-md bg-[#ffffff] text-[#0f172a] px-4 py-3 rounded-2xl shadow-2xl border border-[#d97706]/40 flex items-center gap-3 text-xs animate-in fade-in slide-in-from-top-3 duration-200"
         >
           {toast.type === 'error' ? (
-            <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
           ) : (
-            <CheckCircle2 className="w-4 h-4 text-[#e5c158] shrink-0" />
+            <CheckCircle2 className="w-4 h-4 text-[#a16207] shrink-0" />
           )}
           <span className="flex-1 font-medium">{toast.message}</span>
           <button
             type="button"
             onClick={() => setToast(null)}
-            className="text-[#8c7a4f] hover:text-[#f3e7c4] p-0.5 rounded-lg"
+            className="text-[#475569] hover:text-[#0f172a] p-0.5 rounded-lg"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -397,10 +506,11 @@ export default function App() {
         onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
         ordersCount={orders.length}
         productsCount={products.length}
+        subcategoriesCount={subcategories.length}
       />
 
       {/* Main Content Pane */}
-      <div className="flex-1 flex flex-col min-w-0 bg-[#080706] overflow-x-hidden">
+      <div className="flex-1 flex flex-col min-w-0 bg-[#f1f5f9] overflow-x-hidden">
         {/* Top Header */}
         <TopHeader
           settings={settings}
@@ -446,6 +556,31 @@ export default function App() {
             />
           )}
 
+          {/* Tab 1b: Subcategories View */}
+          {activeTab === 'subcategories' && (
+            <SubcategoriesView
+              subcategories={subcategories}
+              categories={categories}
+              products={products}
+              onOpenAddModal={() => {
+                setEditingSubcategory(null);
+                setIsSubcategoryModalOpen(true);
+              }}
+              onEditSubcategory={(subcategory) => {
+                setEditingSubcategory(subcategory);
+                setIsSubcategoryModalOpen(true);
+              }}
+              onDeletePrompt={(subcategory) => {
+                setDeletingSubcategory(subcategory);
+                setIsDeleteSubcategoryModalOpen(true);
+              }}
+              onToggleActive={handleToggleSubcategory}
+              onRefresh={loadTaxonomy}
+              isLoading={isTaxonomyLoading}
+              onOpenSqlSetup={() => setIsSqlModalOpen(true)}
+            />
+          )}
+
           {/* Tab 2: Dashboard View */}
           {activeTab === 'dashboard' && (
             <DashboardView
@@ -466,12 +601,12 @@ export default function App() {
           {/* Tab 3: Orders View */}
           {activeTab === 'orders' && (
             <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-black bg-[#ffffff] px-5 py-4 shadow-sm">
                 <div>
-                  <h2 className="text-2xl font-serif font-bold text-[#f3e7c4] tracking-wide uppercase">
+                  <h2 className="text-2xl font-serif font-bold text-[#0f172a] tracking-wide uppercase border-l-4 border-[#d97706] pl-3">
                     COD ORDERS DISPATCH
                   </h2>
-                  <p className="text-xs text-[#8c7a4f] mt-1">
+                  <p className="text-xs text-[#475569] mt-1">
                     Manage customer orders, addresses, and delivery status tracking.
                   </p>
                 </div>
@@ -480,7 +615,7 @@ export default function App() {
                   <button
                     type="button"
                     onClick={() => setIsSqlModalOpen(true)}
-                    className="px-3.5 py-2 rounded-xl border border-[#382d20] bg-[#16120d] hover:bg-[#1f1911] text-[#e5c158] text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                    className="px-3.5 py-2 rounded-xl border border-black bg-[#ffffff] hover:bg-[#f8fafc] text-[#a16207] text-xs font-semibold flex items-center gap-1.5 transition-colors"
                     title="View and copy Supabase SQL Schema for Orders & Products"
                   >
                     <Database className="w-3.5 h-3.5" />
@@ -491,7 +626,7 @@ export default function App() {
                     type="button"
                     onClick={handleSeedData}
                     disabled={isSeeding}
-                    className="px-3.5 py-2 rounded-xl border border-[#2d251a] bg-[#16120d] hover:bg-[#1f1911] text-[#e5c158] text-xs font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                    className="px-3.5 py-2 rounded-xl border border-black bg-[#ffffff] hover:bg-[#f8fafc] text-[#a16207] text-xs font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
                     <span>{isSeeding ? 'Seeding...' : 'Seed Orders'}</span>
@@ -500,7 +635,7 @@ export default function App() {
                   <button
                     type="button"
                     onClick={() => setIsNewOrderModalOpen(true)}
-                    className="px-4 py-2 rounded-xl bg-[#e5c158] hover:bg-[#f3cf65] text-[#0c0a09] font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-[#d4af37]/20 transition-all active:scale-[0.98]"
+                    className="px-4 py-2 rounded-xl bg-[#a16207] hover:bg-[#854d0e] text-[#ffffff] font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-[#d97706]/20 transition-all active:scale-[0.98]"
                   >
                     <span>+ New Order</span>
                   </button>
@@ -542,11 +677,11 @@ export default function App() {
           {/* Tab 5: Analytics View */}
           {activeTab === 'analytics' && (
             <div className="space-y-6">
-              <div>
-                <h2 className="text-2xl font-serif font-bold text-[#f3e7c4] tracking-wide uppercase">
+              <div className="rounded-2xl border border-black bg-[#ffffff] px-5 py-4 shadow-sm">
+                <h2 className="text-2xl font-serif font-bold text-[#0f172a] tracking-wide uppercase border-l-4 border-[#d97706] pl-3">
                   SALES & INVENTORY ANALYTICS
                 </h2>
-                <p className="text-xs text-[#8c7a4f] mt-1">
+                <p className="text-xs text-[#475569] mt-1">
                   Revenue breakdown, category performance, and delivery metrics.
                 </p>
               </div>
@@ -556,13 +691,13 @@ export default function App() {
         </main>
 
         {/* Footer */}
-        <footer className="border-t border-[#1f1a14] bg-[#0c0a09] py-4 text-center text-xs text-[#8c7a4f] mt-auto">
+        <footer className="border-t border-black bg-[#ffffff] py-4 text-center text-xs text-[#475569] mt-auto">
           <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-            <span className="font-serif text-[#d8cca8]">
+            <span className="font-serif text-[#334155]">
               {settings.appName} &bull; {settings.companyName}
             </span>
-            <span className="flex items-center gap-2 text-[#a39882]">
-              <span className="w-2 h-2 rounded-full bg-[#e5c158]" />
+            <span className="flex items-center gap-2 text-[#475569]">
+              <span className="w-2 h-2 rounded-full bg-[#a16207]" />
               Supabase Catalog & Order Live Sync Enabled
             </span>
           </div>
@@ -580,6 +715,8 @@ export default function App() {
         editingProduct={editingProduct}
         currencySymbol={settings.currencySymbol}
         onOpenSqlSetup={() => setIsSqlModalOpen(true)}
+        categories={categories}
+        subcategories={subcategories}
       />
 
       <DeleteProductModal
@@ -591,6 +728,35 @@ export default function App() {
         }}
         onConfirm={handleDeleteProduct}
         currencySymbol={settings.currencySymbol}
+      />
+
+      <SubcategoryModal
+        isOpen={isSubcategoryModalOpen}
+        onClose={() => {
+          setIsSubcategoryModalOpen(false);
+          setEditingSubcategory(null);
+        }}
+        onSubmit={handleSaveSubcategory}
+        categories={categories}
+        editingSubcategory={editingSubcategory}
+        onOpenSqlSetup={() => setIsSqlModalOpen(true)}
+      />
+
+      <DeleteSubcategoryModal
+        isOpen={isDeleteSubcategoryModalOpen}
+        subcategory={deletingSubcategory}
+        productCount={
+          deletingSubcategory
+            ? products.filter(
+                (product) => String(product.subcategory_id) === String(deletingSubcategory.id)
+              ).length
+            : 0
+        }
+        onClose={() => {
+          setIsDeleteSubcategoryModalOpen(false);
+          setDeletingSubcategory(null);
+        }}
+        onConfirm={handleDeleteSubcategory}
       />
 
       {/* Order Modals */}
