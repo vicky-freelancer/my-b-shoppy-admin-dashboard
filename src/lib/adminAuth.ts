@@ -1,9 +1,9 @@
 import type { AdminUser } from '../types';
 
-export function adminApiOrigin(hostname: string, configuredOrigin = ''): string {
+export function adminApiOrigin(_hostname: string, configuredOrigin = ''): string {
   const configured = configuredOrigin.trim().replace(/\/+$/, '');
   if (configured) return configured;
-  return hostname === 'admin.mybshoppy.com' ? 'https://api.mybshoppy.com' : '';
+  return '';
 }
 
 export async function readAdminAuthResponse(response: Response): Promise<{ user?: AdminUser; success?: boolean }> {
