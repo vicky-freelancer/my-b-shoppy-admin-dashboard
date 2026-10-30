@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { requestAdminAuth } from '../lib/adminAuth';
 import { AdminUser, AppSettings } from '../types';
-import { PackageCheck, Lock, User, ArrowRight } from 'lucide-react';
+import { PackageCheck, Lock, User, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 interface LoginViewProps {
   onLoginSuccess: (user: AdminUser) => void;
@@ -10,6 +11,7 @@ interface LoginViewProps {
 export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess, settings }) => {
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const handleSubmit = async (event: React.FormEvent) => {
@@ -17,13 +19,10 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess, settings }
     setErrorMessage('');
     setIsLoading(true);
     try {
-      const response = await fetch('/api/admin/login', {
-        method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: userId.trim(), password }),
-      });
-      const result = await response.json();
-      if (!response.ok || !result.user) throw new Error(result.error || 'Unable to sign in. Please try again.');
+      const result = await requestAdminAuth('login', { userId: userId.trim(), password });
+      if (!result.user) throw new Error('Unable to sign in. Please try again.');
       setPassword('');
+      setShowPassword(false);
       onLoginSuccess(result.user);
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Unable to sign in. Please try again.');
@@ -50,7 +49,10 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess, settings }
             <label htmlFor="admin-password" className="block text-sm text-slate-700 mb-2">Password</label>
             <div className="relative">
               <Lock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-              <input id="admin-password" name="password" type="password" autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} className="w-full rounded-lg border border-slate-300 pl-10 pr-3 py-3 text-base" />
+              <input id="admin-password" name="password" type={showPassword ? 'text' : 'password'} autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} className="w-full rounded-lg border border-slate-300 pl-10 pr-12 py-3 text-base" />
+              <button type="button" aria-label={showPassword ? 'Hide password' : 'Show password'} aria-pressed={showPassword} aria-controls="admin-password" onClick={() => setShowPassword((visible) => !visible)} className="absolute right-1 top-1/2 -translate-y-1/2 min-h-11 min-w-11 flex items-center justify-center rounded-md text-slate-500 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a16207]">
+                {showPassword ? <EyeOff className="w-5 h-5" aria-hidden="true" /> : <Eye className="w-5 h-5" aria-hidden="true" />}
+              </button>
             </div>
           </div>
           <button id="submit-auth-btn" type="submit" disabled={isLoading} className="min-h-11 w-full rounded-lg bg-[#a16207] hover:bg-[#854d0e] text-white px-4 py-3 flex items-center justify-center gap-2 disabled:opacity-60">

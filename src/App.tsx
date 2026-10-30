@@ -1,3 +1,4 @@
+import { requestAdminAuth } from './lib/adminAuth';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Order, OrderStatus, AdminUser, AppSettings, OrderStats, Product, ProductStats, NavTab, Category, Subcategory } from './types';
 import {
@@ -89,8 +90,7 @@ export default function App() {
     try { localStorage.removeItem('mybshoppy_admin_user_v2'); } catch { /* Storage may be unavailable. */ }
     const check = async () => {
       try {
-        const response = await fetch('/api/admin/session', { credentials: 'same-origin', cache: 'no-store' });
-        const result = response.ok ? await response.json() : null;
+        const result = await requestAdminAuth('session');
         if (active) { setAdminUser(result?.user || null); if (!result?.user) setMobileMenuOpen(false); }
       } catch { if (active) { setAdminUser(null); setMobileMenuOpen(false); } }
       finally { if (active) setCheckingSession(false); }
@@ -281,8 +281,7 @@ export default function App() {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('/api/admin/logout', { method: 'POST', credentials: 'same-origin' });
-      if (!response.ok) throw new Error('Unable to sign out. Please try again.');
+      await requestAdminAuth('logout');
       setAdminUser(null);
       setMobileMenuOpen(false);
       setProducts([]); setOrders([]); setCategories([]); setSubcategories([]);

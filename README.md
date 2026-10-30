@@ -9,6 +9,8 @@ Manage products, subcategories, orders, customers and analytics. Category dropdo
 3. Run `npm run dev`. This starts Express authentication and Vite together at `http://localhost:3000`.
 4. Sign in using the configured user ID and password. The requested account ID is `myBadmin`; its password is stored as a server-side scrypt hash, never a browser-side constant.
 
+Direct Vite development (`npx vite`) also serves the authentication routes. Restart the development server after changing its configuration. An HTML response from `/api/admin/login` means the request reached a frontend fallback instead of the authentication server; production hosting must route `/api/admin/*` to the Node server. Rebuild and redeploy if the browser still displays a raw JSON parsing error.
+
 ## Production
 
 Run `npm run build`, then `npm start`. Use a Node host; static-only hosting cannot serve the authentication endpoints. Set `NODE_ENV=production` and serve through HTTPS so the Secure session cookie is sent. `PORT` defaults to 3000; `HOST` defaults to 0.0.0.0.

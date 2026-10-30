@@ -5,11 +5,14 @@ import { once } from 'node:events';
 import { scryptSync } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
-test('admin login, sessions, logout, origin checks and attempt limits', async () => {
+for (const standaloneVite of [false, true]) {
+test(`admin login, sessions, logout, origin checks and attempt limits (${standaloneVite ? 'standalone Vite' : 'Express'})`, async () => {
   const port = 20000 + Math.floor(Math.random() * 10000);
   const password = 'test-password-for-auth-only';
   const salt = 'auth-test-salt';
-  const child = spawn(process.execPath, [fileURLToPath(new URL('./server.mjs', import.meta.url))], {
+  const entry = standaloneVite ? './node_modules/vite/bin/vite.js' : './server.mjs';
+  const args = standaloneVite ? ['--host', '127.0.0.1', '--port', String(port), '--strictPort'] : [];
+  const child = spawn(process.execPath, [fileURLToPath(new URL(entry, import.meta.url)), ...args], {
     env: { ...process.env, PORT: String(port), NODE_ENV: 'test', ADMIN_USERNAME: 'qa-admin', ADMIN_PASSWORD_HASH: `${salt}:${scryptSync(password, salt, 64).toString('hex')}` },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
@@ -17,7 +20,7 @@ test('admin login, sessions, logout, origin checks and attempt limits', async ()
   child.stderr.on('data', (data) => { stderr += data; });
   try {
     await Promise.race([
-      new Promise((resolve) => child.stdout.on('data', (data) => { if (data.toString().includes('Admin server running')) resolve(); })),
+      new Promise((resolve) => child.stdout.on('data', (data) => { if (/Admin server running|Local:/.test(data.toString())) resolve(); })),
       once(child, 'exit').then(() => { throw new Error('Startup failed: ' + stderr); }),
       new Promise((_, reject) => setTimeout(() => reject(new Error('Startup timeout')), 15_000).unref()),
     ]);
@@ -47,3 +50,4 @@ test('admin login, sessions, logout, origin checks and attempt limits', async ()
     assert.equal((await fetch(`${base}/api/unknown`)).status, 404);
   } finally { child.kill(); await once(child, 'exit'); }
 });
+}
