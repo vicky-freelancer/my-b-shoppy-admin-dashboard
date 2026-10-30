@@ -664,7 +664,7 @@ async function attemptInsertProductToSupabase(productData: Omit<Product, 'id'>):
     badges: badges,
     description: productData.description || '',
     material: productData.material || '',
-    slug: productData.slug || `${productData.title || 'item'}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || undefined,
+    slug: productData.slug?.trim() || `${productData.title || 'item'}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'item',
     subtitle: productData.subtitle || '',
     original_price: productData.original_price ? Number(productData.original_price) : null,
     category_id: productData.category_id || (productData.category ? productData.category.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') : null),
@@ -681,6 +681,8 @@ async function attemptInsertProductToSupabase(productData: Omit<Product, 'id'>):
   const triedMissingCols = new Set<string>();
   const satisfiedNotNullCols = new Set<string>();
   let lastError: any = null;
+  const baseSlug = payload.slug;
+  let slugRetries = 0;
 
   // Adaptive retry loop (covers every optional column on older schemas)
   for (let attempt = 0; attempt < 24; attempt++) {
@@ -697,6 +699,17 @@ async function attemptInsertProductToSupabase(productData: Omit<Product, 'id'>):
 
       if (error) {
         lastError = error;
+
+        // Let the unique index arbitrate collisions, including concurrent creates.
+        // Retry only slug conflicts; never drop product fields to bypass integrity errors.
+        if (error.code === '23505') {
+          if (error.message.includes('products_slug_uniq') && slugRetries < 5) {
+            slugRetries += 1;
+            payload.slug = `${baseSlug}-${generateClientUuid()}`;
+            continue;
+          }
+          return { data: null, error };
+        }
 
         // 1. Check for NOT-NULL constraint violation
         const notNullCol = extractNotNullColumn(error.message);
@@ -725,6 +738,10 @@ async function attemptInsertProductToSupabase(productData: Omit<Product, 'id'>):
       lastError = e;
       break;
     }
+  }
+
+  if (lastError?.code === '23505') {
+    return { data: null, error: lastError };
   }
 
   // Fallback simple payload attempts
