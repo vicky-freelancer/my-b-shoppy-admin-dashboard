@@ -2,6 +2,7 @@ import { DEFAULT_CATEGORY_NAMES } from '../lib/subcategories';
 import React, { useState, useEffect, useRef } from 'react';
 import { Product, Category, Subcategory } from '../types';
 import { PRESET_JEWELLERY_IMAGES } from '../lib/products';
+import { prepareProductImage } from '../lib/productImage';
 import { slugifyCategory } from '../lib/subcategories';
 import {
   X,
@@ -67,12 +68,16 @@ export const ProductModal: React.FC<ProductModalProps> = ({
   const [imageTab, setImageTab] = useState<'upload' | 'url' | 'presets'>('upload');
   const [isDragging, setIsDragging] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPreparingImage, setIsPreparingImage] = useState(false);
+  const imageRequest = useRef(0);
   const [formError, setFormError] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Initialize or reset form when modal opens or editingProduct changes
   useEffect(() => {
+    imageRequest.current += 1;
+    setIsPreparingImage(false);
     const categoryNames = categories.length > 0 ? categories.map((c) => c.name) : COMMON_CATEGORIES;
     if (editingProduct) {
       setTitle(editingProduct.title || '');
@@ -152,19 +157,28 @@ export const ProductModal: React.FC<ProductModalProps> = ({
   };
 
   // Handle file upload
-  const handleFileUpload = (file: File) => {
+  const handleFileUpload = async (file: File) => {
     if (!file.type.startsWith('image/')) {
       setFormError('Please upload a valid image file (JPEG, PNG, WEBP, etc.)');
       return;
     }
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      if (e.target?.result) {
-        setCoverImage(e.target.result as string);
+    if (file.size > 5 * 1024 * 1024) {
+      setFormError('Please choose an image up to 5MB.');
+      return;
+    }
+    const request = ++imageRequest.current;
+    setIsPreparingImage(true);
+    try {
+      const image = await prepareProductImage(file);
+      if (request === imageRequest.current) {
+        setCoverImage(image);
         setFormError(null);
       }
-    };
-    reader.readAsDataURL(file);
+    } catch {
+      if (request === imageRequest.current) setFormError('Unable to prepare this image. Please try another file.');
+    } finally {
+      if (request === imageRequest.current) setIsPreparingImage(false);
+    }
   };
 
   const handleDrop = (e: React.DragEvent) => {
@@ -200,6 +214,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
   // Submit handler
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isPreparingImage || isSubmitting) return;
     setFormError(null);
 
     if (!title.trim()) {
@@ -427,7 +442,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                       <button
                         key={idx}
                         type="button"
-                        onClick={() => setCoverImage(preset.url)}
+                        onClick={() => { imageRequest.current += 1; setIsPreparingImage(false); setCoverImage(preset.url); }}
                         className={`relative rounded-lg overflow-hidden border h-14 group transition-all ${
                           coverImage === preset.url
                             ? 'border-[#a16207] ring-2 ring-[#a16207]/50'
@@ -453,7 +468,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                     <input
                       type="url"
                       value={coverImage}
-                      onChange={(e) => setCoverImage(e.target.value)}
+                      onChange={(e) => { imageRequest.current += 1; setIsPreparingImage(false); setCoverImage(e.target.value); }}
                       placeholder="https://example.com/image.jpg"
                       className="w-full px-3 py-2 rounded-xl bg-[#ffffff] border border-black text-[#0f172a] placeholder:text-[#64748b] focus:outline-none focus:border-[#d97706]"
                     />
@@ -726,11 +741,11 @@ export const ProductModal: React.FC<ProductModalProps> = ({
             <button
               type="submit"
               id="submit-product-btn"
-              disabled={isSubmitting}
+              disabled={isSubmitting || isPreparingImage}
               className="px-6 py-2 rounded-xl bg-[#a16207] hover:bg-[#854d0e] text-[#ffffff] font-bold shadow-lg shadow-[#d97706]/20 flex items-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50"
             >
               <Sparkles className="w-4 h-4 text-[#ffffff]" />
-              <span>{isSubmitting ? 'Saving...' : editingProduct ? 'Update Product' : 'Add Product'}</span>
+              <span>{isPreparingImage ? 'Preparing image...' : isSubmitting ? 'Saving...' : editingProduct ? 'Update Product' : 'Add Product'}</span>
             </button>
           </div>
         </form>

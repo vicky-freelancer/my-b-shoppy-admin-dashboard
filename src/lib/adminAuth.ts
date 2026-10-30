@@ -1,5 +1,16 @@
 import type { AdminUser } from '../types';
 
+export class AdminAuthError extends Error {
+  constructor(message: string, public status: number) {
+    super(message);
+    this.name = 'AdminAuthError';
+  }
+}
+
+export function isExpiredAdminSession(error: unknown): boolean {
+  return error instanceof AdminAuthError && error.status === 401;
+}
+
 export function adminApiOrigin(_hostname: string, configuredOrigin = ''): string {
   const configured = configuredOrigin.trim().replace(/\/+$/, '');
   if (configured) return configured;
@@ -14,7 +25,7 @@ export async function readAdminAuthResponse(response: Response): Promise<{ user?
   try { result = await response.json(); }
   catch { throw new Error(unavailable); }
   if (!result || typeof result !== 'object' || Array.isArray(result)) throw new Error(unavailable);
-  if (!response.ok) throw new Error(typeof result.error === 'string' ? result.error : unavailable);
+  if (!response.ok) throw new AdminAuthError(typeof result.error === 'string' ? result.error : unavailable, response.status);
   return result;
 }
 

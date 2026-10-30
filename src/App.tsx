@@ -1,5 +1,5 @@
-import { requestAdminAuth } from './lib/adminAuth';
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { requestAdminAuth, isExpiredAdminSession } from './lib/adminAuth';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Order, OrderStatus, AdminUser, AppSettings, OrderStats, Product, ProductStats, NavTab, Category, Subcategory } from './types';
 import {
   getOrders,
@@ -83,17 +83,30 @@ export default function App() {
   // 3. Auth state
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
   const [checkingSession, setCheckingSession] = useState(true);
+  const authGeneration = useRef(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
+    let inFlight = false;
     try { localStorage.removeItem('mybshoppy_admin_user_v2'); } catch { /* Storage may be unavailable. */ }
     const check = async () => {
+      if (inFlight) return;
+      inFlight = true;
+      const generation = authGeneration.current;
+      const isCurrent = () => active && generation === authGeneration.current;
       try {
         const result = await requestAdminAuth('session');
-        if (active) { setAdminUser(result?.user || null); if (!result?.user) setMobileMenuOpen(false); }
-      } catch { if (active) { setAdminUser(null); setMobileMenuOpen(false); } }
-      finally { if (active) setCheckingSession(false); }
+        if (isCurrent() && result.user) setAdminUser((current) => current?.id === result.user!.id ? current : result.user!);
+      } catch (error) {
+        if (isCurrent() && isExpiredAdminSession(error)) {
+          setAdminUser(null);
+          setMobileMenuOpen(false);
+        }
+      } finally {
+        inFlight = false;
+        if (active) setCheckingSession(false);
+      }
     };
     check();
     const onFocus = () => { void check(); };
@@ -274,6 +287,7 @@ export default function App() {
 
   // Auth handlers
   const handleLogin = (user: AdminUser) => {
+    authGeneration.current += 1;
     setAdminUser(user);
 
     showToast(`Welcome back, ${user.name}!`);
@@ -282,6 +296,7 @@ export default function App() {
   const handleLogout = async () => {
     try {
       await requestAdminAuth('logout');
+      authGeneration.current += 1;
       setAdminUser(null);
       setMobileMenuOpen(false);
       setProducts([]); setOrders([]); setCategories([]); setSubcategories([]);
@@ -294,7 +309,11 @@ export default function App() {
     if (editingProduct) {
       const res = await updateProduct(editingProduct.id, productData);
       if (res.success) {
-        await loadProducts();
+        setProducts((current) => current.map((product) =>
+          String(product.id) === String(editingProduct.id)
+            ? { ...product, ...productData, ...res.product }
+            : product
+        ));
         showToast(`Product "${productData.title}" updated successfully!`);
       } else {
         await loadProducts();
@@ -307,7 +326,10 @@ export default function App() {
     } else {
       const res = await createProduct(productData);
       if (res.success) {
-        await loadProducts();
+        if (res.product) {
+          const createdProduct = res.product;
+          setProducts((current) => [createdProduct, ...current.filter((product) => String(product.id) !== String(createdProduct.id))]);
+        }
         showToast(`New product "${productData.title}" saved to Supabase!`);
       } else {
         await loadProducts();
