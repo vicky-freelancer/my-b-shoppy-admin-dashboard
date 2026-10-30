@@ -12,10 +12,13 @@ import {
   ChevronRight,
   LogOut,
   Sparkles,
-  Layers
+  Layers,
+  X
 } from 'lucide-react';
 
 interface SidebarProps {
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
   activeTab: NavTab;
   onSelectTab: (tab: NavTab) => void;
   adminUser: AdminUser | null;
@@ -29,6 +32,8 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
+  mobileOpen = false,
+  onMobileClose,
   activeTab,
   onSelectTab,
   adminUser,
@@ -78,10 +83,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside
-      className={`bg-[#ffffff] border-r border-black flex flex-col justify-between shrink-0 transition-all duration-300 z-30 select-none ${
+      id="admin-sidebar"
+      aria-label="Admin navigation"
+      role={mobileOpen ? 'dialog' : undefined}
+      aria-modal={mobileOpen || undefined}
+      className={`${mobileOpen ? 'flex' : 'hidden'} lg:flex fixed lg:sticky left-0 top-0 h-dvh overflow-y-auto max-w-[85vw] bg-[#ffffff] border-r border-black flex-col justify-between shrink-0 z-50 lg:z-30 select-none ${
         isCollapsed ? 'w-20' : 'w-64'
       }`}
     >
+      <button type="button" onClick={onMobileClose} aria-label="Close navigation" className="lg:hidden self-end m-2 p-3 rounded-lg text-slate-700"><X className="w-5 h-5" /></button>
       {/* Top Brand Header */}
       <div>
         <div className="px-5 py-4 bg-[#f8fafc] border-b border-black flex items-center justify-between">
@@ -106,7 +116,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               type="button"
               onClick={onToggleCollapse}
-              className="p-1 rounded-lg text-[#475569] hover:text-[#a16207] hover:bg-[#f1f5f9] transition-colors"
+              className="hidden lg:block p-1 rounded-lg text-[#475569] hover:text-[#a16207] hover:bg-[#f1f5f9] transition-colors"
               title="Collapse sidebar"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -202,7 +212,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               type="button"
               onClick={onToggleCollapse}
-              className="p-1 rounded-lg text-[#475569] hover:text-[#a16207] hover:bg-[#f1f5f9] transition-colors"
+              className="hidden lg:block p-1 rounded-lg text-[#475569] hover:text-[#a16207] hover:bg-[#f1f5f9] transition-colors"
               title="Expand sidebar"
             >
               <ChevronRight className="w-4 h-4" />

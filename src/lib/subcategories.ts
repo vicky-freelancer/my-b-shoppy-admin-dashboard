@@ -9,15 +9,16 @@ const LOCAL_STORAGE_CATEGORIES_KEY = 'mybshoppy_categories_cache_v2';
  * Order here is the order shown in category dropdowns.
  */
 export const DEFAULT_CATEGORY_NAMES = [
-  'Hair Accessories',
   'AD Jewellery',
-  'Bags',
+  'Hair Accessories',
   'Anti Tarnish Jewellery',
-  'Stationery and Gifts',
+  'Ear Rings',
   'Bows & Scrunchies',
-  'Key chains',
-  'Mobile charms',
-  'Men accessories',
+  'Bags',
+  'Mobile Charms',
+  'Key Chains',
+  'Mens Accessories',
+  'Stationery & Gifts',
 ];
 
 export function slugifyCategory(value: string): string {
@@ -30,7 +31,7 @@ export function slugifyCategory(value: string): string {
 
 function buildFallbackCategories(): Category[] {
   return DEFAULT_CATEGORY_NAMES.map((name) => {
-    const id = slugifyCategory(name);
+    const id = name === 'Mens Accessories' ? 'men-accessories' : slugifyCategory(name);
     return {
       id,
       name,
@@ -48,6 +49,7 @@ function categoryNameKey(value: string): string {
     'scrunchies': 'bows & scrunchies',
     'bows and scrunchies': 'bows & scrunchies',
     'bow & scrunchies': 'bows & scrunchies',
+    'earrings': 'ear rings',
     'keychains': 'key chains',
     'key chain': 'key chains',
     'mobile charm': 'mobile charms',
@@ -62,12 +64,29 @@ function categoryNameKey(value: string): string {
   return aliases[key] || key;
 }
 
+export function categoryDisplayName(name: string): string {
+  return DEFAULT_CATEGORY_NAMES.find((candidate) => categoryNameKey(candidate) === categoryNameKey(name)) || name;
+}
+
+export function sortCategoryNames(names: string[]): string[] {
+  const rank = (name: string) => {
+    const index = DEFAULT_CATEGORY_NAMES.indexOf(categoryDisplayName(name));
+    return index < 0 ? DEFAULT_CATEGORY_NAMES.length : index;
+  };
+  return [...names].sort((a, b) => rank(a) - rank(b) || a.localeCompare(b));
+}
+
 export function getCachedCategories(): Category[] {
   try {
     const raw = localStorage.getItem(LOCAL_STORAGE_CATEGORIES_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return buildFallbackCategories().map((fallback) => {
+          const existing = parsed.find((category) => categoryNameKey(category.name || '') === categoryNameKey(fallback.name));
+          return existing ? { ...existing, name: fallback.name } : fallback;
+        });
+      }
     }
   } catch (e) {
     console.error('Failed reading cached categories', e);
@@ -149,11 +168,11 @@ export async function getCategories(): Promise<{
         rows.map((category) => [categoryNameKey(category.name), category])
       );
 
-      // Always expose exactly the nine approved parent categories, in order.
+      // Always expose exactly the ten approved parent categories, in order.
       const categories: Category[] = DEFAULT_CATEGORY_NAMES.map((name) => {
         const existing = byName.get(categoryNameKey(name));
         if (existing) return { ...existing, name };
-        const id = slugifyCategory(name);
+        const id = name === 'Mens Accessories' ? 'men-accessories' : slugifyCategory(name);
         return { id, name, slug: id, is_active: true };
       });
 
@@ -391,7 +410,7 @@ export async function deleteSubcategory(
 export const SUBCATEGORIES_SCHEMA_SQL = `-- ==============================================================================
 -- MY B SHOPPY - CATEGORIES & SUBCATEGORIES MIGRATION (SAFE / IDEMPOTENT)
 -- Run this in your Supabase SQL Editor. It creates missing tables/columns and
--- normalises the parent catalogue to the nine approved categories. It never
+-- normalises the parent catalogue to the ten approved categories. It never
 -- drops tables or deletes products/orders.
 -- ==============================================================================
 
@@ -439,18 +458,19 @@ BEGIN
   ON CONFLICT (id) DO NOTHING;
 END $$;
 
--- Seed the nine approved parent categories
+-- Seed the ten approved parent categories
 INSERT INTO public.categories (id, name, slug) VALUES
-  ('hair-accessories', 'Hair Accessories', 'hair-accessories'),
   ('ad-jewellery', 'AD Jewellery', 'ad-jewellery'),
-  ('bags', 'Bags', 'bags'),
+  ('hair-accessories', 'Hair Accessories', 'hair-accessories'),
   ('anti-tarnish-jewellery', 'Anti Tarnish Jewellery', 'anti-tarnish-jewellery'),
-  ('stationery-and-gifts', 'Stationery and Gifts', 'stationery-and-gifts'),
+  ('ear-rings', 'Ear Rings', 'ear-rings'),
   ('bows-and-scrunchies', 'Bows & Scrunchies', 'bows-and-scrunchies'),
-  ('key-chains', 'Key chains', 'key-chains'),
-  ('mobile-charms', 'Mobile charms', 'mobile-charms'),
-  ('men-accessories', 'Men accessories', 'men-accessories')
-ON CONFLICT (id) DO NOTHING;
+  ('bags', 'Bags', 'bags'),
+  ('mobile-charms', 'Mobile Charms', 'mobile-charms'),
+  ('key-chains', 'Key Chains', 'key-chains'),
+  ('men-accessories', 'Mens Accessories', 'men-accessories'),
+  ('stationery-and-gifts', 'Stationery & Gifts', 'stationery-and-gifts')
+ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name;
 
 -- 2. SUBCATEGORIES
 CREATE TABLE IF NOT EXISTS public.subcategories (
@@ -533,9 +553,9 @@ BEGIN
   WHERE category_id IN ('bows', 'scrunchies', 'bow-and-scrunchies', 'bows-and-scrunchies')
      OR lower(coalesce(category, '')) IN ('bows', 'scrunchies', 'bow & scrunchies', 'bows & scrunchies', 'bows and scrunchies');
 
-  UPDATE public.products SET category_id = 'key-chains', category = 'Key chains'
+  UPDATE public.products SET category_id = 'key-chains', category = 'Key Chains'
   WHERE category_id IN ('keychains', 'key-chain', 'key-chains') OR lower(category) IN ('key chains', 'keychains', 'key chain');
-  UPDATE public.products SET category_id = 'mobile-charms', category = 'Mobile charms'
+  UPDATE public.products SET category_id = 'mobile-charms', category = 'Mobile Charms'
   WHERE category_id IN ('mobile-charm', 'mobile-charms') OR lower(category) IN ('mobile charms', 'mobile charm');
   UPDATE public.products SET category_id = 'men-accessories', category = 'Men accessories'
   WHERE category_id IN ('mens-collection', 'mens-accessories', 'men-accessories') OR lower(category) IN ('mens collection', 'mens accessories', 'men accessories');
@@ -557,7 +577,7 @@ BEGIN
     );
 
   UPDATE public.products
-  SET category_id = 'stationery-and-gifts', category = 'Stationery and Gifts'
+  SET category_id = 'stationery-and-gifts', category = 'Stationery & Gifts'
   WHERE category_id = 'stationery-gift-items'
      OR lower(coalesce(category, '')) IN ('stationery gift items', 'stationary and gifts');
 

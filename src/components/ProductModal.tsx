@@ -270,7 +270,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
         className="bg-[#f8fafc] border border-black w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden text-[#334155] my-auto animate-in fade-in zoom-in-95 duration-150"
       >
         {/* Modal Header */}
-        <div className="px-6 py-4 border-b border-black flex items-center justify-between bg-[#ffffff]">
+        <div className="px-4 sm:px-6 py-4 border-b border-black flex flex-wrap items-center justify-between gap-2 bg-[#ffffff]">
           <div>
             <h2 className="text-base font-serif font-bold text-[#a16207] uppercase tracking-wide">
               {editingProduct ? 'Edit Product' : 'Add New Product'}
@@ -289,7 +289,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
         </div>
 
         {/* Modal Body / Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5 max-h-[80vh] overflow-y-auto text-xs">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-5 max-h-[75dvh] overflow-y-auto text-xs">
           {formError && (
             <div className="p-3.5 rounded-xl bg-[#fef2f2] border border-rose-200 text-rose-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-start gap-2.5 min-w-0">
@@ -480,7 +480,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
             </div>
 
             <div>
-              <div className="flex items-center justify-between mb-1">
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
                 <label className="block text-xs font-semibold text-[#a16207] uppercase tracking-wider">
                   SKU <span className="text-rose-600">*</span>
                 </label>
@@ -577,7 +577,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
 
           {/* 4. Pricing & Inventory */}
           <div className="p-4 rounded-xl bg-[#ffffff] border border-black space-y-3">
-            <h3 className="text-xs font-semibold text-[#a16207] uppercase tracking-wider flex items-center justify-between">
+            <h3 className="text-xs font-semibold text-[#a16207] uppercase tracking-wider flex flex-wrap items-center justify-between gap-2">
               <span>Pricing & Stock Inventory</span>
               {discountPercent > 0 && (
                 <span className="px-2 py-0.5 rounded-full bg-[#fffbeb] text-[#a16207] border border-[#d97706]/40 text-[10px] font-bold">

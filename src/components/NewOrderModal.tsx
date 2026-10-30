@@ -186,10 +186,10 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
     <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150">
       <div
         id="new-order-modal"
-        className="bg-[#f8fafc] w-full max-w-xl rounded-2xl shadow-2xl border border-black overflow-hidden flex flex-col max-h-[94vh] animate-in zoom-in-95 duration-150 text-[#1e293b]"
+        className="bg-[#f8fafc] w-full max-w-xl rounded-2xl shadow-2xl border border-black overflow-hidden flex flex-col max-h-[94dvh] animate-in zoom-in-95 duration-150 text-[#1e293b]"
       >
         {/* Header */}
-        <div className="px-6 py-4 border-b border-black flex items-center justify-between bg-[#f8fafc]">
+        <div className="px-4 sm:px-6 py-4 border-b border-black flex flex-wrap items-center justify-between gap-2 bg-[#f8fafc]">
           <div>
             <h2 className="text-base font-serif font-bold text-[#0f172a]">Create New COD Order</h2>
             <p className="text-xs text-[#475569]">Order Price & COD Price remain exactly the same (₹ to collect)</p>
@@ -204,7 +204,7 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-4 text-xs">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto space-y-4 text-xs">
           {formError && (
             <div className="p-3 bg-rose-50 text-rose-700 rounded-lg border border-rose-200 text-xs font-medium">
               {formError}
@@ -395,7 +395,7 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
             </div>
 
             {/* Quantity, Unit Price, and Identical Order/COD Price calculation */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label className="block text-[#334155] font-medium mb-1">Quantity</label>
                 <input

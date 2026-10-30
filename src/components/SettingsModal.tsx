@@ -71,7 +71,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         className="bg-[#f8fafc] w-full max-w-lg rounded-2xl shadow-2xl border border-black overflow-hidden flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-150 text-[#1e293b]"
       >
         {/* Header */}
-        <div className="px-6 py-4 border-b border-black flex items-center justify-between bg-[#f8fafc]">
+        <div className="px-4 sm:px-6 py-4 border-b border-black flex flex-wrap items-center justify-between gap-2 bg-[#f8fafc]">
           <div className="flex items-center gap-2.5">
             <div className="p-2 rounded-xl bg-[#a16207] text-[#ffffff] shadow-xs">
               <Sliders className="w-4 h-4" />
@@ -91,7 +91,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </div>
 
         {/* Content */}
-        <form onSubmit={handleSave} className="p-6 overflow-y-auto space-y-5 text-xs">
+        <form onSubmit={handleSave} className="p-4 sm:p-6 overflow-y-auto space-y-5 text-xs">
           {/* App Branding */}
           <div className="space-y-3">
             <h3 className="text-xs font-semibold text-[#475569] uppercase tracking-wider flex items-center gap-1.5">
@@ -202,7 +202,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </select>
               </div>
 
-              <div className="flex items-center justify-between p-2.5 rounded-xl border border-black bg-[#ffffff]">
+              <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl border border-black bg-[#ffffff]">
                 <span className="text-[#334155] font-medium">Sound Notifications</span>
                 <input
                   type="checkbox"
@@ -222,20 +222,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </h3>
 
             <div className="p-3 bg-[#ffffff] rounded-xl border border-black space-y-2">
-              <div className="flex items-center justify-between text-[11px]">
+              <div className="flex flex-wrap items-center justify-between gap-2 text-[11px]">
                 <span className="text-[#475569] font-medium">Supabase Host</span>
                 <span className="font-mono text-[#0f172a] font-semibold truncate max-w-[220px]">
                   {SUPABASE_URL.replace('https://', '')}
                 </span>
               </div>
-              <div className="flex items-center justify-between text-[11px]">
+              <div className="flex flex-wrap items-center justify-between gap-2 text-[11px]">
                 <span className="text-[#475569] font-medium">Target Tables</span>
                 <div className="flex items-center gap-1.5 font-mono text-[10px] font-semibold">
                   <span className="bg-[#e2e8f0] text-[#a16207] px-1.5 py-0.5 rounded border border-[#a16207]/30">orders</span>
                   <span className="bg-[#e2e8f0] text-[#a16207] px-1.5 py-0.5 rounded border border-[#a16207]/30">products</span>
                 </div>
               </div>
-              <div className="flex items-center justify-between text-[11px]">
+              <div className="flex flex-wrap items-center justify-between gap-2 text-[11px]">
                 <span className="text-[#475569] font-medium">Connection Status</span>
                 <span className="inline-flex items-center gap-1 text-emerald-700 font-semibold">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -245,7 +245,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
 
             {onOpenSqlSetup && (
-              <div className="flex items-center justify-between pt-1">
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
                 <div>
                   <p className="text-xs font-semibold text-[#0f172a]">Products Table SQL Schema</p>
                   <p className="text-[11px] text-[#475569]">View and copy SQL migration script for Supabase</p>
@@ -261,7 +261,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </div>
             )}
 
-            <div className="flex items-center justify-between pt-1">
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
               <div>
                 <p className="text-xs font-semibold text-[#0f172a]">Seed Database with COD Orders</p>
                 <p className="text-[11px] text-[#475569]">Insert 10 sample Cash-on-Delivery test orders into Supabase</p>
@@ -284,7 +284,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
 
           {/* Footer */}
-          <div className="pt-4 border-t border-black flex items-center justify-between">
+          <div className="pt-4 border-t border-black flex flex-wrap items-center justify-between gap-2">
             {savedSuccess ? (
               <span className="inline-flex items-center gap-1 text-emerald-700 font-semibold text-xs animate-in fade-in">
                 <Check className="w-4 h-4" />

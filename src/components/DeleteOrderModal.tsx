@@ -53,10 +53,10 @@ export const DeleteOrderModal: React.FC<DeleteOrderModalProps> = ({
     >
       <div
         id="delete-order-confirmation-modal"
-        className="bg-[#f8fafc] border border-[#fecaca] w-full max-w-md rounded-2xl shadow-2xl p-6 text-[#334155] animate-in zoom-in-95 duration-150"
+        className="bg-[#f8fafc] border border-[#fecaca] w-full max-w-md rounded-2xl shadow-2xl p-4 sm:p-6 text-[#334155] animate-in zoom-in-95 duration-150"
       >
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-black">
+        <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-black">
           <div className="flex items-center gap-2.5 text-rose-600 font-serif font-bold text-base">
             <div className="w-8 h-8 rounded-lg bg-rose-50 border border-rose-200 flex items-center justify-center">
               <AlertTriangle className="w-4 h-4 text-rose-600" />
@@ -97,7 +97,7 @@ export const DeleteOrderModal: React.FC<DeleteOrderModalProps> = ({
                 </div>
               </div>
 
-              <div className="pt-2 border-t border-black flex items-center justify-between text-[11px] text-[#475569]">
+              <div className="pt-2 border-t border-black flex flex-wrap items-center justify-between gap-2 text-[11px] text-[#475569]">
                 <span className="truncate max-w-[200px] text-[#334155]">{order.product_variant}</span>
                 <span>Qty: {order.quantity}</span>
               </div>

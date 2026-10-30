@@ -26,8 +26,8 @@ export const DeleteProductModal: React.FC<DeleteProductModalProps> = ({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="bg-[#f8fafc] border border-[#fecaca] w-full max-w-md rounded-2xl shadow-2xl p-6 text-[#334155] animate-in fade-in zoom-in-95 duration-150">
-        <div className="flex items-center justify-between pb-3 border-b border-black">
+      <div className="bg-[#f8fafc] border border-[#fecaca] w-full max-w-md rounded-2xl shadow-2xl p-4 sm:p-6 text-[#334155] animate-in fade-in zoom-in-95 duration-150">
+        <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-black">
           <div className="flex items-center gap-2.5 text-rose-600 font-serif font-bold text-base">
             <div className="w-8 h-8 rounded-lg bg-rose-50 border border-rose-200 flex items-center justify-center">
               <AlertTriangle className="w-4 h-4 text-rose-600" />

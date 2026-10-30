@@ -145,7 +145,7 @@ export const SubcategoryModal: React.FC<SubcategoryModalProps> = ({
       }}
     >
       <div className="bg-[#f8fafc] border border-black w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden text-[#334155] my-auto animate-in fade-in zoom-in-95 duration-150">
-        <div className="px-6 py-4 border-b border-black flex items-center justify-between bg-[#ffffff]">
+        <div className="px-4 sm:px-6 py-4 border-b border-black flex flex-wrap items-center justify-between gap-2 bg-[#ffffff]">
           <div>
             <h2 className="text-base font-serif font-bold text-[#a16207] uppercase tracking-wide">
               {editingSubcategory ? 'Edit Subcategory' : 'Add Subcategory'}
@@ -165,7 +165,7 @@ export const SubcategoryModal: React.FC<SubcategoryModalProps> = ({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-5 max-h-[80vh] overflow-y-auto text-xs">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-5 max-h-[75dvh] overflow-y-auto text-xs">
           {formError && (
             <div className="p-3.5 rounded-xl bg-[#fef2f2] border border-rose-200 text-rose-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-start gap-2.5 min-w-0">
@@ -301,7 +301,7 @@ export const SubcategoryModal: React.FC<SubcategoryModalProps> = ({
               <button
                 type="button"
                 onClick={() => setIsActive((prev) => !prev)}
-                className={`w-full px-3 py-2 rounded-xl border flex items-center justify-between transition-colors ${
+                className={`w-full px-3 py-2 rounded-xl border flex flex-wrap items-center justify-between gap-2 transition-colors ${
                   isActive
                     ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
                     : 'bg-[#f8fafc] border-black text-[#475569]'

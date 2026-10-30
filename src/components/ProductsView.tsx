@@ -1,3 +1,4 @@
+import { sortCategoryNames, categoryDisplayName } from '../lib/subcategories';
 import React, { useState, useMemo } from 'react';
 import { Product } from '../types';
 import {
@@ -56,7 +57,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
     products.forEach((p) => {
       if (p.category) set.add(p.category);
     });
-    return Array.from(set).sort();
+    return sortCategoryNames(Array.from(set));
   }, [products]);
 
   // Filtered & Sorted products
@@ -196,7 +197,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
             <option value="all">All Categories</option>
             {categories.map((cat) => (
               <option key={cat} value={cat}>
-                {cat}
+                {categoryDisplayName(cat)}
               </option>
             ))}
           </select>

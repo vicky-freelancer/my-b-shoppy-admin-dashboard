@@ -50,7 +50,6 @@ import confetti from 'canvas-confetti';
 import { CheckCircle2, AlertCircle, RefreshCw, Sparkles, X, Database } from 'lucide-react';
 
 const SETTINGS_STORAGE_KEY = 'mybshoppy_admin_settings_v2';
-const USER_STORAGE_KEY = 'mybshoppy_admin_user_v2';
 
 const DEFAULT_SETTINGS: AppSettings = {
   appName: 'MY B SHOPPY',
@@ -61,13 +60,6 @@ const DEFAULT_SETTINGS: AppSettings = {
   enableSoundAlerts: true,
   autoRefreshInterval: 30,
   defaultFilterStatus: 'all',
-};
-
-const DEFAULT_ADMIN: AdminUser = {
-  id: 'admin_super_1',
-  name: 'Admin',
-  email: 'admin@mybshoppy.com',
-  role: 'Super Admin',
 };
 
 export default function App() {
@@ -88,15 +80,54 @@ export default function App() {
   });
 
   // 3. Auth state
-  const [adminUser, setAdminUser] = useState<AdminUser | null>(() => {
-    try {
-      const saved = localStorage.getItem(USER_STORAGE_KEY);
-      if (saved) return JSON.parse(saved);
-    } catch (e) {
-      console.error(e);
-    }
-    return DEFAULT_ADMIN;
-  });
+  const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
+  const [checkingSession, setCheckingSession] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    try { localStorage.removeItem('mybshoppy_admin_user_v2'); } catch { /* Storage may be unavailable. */ }
+    const check = async () => {
+      try {
+        const response = await fetch('/api/admin/session', { credentials: 'same-origin', cache: 'no-store' });
+        const result = response.ok ? await response.json() : null;
+        if (active) { setAdminUser(result?.user || null); if (!result?.user) setMobileMenuOpen(false); }
+      } catch { if (active) { setAdminUser(null); setMobileMenuOpen(false); } }
+      finally { if (active) setCheckingSession(false); }
+    };
+    check();
+    const onFocus = () => { void check(); };
+    window.addEventListener('focus', onFocus);
+    const interval = window.setInterval(check, 60_000);
+    return () => { active = false; clearInterval(interval); window.removeEventListener('focus', onFocus); };
+  }, []);
+
+  useEffect(() => {
+    const media = window.matchMedia('(min-width: 1024px)');
+    const onChange = () => { if (media.matches) setMobileMenuOpen(false); };
+    media.addEventListener('change', onChange);
+    return () => media.removeEventListener('change', onChange);
+  }, []);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const previousFocus = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const drawer = document.getElementById('admin-sidebar');
+    drawer?.querySelector<HTMLButtonElement>('button')?.focus();
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMobileMenuOpen(false);
+      if (event.key !== 'Tab') return;
+      const buttons = drawer?.querySelectorAll<HTMLElement>('button:not([disabled]), a[href]');
+      const visible = Array.from(buttons || []).filter((item) => item.getClientRects().length > 0);
+      const first = visible[0]; const last = visible[visible.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => { document.body.style.overflow = previousOverflow; document.removeEventListener('keydown', onKey); previousFocus?.focus(); };
+  }, [mobileMenuOpen]);
 
   // 4. Products state
   const [products, setProducts] = useState<Product[]>([]);
@@ -182,13 +213,15 @@ export default function App() {
 
   // Initial load
   useEffect(() => {
+    if (!adminUser) return;
     loadProducts();
     loadOrders();
     loadTaxonomy();
-  }, [loadProducts, loadOrders, loadTaxonomy]);
+  }, [adminUser, loadProducts, loadOrders, loadTaxonomy]);
 
   // Realtime Supabase Subscription & Auto-refresh timer
   useEffect(() => {
+    if (!adminUser) return;
     const channel = supabase
       .channel('public:dashboard_changes')
       .on(
@@ -230,7 +263,7 @@ export default function App() {
       supabase.removeChannel(channel);
       if (intervalId) clearInterval(intervalId);
     };
-  }, [settings.autoRefreshInterval, loadOrders, loadProducts, loadTaxonomy, showToast]);
+  }, [adminUser, settings.autoRefreshInterval, loadOrders, loadProducts, loadTaxonomy, showToast]);
 
   // Save settings
   const handleSaveSettings = (newSettings: AppSettings) => {
@@ -242,14 +275,19 @@ export default function App() {
   // Auth handlers
   const handleLogin = (user: AdminUser) => {
     setAdminUser(user);
-    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
+
     showToast(`Welcome back, ${user.name}!`);
   };
 
-  const handleLogout = () => {
-    setAdminUser(null);
-    localStorage.removeItem(USER_STORAGE_KEY);
-    showToast('Logged out of admin session.', 'info');
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('/api/admin/logout', { method: 'POST', credentials: 'same-origin' });
+      if (!response.ok) throw new Error('Unable to sign out. Please try again.');
+      setAdminUser(null);
+      setMobileMenuOpen(false);
+      setProducts([]); setOrders([]); setCategories([]); setSubcategories([]);
+      setIsProductModalOpen(false); setIsNewOrderModalOpen(false); setIsSettingsModalOpen(false);
+    } catch { showToast('Unable to sign out. Please try again.', 'error'); }
   };
 
   // Product CRUD Handlers
@@ -467,17 +505,18 @@ export default function App() {
   const orderStats: OrderStats = useMemo(() => computeStats(orders, products), [orders, products]);
   const productStats: ProductStats = useMemo(() => computeProductStats(products), [products]);
 
+  if (checkingSession) return <div role="status" className="min-h-dvh flex items-center justify-center p-6">Checking session...</div>;
   if (!adminUser) {
     return <LoginView onLoginSuccess={handleLogin} settings={settings} />;
   }
 
   return (
-    <div className="min-h-screen bg-[#f1f5f9] text-[#1e293b] font-sans flex antialiased selection:bg-[#a16207] selection:text-[#ffffff]">
+    <div className="min-h-dvh bg-[#f1f5f9] text-[#1e293b] font-sans flex antialiased selection:bg-[#a16207] selection:text-[#ffffff]">
       {/* Toast Notification */}
       {toast && (
         <div
           id="toast-banner"
-          className="fixed top-4 right-4 z-50 max-w-md bg-[#ffffff] text-[#0f172a] px-4 py-3 rounded-2xl shadow-2xl border border-[#d97706]/40 flex items-center gap-3 text-xs animate-in fade-in slide-in-from-top-3 duration-200"
+          className="fixed top-4 right-4 left-4 sm:left-auto z-[70] max-w-md bg-[#ffffff] text-[#0f172a] px-4 py-3 rounded-2xl shadow-2xl border border-[#d97706]/40 flex items-center gap-3 text-xs animate-in fade-in slide-in-from-top-3 duration-200"
         >
           {toast.type === 'error' ? (
             <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
@@ -496,13 +535,16 @@ export default function App() {
       )}
 
       {/* Left Sidebar */}
+      {mobileMenuOpen && <button type="button" aria-label="Close navigation backdrop" className="fixed inset-0 bg-black/45 z-40 lg:hidden" onClick={() => setMobileMenuOpen(false)} />}
       <Sidebar
+        mobileOpen={mobileMenuOpen}
+        onMobileClose={() => setMobileMenuOpen(false)}
         activeTab={activeTab}
-        onSelectTab={(tab) => setActiveTab(tab)}
+        onSelectTab={(tab) => { setActiveTab(tab); setMobileMenuOpen(false); }}
         adminUser={adminUser}
-        onOpenSettings={() => setIsSettingsModalOpen(true)}
+        onOpenSettings={() => { setIsSettingsModalOpen(true); setMobileMenuOpen(false); }}
         onLogout={handleLogout}
-        isCollapsed={isSidebarCollapsed}
+        isCollapsed={isSidebarCollapsed && !mobileMenuOpen}
         onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
         ordersCount={orders.length}
         productsCount={products.length}
@@ -510,12 +552,13 @@ export default function App() {
       />
 
       {/* Main Content Pane */}
-      <div className="flex-1 flex flex-col min-w-0 bg-[#f1f5f9] overflow-x-hidden">
+      <div inert={mobileMenuOpen} className="flex-1 flex flex-col min-w-0 bg-[#f1f5f9]">
         {/* Top Header */}
         <TopHeader
+          onOpenMenu={() => setMobileMenuOpen(true)}
           settings={settings}
           adminUser={adminUser}
-          onOpenSettings={() => setIsSettingsModalOpen(true)}
+          onOpenSettings={() => { setIsSettingsModalOpen(true); setMobileMenuOpen(false); }}
           onOpenNewProduct={() => {
             setEditingProduct(null);
             setIsProductModalOpen(true);
@@ -611,7 +654,7 @@ export default function App() {
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <button
                     type="button"
                     onClick={() => setIsSqlModalOpen(true)}

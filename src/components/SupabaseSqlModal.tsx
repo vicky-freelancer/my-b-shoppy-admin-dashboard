@@ -379,7 +379,7 @@ export const SupabaseSqlModal: React.FC<SupabaseSqlModalProps> = ({
         className="bg-[#f8fafc] border border-black w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden text-[#334155] my-auto animate-in zoom-in-95 duration-150"
       >
         {/* Header */}
-        <div className="px-6 py-4 border-b border-black flex items-center justify-between bg-[#ffffff]">
+        <div className="px-4 sm:px-6 py-4 border-b border-black flex flex-wrap items-center justify-between gap-2 bg-[#ffffff]">
           <div className="flex items-center gap-2.5">
             <div className="p-2 rounded-xl bg-[#a16207] text-[#ffffff] shadow-sm">
               <Database className="w-5 h-5" />
@@ -458,7 +458,7 @@ export const SupabaseSqlModal: React.FC<SupabaseSqlModalProps> = ({
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-4 text-xs overflow-y-auto max-h-[70vh]">
+        <div className="p-4 sm:p-6 space-y-4 text-xs overflow-y-auto max-h-[70vh]">
           {initialError && (
             <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-2.5 text-amber-900">
               <AlertCircle className="w-4 h-4 shrink-0 text-amber-700 mt-0.5" />
@@ -526,7 +526,7 @@ export const SupabaseSqlModal: React.FC<SupabaseSqlModalProps> = ({
 
           {/* SQL Code Block */}
           <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="text-[11px] font-mono text-[#475569]">
                 {activeTab === 'unified'
                   ? 'Common Schema (Products & Orders)'
@@ -562,7 +562,7 @@ export const SupabaseSqlModal: React.FC<SupabaseSqlModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-black flex items-center justify-between bg-[#ffffff]">
+        <div className="px-4 sm:px-6 py-4 border-t border-black flex flex-wrap items-center justify-between gap-2 bg-[#ffffff]">
           <a
             href={sqlEditorUrl}
             target="_blank"

@@ -1,3 +1,4 @@
+import { sortCategoryNames, categoryDisplayName } from '../lib/subcategories';
 import React, { useState, useMemo } from 'react';
 import { Order, OrderStatus, FilterState, Product } from '../types';
 import { StatusBadge } from './StatusBadge';
@@ -87,7 +88,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
     orders.forEach((o) => {
       if (o.category) categories.add(o.category.trim());
     });
-    return Array.from(categories).sort();
+    return sortCategoryNames(Array.from(categories));
   }, [orders]);
 
   // Counts by status for tabs
@@ -248,7 +249,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
       <div className="p-4 sm:p-5 border-b border-black flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         {/* Search & Category / City / Date Filters */}
         <div className="flex flex-wrap items-center gap-2.5 flex-1">
-          <div className="relative min-w-[240px] flex-1 max-w-md">
+          <div className="relative w-full sm:w-auto min-w-0 sm:min-w-[240px] flex-1 max-w-md">
             <Search className="w-4 h-4 text-[#475569] absolute left-4 top-1/2 -translate-y-1/2" />
             <input
               type="text"
@@ -285,7 +286,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
             <option value="all">All Categories ({uniqueCategories.length})</option>
             {uniqueCategories.map((cat) => (
               <option key={cat} value={cat} className="bg-[#ffffff] text-[#0f172a]">
-                {cat}
+                {categoryDisplayName(cat)}
               </option>
             ))}
           </select>
@@ -337,7 +338,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
         </div>
 
         {/* Right side buttons */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
           <button
             type="button"
             id="export-csv-btn"

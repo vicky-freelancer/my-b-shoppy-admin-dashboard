@@ -53,3 +53,17 @@ select,
 textarea {
   color-scheme: light;
 }
+
+/* Content uses the available width; wide tables scroll in their own panels. */
+html, body, #root { width: 100%; min-width: 0; }
+main, section, article, form, .grid > *, .flex > * { min-width: 0; }
+h1, h2, h3, h4, h5, h6, p, label { overflow-wrap: anywhere; }
+h1, h2, h3, h4, h5, h6, :is(h1, h2, h3, h4, h5, h6) * { font-style: normal !important; }
+img, video { max-width: 100%; }
+input, textarea, select { min-width: 0; max-width: 100%; }
+@media (max-width: 639px) {
+  html { font-size: 16px; }
+  input, select, textarea { font-size: 16px !important; }
+  button { touch-action: manipulation; }
+  .fixed.inset-0 > div { max-width: 100%; }
+}
