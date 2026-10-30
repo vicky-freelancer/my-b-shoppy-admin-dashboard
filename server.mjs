@@ -3,6 +3,7 @@ import express from 'express';
 import { createAdminAuthRouter } from './admin-auth.mjs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { existsSync } from 'node:fs';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -15,6 +16,12 @@ if (process.argv.includes('--dev')) {
   const vite = await createServer({ root, server: { middlewareMode: true }, appType: 'spa' });
   app.use(vite.middlewares);
 } else {
+  // Express-only hosts may start the entry file without running a frontend build.
+  if (!existsSync(path.join(root, 'dist/index.html'))) {
+    console.log('Dashboard build missing; building frontend before startup...');
+    const { build } = await import('vite');
+    await build({ root });
+  }
   app.use(express.static(path.join(root, 'dist')));
   app.get('*', (_req, res) => res.sendFile(path.join(root, 'dist/index.html')));
 }
