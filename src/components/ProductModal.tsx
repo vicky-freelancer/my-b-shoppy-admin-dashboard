@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Product, Category, Subcategory } from '../types';
 import { PRESET_JEWELLERY_IMAGES } from '../lib/products';
 import { prepareProductImage } from '../lib/productImage';
+import { ProductErrorNotice } from './ProductErrorNotice';
 import { slugifyCategory } from '../lib/subcategories';
 import {
   X,
@@ -14,10 +15,8 @@ import {
   DollarSign,
   Package,
   Layers,
-  AlertCircle,
   Check,
   Plus,
-  Database,
 } from 'lucide-react';
 
 interface ProductModalProps {
@@ -311,27 +310,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
 
         {/* Modal Body / Form */}
         <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-5 max-h-[75dvh] overflow-y-auto text-xs">{mariaDbMode && <label className="block">Variant labels (comma separated)<input className="block w-full border rounded p-2" value={variantLabels} onChange={e=>setVariantLabels(e.target.value)} required /><span>All variants share this product price and inventory.</span></label>}
-          {formError && (
-            <div className="p-3.5 rounded-xl bg-[#fef2f2] border border-rose-200 text-rose-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="flex items-start gap-2.5 min-w-0">
-                <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 mt-0.5" />
-                <div className="min-w-0">
-                  <p className="font-semibold text-rose-800">Database Storage Notice</p>
-                  <p className="text-[11px] text-rose-700/90 break-words mt-0.5">{formError}</p>
-                </div>
-              </div>
-              {onOpenSqlSetup && (
-                <button
-                  type="button"
-                  onClick={onOpenSqlSetup}
-                  className="px-3 py-1.5 rounded-lg bg-[#fef2f2] hover:bg-[#fee2e2] text-[#a16207] border border-[#fecaca] font-medium text-[11px] flex items-center gap-1.5 shrink-0 self-start sm:self-center transition-colors"
-                >
-                  <Database className="w-3.5 h-3.5 text-[#a16207]" />
-                  <span>Fix Supabase Table</span>
-                </button>
-              )}
-            </div>
-          )}
+          {formError && <ProductErrorNotice error={formError} mariaDbMode={mariaDbMode} onOpenSqlSetup={onOpenSqlSetup} />}
 
           {/* 1. Cover Image Upload & Selection */}
           <div className="space-y-2">

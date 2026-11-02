@@ -373,7 +373,7 @@ export default function App() {
       : await createSubcategory(values as SubcategoryInput);
 
     if (!res.success) {
-      if (res.isDatabaseError) {
+      if (res.isDatabaseError && !mariaDbMode) {
         setSqlModalError(res.error || null);
         setIsSqlModalOpen(true);
       }
@@ -783,7 +783,7 @@ export default function App() {
         onSubmit={handleSaveProduct}
         editingProduct={editingProduct}
         currencySymbol={settings.currencySymbol}
-        onOpenSqlSetup={() => mariaDbMode?showToast('Use catalog controls to manage products.'):setIsSqlModalOpen(true)}
+        onOpenSqlSetup={mariaDbMode ? undefined : () => setIsSqlModalOpen(true)}
         categories={categories}
         subcategories={subcategories}
       />
@@ -808,7 +808,7 @@ export default function App() {
         onSubmit={handleSaveSubcategory}
         categories={categories}
         editingSubcategory={editingSubcategory}
-        onOpenSqlSetup={() => mariaDbMode?showToast('Use catalog controls to manage products.'):setIsSqlModalOpen(true)}
+        onOpenSqlSetup={mariaDbMode ? undefined : () => setIsSqlModalOpen(true)}
       />
 
       <DeleteSubcategoryModal
