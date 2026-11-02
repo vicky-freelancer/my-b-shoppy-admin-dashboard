@@ -10,7 +10,7 @@ function base(){
 export async function mariaAuth(action:'login'|'session'|'logout',body?:unknown){
   if(action==='logout'&&!csrf)await mariaAuth('session');
   const response=await fetch(base()+'/api/admin/'+action,{method:action==='session'?'GET':'POST',credentials:'include',cache:'no-store',headers:{'Content-Type':'application/json',...(csrf?{'x-csrf-token':csrf}:{})},body:body?JSON.stringify(body):undefined});
-  const result=await response.json();if(!response.ok)throw Object.assign(new Error(result.code||'Sign-in unavailable'),{status:response.status});csrf=result.csrfToken||'';return result;
+  const result=await response.json();if(!response.ok)throw Object.assign(new Error(result.error||result.code||'Sign-in unavailable'),{status:response.status});if(action==='logout'&&result.success!==true)throw new Error('Unable to sign out. Please try again.');csrf=result.csrfToken||'';return result;
 }
 export async function mariaRequest(path:string,method='GET',body?:unknown){
   if(method!=='GET'&&!csrf)await mariaAuth('session');

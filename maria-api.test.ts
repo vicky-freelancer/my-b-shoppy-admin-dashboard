@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mariaSaveProduct, mariaSaveSubcategory } from './src/lib/mariaApi.ts';
+import { mariaAuth, mariaSaveProduct, mariaSaveSubcategory } from './src/lib/mariaApi.ts';
 
 test('catalog saves upload images and send only catalog fields for creates and edits', async () => {
   const originalFetch = globalThis.fetch;
@@ -59,6 +59,31 @@ test('catalog save errors preserve API messages and codes', async () => {
     const image = 'data:image/png;base64,YQ==';
     assert.equal((await mariaSaveProduct({ title: 'Ring', cover_image: image })).error, 'Product SKU already exists');
     assert.equal((await mariaSaveSubcategory({ category_id: 'rings', name: 'Bands', featured_image: image })).error, 'CATEGORY_NOT_FOUND');
+  } finally {
+    globalThis.fetch = originalFetch;
+    Object.defineProperty(globalThis, 'window', { configurable: true, value: originalWindow });
+  }
+});
+
+test('MariaDB logout includes credentials and CSRF and rejects an unconfirmed response', async () => {
+  const originalFetch = globalThis.fetch;
+  const originalWindow = globalThis.window;
+  Object.defineProperty(globalThis, 'window', { configurable: true, value: { location: { hostname: 'localhost' } } });
+  const calls: RequestInit[] = [];
+  let logoutCount = 0;
+  globalThis.fetch = async (_url, options: RequestInit = {}) => {
+    calls.push(options);
+    if (options.method === 'GET') return Response.json({ csrfToken: 'maria-csrf' });
+    return Response.json(++logoutCount === 1 ? {} : { success: true });
+  };
+  try {
+    await mariaAuth('session');
+    await assert.rejects(mariaAuth('logout'), /Unable to sign out/);
+    assert.equal((await mariaAuth('logout')).success, true);
+    for (const call of calls.slice(1)) {
+      assert.equal(call.credentials, 'include');
+      assert.equal((call.headers as Record<string, string>)['x-csrf-token'], 'maria-csrf');
+    }
   } finally {
     globalThis.fetch = originalFetch;
     Object.defineProperty(globalThis, 'window', { configurable: true, value: originalWindow });

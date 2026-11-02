@@ -20,7 +20,7 @@ export function createAdminAuthRouter({ allowedOrigins = [] } = {}) {
   const clearCookie = (req, res) => res.setHeader('Set-Cookie', `${cookieName}=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0${cookieSecurity(req)}`);
   const cleanup = setInterval(() => {
     const now = Date.now();
-    for (const [token, expires] of sessions) if (expires <= now) sessions.delete(token);
+    for (const [token, session] of sessions) if (session.expires <= now) sessions.delete(token);
     for (const [ip, attempt] of attempts) if (attempt.expires <= now) attempts.delete(ip);
   }, 60_000);
   cleanup.unref();
@@ -34,12 +34,13 @@ export function createAdminAuthRouter({ allowedOrigins = [] } = {}) {
   });
   app.get('/api/admin/session', (req, res) => {
     const token = readToken(req);
-    if (!token || (sessions.get(token) || 0) <= Date.now()) {
+    const session = sessions.get(token);
+    if (!session || session.expires <= Date.now()) {
       if (token) sessions.delete(token);
       clearCookie(req, res);
       return res.status(401).json({ error: 'Please sign in.' });
     }
-    res.json({ user });
+    res.json({ user, csrfToken: session.csrfToken });
   });
   app.post('/api/admin/login', (req, res) => {
     const key = req.ip;
@@ -63,12 +64,21 @@ export function createAdminAuthRouter({ allowedOrigins = [] } = {}) {
     const oldToken = readToken(req);
     if (oldToken) sessions.delete(oldToken);
     const token = randomBytes(32).toString('hex');
-    sessions.set(token, now + lifetime);
+    const csrfToken = randomBytes(32).toString('hex');
+    sessions.set(token, { expires: now + lifetime, csrfToken });
     res.setHeader('Set-Cookie', `${cookieName}=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${lifetime / 1000}${cookieSecurity(req)}`);
-    res.json({ user });
+    res.json({ user, csrfToken });
   });
   app.post('/api/admin/logout', (req, res) => {
-    sessions.delete(readToken(req));
+    const token = readToken(req);
+    const session = sessions.get(token);
+    if (!session || session.expires <= Date.now()) {
+      if (token) sessions.delete(token);
+      clearCookie(req, res);
+      return res.status(401).json({ error: 'Please sign in.' });
+    }
+    if (req.get('x-csrf-token') !== session.csrfToken) return res.status(403).json({ error: 'Invalid CSRF token.' });
+    sessions.delete(token);
     clearCookie(req, res);
     res.json({ success: true });
   });

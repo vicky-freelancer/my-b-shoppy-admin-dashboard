@@ -18,11 +18,11 @@ export function adminApiOrigin(_hostname: string, configuredOrigin = ''): string
   return '';
 }
 
-export async function readAdminAuthResponse(response: Response): Promise<{ user?: AdminUser; success?: boolean }> {
+export async function readAdminAuthResponse(response: Response): Promise<{ user?: AdminUser; success?: boolean; csrfToken?: string }> {
   const unavailable = 'The sign-in service is unavailable. Please try again shortly.';
   const contentType = response.headers.get('content-type') || '';
   if (!contentType.toLowerCase().includes('application/json')) throw new Error(unavailable);
-  let result: { user?: AdminUser; success?: boolean; error?: string };
+  let result: { user?: AdminUser; success?: boolean; error?: string; csrfToken?: string };
   try { result = await response.json(); }
   catch { throw new Error(unavailable); }
   if (!result || typeof result !== 'object' || Array.isArray(result)) throw new Error(unavailable);
@@ -30,16 +30,24 @@ export async function readAdminAuthResponse(response: Response): Promise<{ user?
   return result;
 }
 
+let csrfToken = '';
 export async function requestAdminAuth(action: 'login' | 'session' | 'logout', body?: { userId: string; password: string }) {
   if(mariaDbMode)return mariaAuth(action,body);
+  if (action === 'logout' && !csrfToken) await requestAdminAuth('session');
   const origin = adminApiOrigin(window.location.hostname, import.meta.env?.VITE_ADMIN_API_URL);
   let response: Response;
   try {
     response = await fetch(`${origin}/api/admin/${action}`, {
       method: action === 'session' ? 'GET' : 'POST',
       credentials: 'include', cache: 'no-store',
-      ...(body ? { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {}),
+      headers: { ...(body ? { 'Content-Type': 'application/json' } : {}), ...(action === 'logout' ? { 'x-csrf-token': csrfToken } : {}) },
+      ...(body ? { body: JSON.stringify(body) } : {}),
     });
   } catch { throw new Error('Cannot reach the sign-in service. Check your connection and try again.'); }
-  return readAdminAuthResponse(response);
+  const result = await readAdminAuthResponse(response);
+  if (action === 'logout') {
+    if (result.success !== true) throw new Error('Unable to sign out. Please try again.');
+    csrfToken = '';
+  } else if (typeof result.csrfToken === 'string') csrfToken = result.csrfToken;
+  return result;
 }

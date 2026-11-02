@@ -219,17 +219,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </button>
           )}
 
-          {!isCollapsed && onLogout && (
-            <button
-              type="button"
-              onClick={onLogout}
-              className="p-1.5 rounded-lg text-[#475569] hover:text-rose-600 hover:bg-[#fef2f2] transition-colors"
-              title="Logout"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-            </button>
-          )}
         </div>
+        {onLogout && (
+          <button type="button" onClick={onLogout} aria-label="Logout" title="Logout" className={`w-full flex items-center gap-2 rounded-lg p-2 text-xs font-medium text-[#475569] hover:text-rose-600 hover:bg-[#fef2f2] transition-colors ${isCollapsed ? 'justify-center' : ''}`}>
+            <LogOut className="w-4 h-4" />
+            {!isCollapsed && <span>Logout</span>}
+          </button>
+        )}
       </div>
     </aside>
   );
