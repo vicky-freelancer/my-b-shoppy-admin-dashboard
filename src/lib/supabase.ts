@@ -1,3 +1,5 @@
+import { mariaDbMode,mariaRequest,mariaAction } from './mariaApi';
+function legacyOrdersAllowed():boolean{return false;}
 import { createClient } from '@supabase/supabase-js';
 import { Order, OrderStatus } from '../types';
 
@@ -190,7 +192,9 @@ export function saveCachedOrders(orders: Order[]) {
 /**
  * Fetch all orders from Supabase table 'orders'
  */
-export async function getOrders(): Promise<{ orders: Order[]; error?: string; source: 'supabase' | 'cache' }> {
+export async function getOrders(): Promise<{ orders: Order[]; error?: string; source: 'supabase' | 'cache' | 'mariadb' }> {
+  if(mariaDbMode){try{const orders:any[]=[];for(let page=1;page<=100;page++){const batch=await mariaRequest('orders?pageSize=100&page='+page);orders.push(...batch.orders);if(orders.length>=batch.count)break;if(!batch.orders.length||page===100)throw new Error('Incomplete order history');}saveCachedOrders(orders);return {orders,source:'mariadb'};}catch(e){return {orders:[],source:'mariadb',error:e instanceof Error?e.message:'Orders unavailable'};}}
+
   try {
     const { data, error } = await supabase
       .from('orders')
@@ -271,6 +275,8 @@ export async function getOrders(): Promise<{ orders: Order[]; error?: string; so
  * Seed sample data into Supabase if desired
  */
 export async function seedSupabaseOrders(): Promise<{ success: boolean; count: number; message: string }> {
+  if(!legacyOrdersAllowed())return {success:false,count:0,message:'Legacy order seeding is disabled.'};
+
   try {
     const recordsToInsert = INITIAL_SAMPLE_ORDERS.map((o) => ({
       customer_name: o.customer_name,
@@ -325,6 +331,8 @@ export async function updateOrderStatus(
   newStatus: OrderStatus | string,
   extraUpdates?: Partial<Order>
 ): Promise<{ success: boolean; error?: string }> {
+  if(mariaDbMode)return mariaAction('orders/'+orderId,'PATCH',{status:newStatus,...extraUpdates});
+
   try {
     let dbError: any = null;
 
@@ -379,6 +387,8 @@ export async function updateOrderStatus(
 export async function createOrder(
   orderData: Omit<Order, 'id'>
 ): Promise<{ success: boolean; order?: Order; error?: string }> {
+  if(!legacyOrdersAllowed())return {success:false,error:'New purchases are temporarily unavailable. Use verified online checkout when released.'};
+
   try {
     const qty = typeof orderData.quantity === 'number' ? orderData.quantity : Number(orderData.quantity) || 1;
     const unitPrice =
@@ -488,6 +498,8 @@ function isDatabaseOrderId(id: string | number | undefined | null): boolean {
  * Delete a single order from Supabase & local cache
  */
 export async function deleteOrder(orderId: string | number): Promise<{ success: boolean; error?: string }> {
+  if(mariaDbMode)return mariaAction('orders/'+orderId,'DELETE');
+
   try {
     let dbError: any = null;
     if (isDatabaseOrderId(orderId)) {
@@ -522,6 +534,8 @@ export async function deleteOrder(orderId: string | number): Promise<{ success: 
 export async function deleteMultipleOrders(
   orderIds: (string | number)[]
 ): Promise<{ success: boolean; deletedCount: number; error?: string }> {
+  if(mariaDbMode){let deletedCount=0;for(const id of orderIds){const r=await mariaAction('orders/'+id,'DELETE');if(!r.success)return {success:false,deletedCount,error:r.error};deletedCount++;}return {success:true,deletedCount};}
+
   if (!orderIds || orderIds.length === 0) {
     return { success: true, deletedCount: 0 };
   }

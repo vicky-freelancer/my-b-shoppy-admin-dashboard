@@ -1,3 +1,4 @@
+import { mariaDbMode,mariaRequest,mariaSubcategories,mariaSaveSubcategory,mariaAction } from './mariaApi';
 import { supabase } from './supabase';
 import { Category, Subcategory } from '../types';
 
@@ -140,8 +141,10 @@ function normalizeSubcategory(row: any): Subcategory {
 export async function getCategories(): Promise<{
   categories: Category[];
   error?: string;
-  source: 'supabase' | 'cache';
+  source: 'supabase' | 'cache' | 'mariadb';
 }> {
+  if(mariaDbMode){try{return {categories:(await mariaRequest('categories')).categories,source:'mariadb'};}catch(e){return {categories:[],source:'mariadb',error:e instanceof Error?e.message:'Categories unavailable'};}}
+
   try {
     const { data, error } = await supabase
       .from('categories')
@@ -191,8 +194,10 @@ export async function getCategories(): Promise<{
 export async function getSubcategories(): Promise<{
   subcategories: Subcategory[];
   error?: string;
-  source: 'supabase' | 'cache';
+  source: 'supabase' | 'cache' | 'mariadb';
 }> {
+  if(mariaDbMode){try{return {subcategories:await mariaSubcategories(),source:'mariadb'};}catch(e){return {subcategories:[],source:'mariadb',error:e instanceof Error?e.message:'Subcategories unavailable'};}}
+
   try {
     const { data, error } = await supabase
       .from('subcategories')
@@ -242,6 +247,8 @@ function validateInput(input: SubcategoryInput): string | null {
 export async function createSubcategory(
   input: SubcategoryInput
 ): Promise<{ success: boolean; subcategory?: Subcategory; error?: string; isDatabaseError?: boolean }> {
+  if(mariaDbMode)return mariaSaveSubcategory(input);
+
   const validationError = validateInput(input);
   if (validationError) return { success: false, error: validationError };
 
@@ -302,6 +309,8 @@ export async function updateSubcategory(
   id: string | number,
   input: SubcategoryInput
 ): Promise<{ success: boolean; subcategory?: Subcategory; error?: string; isDatabaseError?: boolean }> {
+  if(mariaDbMode)return mariaSaveSubcategory(input,id);
+
   const validationError = validateInput(input);
   if (validationError) return { success: false, error: validationError };
 
@@ -362,6 +371,8 @@ export async function setSubcategoryActive(
   id: string | number,
   isActive: boolean
 ): Promise<{ success: boolean; error?: string }> {
+  if(mariaDbMode){const s=(await mariaSubcategories()).find((s:any)=>String(s.id)===String(id));return s?mariaSaveSubcategory({...s,is_active:isActive},id):{success:false,error:'Subcategory not found'};}
+
   try {
     const { error } = await supabase
       .from('subcategories')
@@ -384,6 +395,8 @@ export async function setSubcategoryActive(
 export async function deleteSubcategory(
   id: string | number
 ): Promise<{ success: boolean; error?: string }> {
+  if(mariaDbMode)return mariaAction('subcategories/'+id,'DELETE');
+
   try {
     const { count, error: countError } = await supabase
       .from('products')

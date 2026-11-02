@@ -1,3 +1,4 @@
+import { mariaDbMode } from '../lib/mariaApi';
 import { DEFAULT_CATEGORY_NAMES } from '../lib/subcategories';
 import React, { useState, useEffect } from 'react';
 import { Order, OrderStatus, Product } from '../types';
@@ -85,7 +86,7 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  if (!isOpen || mariaDbMode) return null;
 
   // Synchronize product selection
   const handleProductChange = (prodId: string) => {

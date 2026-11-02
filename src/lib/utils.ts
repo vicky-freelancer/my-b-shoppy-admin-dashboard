@@ -1,3 +1,4 @@
+import { mariaDbMode } from './mariaApi';
 import { Order, OrderStats, OrderStatus, Product } from '../types';
 
 export function formatCurrency(amount: number = 0, symbol: string = '$'): string {
@@ -14,6 +15,7 @@ export function formatCurrency(amount: number = 0, symbol: string = '$'): string
  */
 export function getOrderAmount(order: Partial<Order>, products: Product[] = []): number {
   if (!order) return 0;
+  if(mariaDbMode)return Number(order.amount??0);
   const qty = Math.max(1, typeof order.quantity === 'number' ? order.quantity : Number(order.quantity) || 1);
 
   // 1. Direct match with product catalog (by title, SKU, or name containment)
@@ -210,14 +212,15 @@ export function computeStats(orders: Order[], products: Product[] = []): OrderSt
   for (const order of orders) {
     const status = (order.status || 'pending').toLowerCase();
     const orderAmt = getOrderAmount(order, products);
-    stats.totalRevenue += orderAmt;
+    if(!mariaDbMode||(order as any).payment_status==='paid')stats.totalRevenue += orderAmt;
+    if(mariaDbMode&&(order as any).payment_status==='paid')stats.collectedRevenue+=orderAmt;
 
     if (status === 'pending') stats.pending += 1;
     else if (status === 'confirmed') stats.confirmed += 1;
     else if (status === 'shipped') stats.shipped += 1;
     else if (status === 'delivered') {
       stats.delivered += 1;
-      stats.collectedRevenue += orderAmt;
+      if(!mariaDbMode)stats.collectedRevenue += orderAmt;
     } else if (status === 'cancelled') stats.cancelled += 1;
     else if (status === 'returned') stats.returned += 1;
 

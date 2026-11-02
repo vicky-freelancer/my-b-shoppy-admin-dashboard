@@ -1,3 +1,4 @@
+import { mariaDbMode } from '../lib/mariaApi';
 import React, { useState, useEffect } from 'react';
 import { Order, OrderStatus, Product } from '../types';
 import { StatusBadge } from './StatusBadge';
@@ -136,7 +137,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   // WhatsApp pre-formatted message
   const whatsappPhone = order.phone.replace(/[^0-9]/g, '');
   const whatsappMessage = encodeURIComponent(
-    `Hello ${order.customer_name},\nThis is ${appName} regarding your Cash-on-Delivery order #${order.id} for "${order.product_variant}" (Qty: ${order.quantity}).\n\nOrder & COD Price (Total to collect): ${formatCurrency(orderAmount, currencySymbol)}\nDelivery Address: ${order.address}, ${order.city}\n\nPlease reply "CONFIRM" to authorize courier dispatch.`
+    `Hello ${order.customer_name},\nThis is ${appName} regarding your ${mariaDbMode?'online':'Cash-on-Delivery'} order #${order.id} for "${order.product_variant}" (Qty: ${order.quantity}).\n\n${mariaDbMode?'Order total':'Order & COD Price (Total to collect)'}: ${formatCurrency(orderAmount, currencySymbol)}\nDelivery Address: ${order.address}, ${order.city}\n\nPlease reply "CONFIRM" to authorize courier dispatch.`
   );
   const whatsappUrl = `https://wa.me/${whatsappPhone}?text=${whatsappMessage}`;
 
@@ -144,7 +145,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
     { status: 'pending', label: 'Order Received', icon: Calendar },
     { status: 'confirmed', label: 'Verified & Confirmed', icon: CheckCircle2 },
     { status: 'shipped', label: 'Handed to Courier', icon: Truck },
-    { status: 'delivered', label: 'Delivered & Cash Collected', icon: Package },
+    { status: 'delivered', label: mariaDbMode?'Delivered':'Delivered & Cash Collected', icon: Package },
   ];
 
   const currentStatusIndex = timelineSteps.findIndex((s) => s.status === (order.status || 'pending').toLowerCase());
@@ -156,7 +157,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
           <div className="flex justify-between items-start border-b border-black pb-4 mb-6">
             <div>
               <h2 className="text-xl font-bold font-serif text-[#0f172a]">{appName}</h2>
-              <p className="text-xs text-[#475569] font-mono">COD PACKING SLIP & RECEIPT</p>
+              <p className="text-xs text-[#475569] font-mono">{mariaDbMode?'PACKING SLIP & RECEIPT':'COD PACKING SLIP & RECEIPT'}</p>
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -191,7 +192,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
               <p className="font-mono font-bold text-[#0f172a]">#{order.id}</p>
               <p className="text-[#475569]">{formatDate(order.created_at)}</p>
               <p className="text-xs font-semibold text-[#a16207] bg-[#e2e8f0] inline-block px-2 py-0.5 rounded mt-1 border border-[#a16207]/30">
-                PAYMENT: CASH ON DELIVERY
+                {mariaDbMode?'PAYMENT: RAZORPAY ONLINE':'PAYMENT: CASH ON DELIVERY'}
               </p>
               {order.tracking_number && (
                 <p className="text-[#475569] font-mono mt-1 text-[11px]">AWB: {order.tracking_number}</p>
@@ -207,24 +208,24 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                   <th className="py-2">Item / Variant</th>
                   <th className="py-2">Category</th>
                   <th className="py-2 text-center">Qty</th>
-                  <th className="py-2 text-right">COD Total</th>
+                  <th className="py-2 text-right">{mariaDbMode?'Line total':'COD Total'}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200">
+              <tbody className="divide-y divide-slate-200">{mariaDbMode && order.items ? <>{order.items.map((item,i)=><tr key={i}><td className="py-3">{item.title_snapshot} / {item.variant_snapshot}</td><td>{item.category_snapshot}</td><td className="text-center">{item.quantity}</td><td className="text-right">{formatCurrency(Number(item.line_total_paise)/100,currencySymbol)}</td></tr>)}<tr><td colSpan={3}>Flat shipping</td><td className="text-right">{formatCurrency(Number(order.shipping_paise||0)/100,currencySymbol)}</td></tr></> : <>
                 <tr>
                   <td className="py-3 font-medium text-[#0f172a]">{order.product_variant}</td>
                   <td className="py-3 text-[#334155]">{order.category || 'General'}</td>
                   <td className="py-3 text-center text-[#334155]">{order.quantity}</td>
                   <td className="py-3 text-right font-bold text-[#a16207]">{formatCurrency(orderAmount, currencySymbol)}</td>
                 </tr>
-              </tbody>
+              </>}</tbody>
             </table>
           </div>
 
           <div className="bg-[#ffffff] p-4 rounded-xl border border-black flex justify-between items-center mb-6">
             <div>
-              <p className="text-xs text-[#334155] font-medium">TOTAL CASH TO COLLECT FROM CUSTOMER</p>
-              <p className="text-[11px] text-[#475569]">Courier must collect exact amount upon delivery</p>
+              <p className="text-xs text-[#334155] font-medium">{mariaDbMode?'ORDER TOTAL':'TOTAL CASH TO COLLECT FROM CUSTOMER'}</p>
+              <p className="text-[11px] text-[#475569]">{mariaDbMode?(order.payment_status==='paid'?'Payment verified online; no cash collection.':'Payment pending verification; do not collect cash or dispatch.'):'Courier must collect exact amount upon delivery'}</p>
             </div>
             <span className="text-xl font-bold text-[#a16207]">{formatCurrency(orderAmount, currencySymbol)}</span>
           </div>
@@ -413,7 +414,8 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
             </div>
           </div>
 
-          {/* Product & COD Financial Summary */}
+          {mariaDbMode && order.items && <section aria-label="Order items"><table className="w-full text-xs"><thead><tr><th>Item / variant</th><th>Qty</th><th>Unit price</th><th>Line total</th></tr></thead><tbody>{order.items.map((item,i)=><tr key={i}><td>{item.title_snapshot} / {item.variant_snapshot}</td><td>{item.quantity}</td><td>{formatCurrency(Number(item.unit_price_paise)/100,currencySymbol)}</td><td>{formatCurrency(Number(item.line_total_paise)/100,currencySymbol)}</td></tr>)}</tbody></table><p>Shipping: {formatCurrency(Number(order.shipping_paise||0)/100,currencySymbol)}</p><p>Payment: {order.payment_status}</p></section>}
+{/* Product & COD Financial Summary */}
           <div className="bg-[#ffffff] rounded-xl p-4 border border-black shadow-2xs">
             <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
               <div className="flex items-center gap-2">
@@ -421,12 +423,13 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                   Order Items & Pricing
                 </span>
                 <span className="text-[11px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
-                  Order Price = COD Price
+                  {mariaDbMode?'Order total includes shipping':'Order Price = COD Price'}
                 </span>
               </div>
 
               <button
                 type="button"
+                disabled={mariaDbMode}
                 onClick={() => setIsEditingProduct(!isEditingProduct)}
                 className="text-xs text-[#a16207] hover:underline flex items-center gap-1 font-medium"
               >
@@ -488,11 +491,11 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="text-xs text-[#475569] block">Order & COD Amount</span>
+                  <span className="text-xs text-[#475569] block">{mariaDbMode?'Order total':'Order & COD Amount'}</span>
                   <span className="font-bold text-base text-[#a16207]">
                     {formatCurrency(orderAmount, currencySymbol)}
                   </span>
-                  <span className="text-[10px] text-[#475569] block">Cash on Delivery</span>
+                  <span className="text-[10px] text-[#475569] block">{mariaDbMode?'Razorpay online':'Cash on Delivery'}</span>
                 </div>
               </div>
             ) : (

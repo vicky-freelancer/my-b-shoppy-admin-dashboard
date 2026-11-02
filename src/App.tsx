@@ -1,3 +1,5 @@
+import { mariaDbMode } from './lib/mariaApi';
+import { MariaCatalogControls } from './components/MariaCatalogControls';
 import { requestAdminAuth, isExpiredAdminSession } from './lib/adminAuth';
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Order, OrderStatus, AdminUser, AppSettings, OrderStats, Product, ProductStats, NavTab, Category, Subcategory } from './types';
@@ -234,7 +236,7 @@ export default function App() {
 
   // Realtime Supabase Subscription & Auto-refresh timer
   useEffect(() => {
-    if (!adminUser) return;
+    if (!adminUser || mariaDbMode) return;
     const channel = supabase
       .channel('public:dashboard_changes')
       .on(
@@ -278,6 +280,8 @@ export default function App() {
     };
   }, [adminUser, settings.autoRefreshInterval, loadOrders, loadProducts, loadTaxonomy, showToast]);
 
+  useEffect(()=>{if(!mariaDbMode||!adminUser)return;const timer=setInterval(()=>{void loadProducts();void loadOrders(true);void loadTaxonomy();},30000);return()=>clearInterval(timer);},[adminUser,loadProducts,loadOrders,loadTaxonomy]);
+
   // Save settings
   const handleSaveSettings = (newSettings: AppSettings) => {
     setSettings(newSettings);
@@ -319,9 +323,9 @@ export default function App() {
         await loadProducts();
         if (res.error) {
           setSqlModalError(res.error);
-          if (res.isDatabaseError) setIsSqlModalOpen(true);
+          if (res.isDatabaseError && !mariaDbMode) setIsSqlModalOpen(true);
         }
-        showToast(res.error || 'Failed to update product in Supabase', 'error');
+        throw new Error(res.error || 'Failed to update product');
       }
     } else {
       const res = await createProduct(productData);
@@ -330,14 +334,14 @@ export default function App() {
           const createdProduct = res.product;
           setProducts((current) => [createdProduct, ...current.filter((product) => String(product.id) !== String(createdProduct.id))]);
         }
-        showToast(`New product "${productData.title}" saved to Supabase!`);
+        showToast(`New product "${productData.title}" saved successfully!`);
       } else {
         await loadProducts();
         if (res.error) {
           setSqlModalError(res.error);
-          if (res.isDatabaseError) setIsSqlModalOpen(true);
+          if (res.isDatabaseError && !mariaDbMode) setIsSqlModalOpen(true);
         }
-        showToast(res.error || 'Failed to add product to Supabase', 'error');
+        throw new Error(res.error || 'Failed to add product');
       }
     }
   };
@@ -584,8 +588,8 @@ export default function App() {
             setEditingProduct(null);
             setIsProductModalOpen(true);
           }}
-          onOpenNewOrder={() => setIsNewOrderModalOpen(true)}
-          onOpenSqlSetup={() => setIsSqlModalOpen(true)}
+          onOpenNewOrder={() => mariaDbMode?showToast('Checkout is temporarily unavailable.','error'):setIsNewOrderModalOpen(true)}
+          onOpenSqlSetup={() => mariaDbMode?showToast('Use catalog controls to manage products.'):setIsSqlModalOpen(true)}
           onRefresh={() => {
             loadProducts();
             loadOrders();
@@ -597,6 +601,7 @@ export default function App() {
 
         {/* View Switcher */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6">
+          {mariaDbMode && <MariaCatalogControls products={products} onChanged={() => {loadProducts();loadTaxonomy();}} />}
           {/* Tab 1: Products View (Primary Reference Request) */}
           {activeTab === 'products' && (
             <ProductsView
@@ -616,7 +621,7 @@ export default function App() {
               }}
               currencySymbol={settings.currencySymbol}
               isLoading={isLoading}
-              onOpenSqlSetup={() => setIsSqlModalOpen(true)}
+              onOpenSqlSetup={() => mariaDbMode?showToast('Use catalog controls to manage products.'):setIsSqlModalOpen(true)}
             />
           )}
 
@@ -641,7 +646,7 @@ export default function App() {
               onToggleActive={handleToggleSubcategory}
               onRefresh={loadTaxonomy}
               isLoading={isTaxonomyLoading}
-              onOpenSqlSetup={() => setIsSqlModalOpen(true)}
+              onOpenSqlSetup={() => mariaDbMode?showToast('Use catalog controls to manage products.'):setIsSqlModalOpen(true)}
             />
           )}
 
@@ -658,7 +663,7 @@ export default function App() {
                 setEditingProduct(null);
                 setIsProductModalOpen(true);
               }}
-              onOpenNewOrder={() => setIsNewOrderModalOpen(true)}
+              onOpenNewOrder={() => mariaDbMode?showToast('Checkout is temporarily unavailable.','error'):setIsNewOrderModalOpen(true)}
             />
           )}
 
@@ -778,7 +783,7 @@ export default function App() {
         onSubmit={handleSaveProduct}
         editingProduct={editingProduct}
         currencySymbol={settings.currencySymbol}
-        onOpenSqlSetup={() => setIsSqlModalOpen(true)}
+        onOpenSqlSetup={() => mariaDbMode?showToast('Use catalog controls to manage products.'):setIsSqlModalOpen(true)}
         categories={categories}
         subcategories={subcategories}
       />
@@ -803,7 +808,7 @@ export default function App() {
         onSubmit={handleSaveSubcategory}
         categories={categories}
         editingSubcategory={editingSubcategory}
-        onOpenSqlSetup={() => setIsSqlModalOpen(true)}
+        onOpenSqlSetup={() => mariaDbMode?showToast('Use catalog controls to manage products.'):setIsSqlModalOpen(true)}
       />
 
       <DeleteSubcategoryModal
@@ -851,7 +856,7 @@ export default function App() {
         onSaveSettings={handleSaveSettings}
         onSeedData={handleSeedData}
         isSeeding={isSeeding}
-        onOpenSqlSetup={() => setIsSqlModalOpen(true)}
+        onOpenSqlSetup={() => mariaDbMode?showToast('Use catalog controls to manage products.'):setIsSqlModalOpen(true)}
       />
 
       {/* Supabase Schema & SQL Setup Helper Modal */}

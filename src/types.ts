@@ -38,6 +38,9 @@ export interface Subcategory {
 }
 
 export interface Product {
+  row_version?: string | number;
+  is_active?: boolean;
+  archived_at?: string | null;
   id: string | number;
   title: string;
   sku: string;
@@ -67,6 +70,10 @@ export interface Product {
 }
 
 export interface Order {
+  payment_status?: string;
+  subtotal_paise?: number | string;
+  shipping_paise?: number | string;
+  items?: {title_snapshot:string;variant_snapshot:string;category_snapshot:string;quantity:number;unit_price_paise:number;line_total_paise:number}[];
   id: string | number;
   customer_name: string;
   email?: string | null;

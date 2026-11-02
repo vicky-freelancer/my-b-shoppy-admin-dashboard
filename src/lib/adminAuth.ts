@@ -1,3 +1,4 @@
+import { mariaDbMode,mariaAuth } from './mariaApi';
 import type { AdminUser } from '../types';
 
 export class AdminAuthError extends Error {
@@ -8,7 +9,7 @@ export class AdminAuthError extends Error {
 }
 
 export function isExpiredAdminSession(error: unknown): boolean {
-  return error instanceof AdminAuthError && error.status === 401;
+  return error instanceof Error && 'status' in error && error.status === 401;
 }
 
 export function adminApiOrigin(_hostname: string, configuredOrigin = ''): string {
@@ -30,6 +31,7 @@ export async function readAdminAuthResponse(response: Response): Promise<{ user?
 }
 
 export async function requestAdminAuth(action: 'login' | 'session' | 'logout', body?: { userId: string; password: string }) {
+  if(mariaDbMode)return mariaAuth(action,body);
   const origin = adminApiOrigin(window.location.hostname, import.meta.env?.VITE_ADMIN_API_URL);
   let response: Response;
   try {

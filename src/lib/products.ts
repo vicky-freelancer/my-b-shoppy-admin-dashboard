@@ -1,3 +1,4 @@
+import { mariaDbMode,mariaProducts,mariaSaveProduct,mariaAction } from './mariaApi';
 import { supabase } from './supabase';
 import { Product, ProductStats } from '../types';
 
@@ -519,7 +520,9 @@ function extractNotNullColumn(errorMessage?: string): string | null {
 /**
  * Fetch all products from Supabase 'products' table (with fallback to local storage)
  */
-export async function getProducts(): Promise<{ products: Product[]; error?: string; source: 'supabase' | 'cache' }> {
+export async function getProducts(): Promise<{ products: Product[]; error?: string; source: 'supabase' | 'cache' | 'mariadb' }> {
+  if(mariaDbMode){try{const products=await mariaProducts();saveCachedProducts(products);return {products,source:'mariadb'};}catch(e){return {products:[],source:'mariadb',error:e instanceof Error?e.message:'Catalog unavailable'};}}
+
   try {
     let data: any[] | null = null;
     let error: any = null;
@@ -778,6 +781,8 @@ async function attemptInsertProductToSupabase(productData: Omit<Product, 'id'>):
 export async function createProduct(
   productData: Omit<Product, 'id'>
 ): Promise<{ success: boolean; product?: Product; error?: string; isDatabaseError?: boolean }> {
+  if(mariaDbMode)return mariaSaveProduct(productData);
+
   try {
     const fallbackId = generateClientUuid();
     const newRecord: Product = {
@@ -860,6 +865,8 @@ export async function updateProduct(
   id: string | number,
   updates: Partial<Product>
 ): Promise<{ success: boolean; product?: Product; error?: string; isDatabaseError?: boolean }> {
+  if(mariaDbMode)return mariaSaveProduct(updates,id);
+
   try {
     const current = getCachedProducts();
     const existing = current.find((p) => String(p.id) === String(id));
@@ -1086,6 +1093,8 @@ export async function decrementProductStock(
   productId: string | number | undefined | null,
   orderedQty: number
 ): Promise<{ success: boolean; product?: Product; error?: string }> {
+  if(mariaDbMode)return {success:false,error:'Stock is reserved and consumed by verified checkout only.'};
+
   try {
     if (productId === undefined || productId === null || String(productId) === 'CUSTOM') {
       return { success: false, error: 'No catalog product linked to this order.' };
@@ -1201,6 +1210,8 @@ export async function decrementProductStock(
  * Delete a product from Supabase and local cache
  */
 export async function deleteProduct(id: string | number): Promise<{ success: boolean; error?: string }> {
+  if(mariaDbMode)return mariaAction('products/'+id,'DELETE');
+
   try {
     const current = getCachedProducts();
     const existing = current.find((p) => String(p.id) === String(id));

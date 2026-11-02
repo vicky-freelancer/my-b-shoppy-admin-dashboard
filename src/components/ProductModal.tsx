@@ -1,3 +1,4 @@
+import { mariaDbMode } from '../lib/mariaApi';
 import { DEFAULT_CATEGORY_NAMES } from '../lib/subcategories';
 import React, { useState, useEffect, useRef } from 'react';
 import { Product, Category, Subcategory } from '../types';
@@ -51,6 +52,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
   categories = [],
   subcategories = [],
 }) => {
+  const [variantLabels,setVariantLabels]=useState('Standard');
   const [title, setTitle] = useState('');
   const [sku, setSku] = useState('');
   const [category, setCategory] = useState(COMMON_CATEGORIES[0]);
@@ -80,6 +82,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
     setIsPreparingImage(false);
     const categoryNames = categories.length > 0 ? categories.map((c) => c.name) : COMMON_CATEGORIES;
     if (editingProduct) {
+      setVariantLabels((editingProduct.variants?.length?editingProduct.variants:['Standard']).join(', '));
       setTitle(editingProduct.title || '');
       setSku(editingProduct.sku || '');
       if (categoryNames.includes(editingProduct.category)) {
@@ -110,7 +113,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
           ? String(editingProduct.subcategory_id)
           : ''
       );
-      setCoverImage(editingProduct.cover_image || PRESET_JEWELLERY_IMAGES[0].url);
+      setCoverImage(editingProduct.cover_image || (mariaDbMode ? '' : PRESET_JEWELLERY_IMAGES[0].url));
       setMrp(editingProduct.mrp ?? 0);
       setSalePrice(editingProduct.sale_price ?? 0);
       setQuantity(editingProduct.quantity ?? 0);
@@ -119,6 +122,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
       setMaterial(editingProduct.material || '');
     } else {
       // Default empty new product values for manual entry
+      setVariantLabels('Standard');
       setTitle('');
       setSku(`LK-${Math.random().toString(36).substring(2, 5).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`);
       setCategory(categoryNames[0]);
@@ -249,18 +253,20 @@ export const ProductModal: React.FC<ProductModalProps> = ({
         (subcategory) => String(subcategory.id) === String(subcategoryId)
       );
       await onSubmit({
+        row_version: editingProduct?.row_version,
         title: title.trim(),
         sku: sku.trim().toUpperCase(),
         category: finalCategory,
         category_id: selectedCategoryId || undefined,
         subcategory_id: selectedSubcategory ? String(selectedSubcategory.id) : undefined,
         subcategory: selectedSubcategory ? selectedSubcategory.name : undefined,
-        cover_image: coverImage || PRESET_JEWELLERY_IMAGES[0].url,
+        cover_image: coverImage || (mariaDbMode ? '' : PRESET_JEWELLERY_IMAGES[0].url),
         mrp: Number(mrp) || Number(salePrice),
         sale_price: Number(salePrice),
         quantity: Number(quantity),
         badges: badges,
         badge: badges && badges.length > 0 ? badges[0] : undefined,
+        ...(mariaDbMode?{variants:variantLabels.split(',').map(v=>v.trim()).filter(Boolean)}:{}),
         description: description.trim(),
         material: material.trim(),
       });
@@ -304,7 +310,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
         </div>
 
         {/* Modal Body / Form */}
-        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-5 max-h-[75dvh] overflow-y-auto text-xs">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-5 max-h-[75dvh] overflow-y-auto text-xs">{mariaDbMode && <label className="block">Variant labels (comma separated)<input className="block w-full border rounded p-2" value={variantLabels} onChange={e=>setVariantLabels(e.target.value)} required /><span>All variants share this product price and inventory.</span></label>}
           {formError && (
             <div className="p-3.5 rounded-xl bg-[#fef2f2] border border-rose-200 text-rose-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-start gap-2.5 min-w-0">
