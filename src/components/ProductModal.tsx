@@ -52,6 +52,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
   subcategories = [],
 }) => {
   const [variantLabels,setVariantLabels]=useState('Standard');
+  const [additionalImages,setAdditionalImages]=useState<string[]>([]);
   const [title, setTitle] = useState('');
   const [sku, setSku] = useState('');
   const [category, setCategory] = useState(COMMON_CATEGORIES[0]);
@@ -113,6 +114,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
           : ''
       );
       setCoverImage(editingProduct.cover_image || (mariaDbMode ? '' : PRESET_JEWELLERY_IMAGES[0].url));
+      setAdditionalImages((editingProduct.images || []).slice(1).map(image => image.url.startsWith('/media/') ? new URL(image.url, editingProduct.cover_image).href : image.url));
       setMrp(editingProduct.mrp ?? 0);
       setSalePrice(editingProduct.sale_price ?? 0);
       setQuantity(editingProduct.quantity ?? 0);
@@ -128,6 +130,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
       setCustomCategory('');
       setSubcategoryId('');
       setCoverImage('');
+      setAdditionalImages([]);
       setMrp('');
       setSalePrice('');
       setQuantity('');
@@ -260,6 +263,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
         subcategory_id: selectedSubcategory ? String(selectedSubcategory.id) : undefined,
         subcategory: selectedSubcategory ? selectedSubcategory.name : undefined,
         cover_image: coverImage || (mariaDbMode ? '' : PRESET_JEWELLERY_IMAGES[0].url),
+        ...(mariaDbMode ? {additional_images:additionalImages} : {}),
         mrp: Number(mrp) || Number(salePrice),
         sale_price: Number(salePrice),
         quantity: Number(quantity),
@@ -309,7 +313,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
         </div>
 
         {/* Modal Body / Form */}
-        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-5 max-h-[75dvh] overflow-y-auto text-xs">{mariaDbMode && <label className="block">Variant labels (comma separated)<input className="block w-full border rounded p-2" value={variantLabels} onChange={e=>setVariantLabels(e.target.value)} required /><span>All variants share this product price and inventory.</span></label>}
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-5 max-h-[75dvh] overflow-y-auto text-xs">{mariaDbMode && <div className="space-y-2"><label className="block font-semibold">Additional product images (up to 9)<input type="file" accept="image/jpeg,image/png,image/webp" multiple className="block mt-2" disabled={isPreparingImage} onChange={async e=>{const target=e.currentTarget;const files: File[]=Array.from(target.files || []);if(files.length+additionalImages.length>9||files.some(file=>file.size>5*1024*1024)){setFormError('Choose up to 9 additional images, each at most 5MB.');return;}setIsPreparingImage(true);try{const images=await Promise.all(files.map(prepareProductImage));setAdditionalImages(current=>[...current,...images]);}catch{setFormError('Unable to prepare the selected images.');}finally{setIsPreparingImage(false);target.value='';}}} /></label><div className="flex flex-wrap gap-2">{additionalImages.map((image,index)=><div key={index} className="flex flex-col gap-1"><img src={image} alt={`Additional image ${index+1}`} className="w-16 h-16 object-cover rounded"/><button type="button" onClick={()=>setAdditionalImages(current=>current.filter((_,i)=>i!==index))}>Remove</button></div>)}</div></div>}{mariaDbMode && <label className="block">Variant labels (comma separated)<input className="block w-full border rounded p-2" value={variantLabels} onChange={e=>setVariantLabels(e.target.value)} required /><span>All variants share this product price and inventory.</span></label>}
           {formError && <ProductErrorNotice error={formError} mariaDbMode={mariaDbMode} onOpenSqlSetup={onOpenSqlSetup} />}
 
           {/* 1. Cover Image Upload & Selection */}

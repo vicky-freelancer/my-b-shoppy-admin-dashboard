@@ -46,6 +46,8 @@ export interface Product {
   sku: string;
   category: string;
   cover_image: string;
+  additional_images?: string[];
+  images?: { asset_id: string; url: string }[];
   mrp: number;
   sale_price: number;
   quantity: number;
