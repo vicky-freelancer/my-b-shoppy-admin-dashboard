@@ -15,7 +15,7 @@ Direct Vite development (`npx vite`) also serves the authentication routes. Rest
 
 Run `npm run build`, then `npm start`. Use a Node host; static-only hosting cannot serve the authentication endpoints. Set `NODE_ENV=production` and serve through HTTPS so the Secure session cookie is sent. `PORT` defaults to 3000; `HOST` defaults to 0.0.0.0.
 
-For Hostinger's Express preset, use repository root `./` and entry file `server.mjs`. Set the build command to `npm run build` so `dist/` exists before the server starts. Production startup does not build the dashboard: if `dist/index.html` is missing, the server exits with a clear error instead of hanging behind the reverse proxy. Development and test runs still build on demand. The `/health` endpoint returns `{ "status": "ok" }` for deployment health checks.
+For Hostinger's Express preset, use repository root `./` and entry file `server.mjs`. The production build in `dist/` is committed so deployments do not depend on a host-side build step. Run `npm run build` and commit `dist/` after any frontend change. Production startup does not build the dashboard: if `dist/index.html` is missing, the server exits with a clear error instead of hanging behind the reverse proxy. Development and test runs still build on demand. The `/health` endpoint returns `{ "status": "ok" }` for deployment health checks.
 
 Authentication requests use the dashboard's own origin, including on `admin.mybshoppy.com`. Forward `/api/admin/*` to this Node server when using a reverse proxy. Remove any stale `VITE_ADMIN_API_URL` override and rebuild to use this default; a separate API origin requires its own credentialed CORS and allowed-origin configuration.
 
