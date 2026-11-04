@@ -1,5 +1,4 @@
 import { mariaDbMode, mariaRequest } from './lib/mariaApi';
-import { MariaCatalogControls } from './components/MariaCatalogControls';
 import { requestAdminAuth, isExpiredAdminSession } from './lib/adminAuth';
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Order, OrderStatus, AdminUser, AppSettings, OrderStats, Product, ProductStats, NavTab, Category, Subcategory } from './types';
@@ -601,7 +600,6 @@ export default function App() {
 
         {/* View Switcher */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6">
-          {mariaDbMode && <MariaCatalogControls products={products} subcategories={subcategories} onChanged={() => {loadProducts();loadTaxonomy();}} />}
           {/* Tab 1: Products View (Primary Reference Request) */}
           {activeTab === 'products' && (
             <ProductsView
@@ -627,8 +625,6 @@ export default function App() {
 
           {/* Tab 1b: Subcategories View */}
           {activeTab === 'subcategories' && (
-            <>
-            {mariaDbMode && <section className="p-4 mb-4 bg-white rounded-xl border border-black space-y-3"><div className="flex flex-wrap gap-2 items-center"><strong>Categories</strong><button type="button" className="border rounded px-3 py-2" onClick={async()=>{const name=window.prompt('New category name');if(!name?.trim())return;try{await mariaRequest('categories','POST',{name:name.trim()});await loadTaxonomy();}catch(e){showToast(e instanceof Error?e.message:'Could not create category','error');}}}>Add category</button></div><div className="flex flex-wrap gap-2">{categories.map(category=><button type="button" key={category.id} className="border rounded px-3 py-2" onClick={async()=>{const name=window.prompt('Category name',category.name);if(!name?.trim()||name.trim()===category.name)return;try{await mariaRequest('categories/'+encodeURIComponent(category.id),'PATCH',{name:name.trim()});await loadTaxonomy();}catch(e){showToast(e instanceof Error?e.message:'Could not update category','error');}}}>{category.name} ? Edit</button>)}</div></section>}
             <SubcategoriesView
               subcategories={subcategories}
               categories={categories}
@@ -650,7 +646,6 @@ export default function App() {
               isLoading={isTaxonomyLoading}
               onOpenSqlSetup={() => mariaDbMode?showToast('Use catalog controls to manage products.'):setIsSqlModalOpen(true)}
             />
-            </>
           )}
 
           {/* Tab 2: Dashboard View */}
