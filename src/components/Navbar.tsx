@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { AdminUser, AppSettings } from '../types';
+import { mariaDbMode } from '../lib/mariaApi';
 import {
   PackageCheck,
   Settings,
@@ -73,14 +74,14 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </div>
 
-        {/* Center: Live Supabase Status */}
+        {/* Center: Live database status */}
         <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full bg-slate-50 border border-black text-xs">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
           </span>
           <span className="text-[11px] font-medium text-slate-600">
-            Supabase DB: <strong className="text-slate-800">orders</strong>
+            {mariaDbMode ? 'MariaDB' : 'Supabase'} DB: <strong className="text-slate-800">orders</strong>
           </span>
         </div>
 
@@ -92,7 +93,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             id="navbar-refresh-btn"
             onClick={onRefresh}
             disabled={isLoading}
-            title="Refresh orders from Supabase"
+            title={`Refresh orders from ${mariaDbMode ? 'MariaDB' : 'Supabase'}`}
             className="p-2 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-40"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-blue-600' : ''}`} />

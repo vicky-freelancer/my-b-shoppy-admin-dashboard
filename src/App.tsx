@@ -668,7 +668,7 @@ export default function App() {
           {/* Tab 3: Orders View */}
           {activeTab === 'orders' && (
             <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-black bg-[#ffffff] px-5 py-4 shadow-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-3 py-2">
                 <div>
                   <h2 className="text-2xl font-serif font-bold text-[#0f172a] tracking-wide uppercase border-l-4 border-[#d97706] pl-3">
                     COD ORDERS DISPATCH
@@ -744,7 +744,7 @@ export default function App() {
           {/* Tab 5: Analytics View */}
           {activeTab === 'analytics' && (
             <div className="space-y-6">
-              <div className="rounded-2xl border border-black bg-[#ffffff] px-5 py-4 shadow-sm">
+              <div className="px-3 py-2">
                 <h2 className="text-2xl font-serif font-bold text-[#0f172a] tracking-wide uppercase border-l-4 border-[#d97706] pl-3">
                   SALES & INVENTORY ANALYTICS
                 </h2>
@@ -765,7 +765,7 @@ export default function App() {
             </span>
             <span className="flex items-center gap-2 text-[#475569]">
               <span className="w-2 h-2 rounded-full bg-[#a16207]" />
-              Supabase Catalog & Order Live Sync Enabled
+              {mariaDbMode ? 'MariaDB' : 'Supabase'} Catalog & Order Live Sync Enabled
             </span>
           </div>
         </footer>

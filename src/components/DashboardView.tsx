@@ -148,7 +148,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Low Stock Warning */}
         <div className="rounded-2xl bg-[#ffffff] border border-black shadow-md overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-3 bg-[#f8fafc] border-b border-black">
+          <div className="flex items-center justify-between px-3 py-2">
             <div className="flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-amber-700" />
               <h3 className="font-serif font-bold text-sm text-[#0f172a]">
@@ -202,7 +202,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
         {/* Featured Jewellery Items */}
         <div className="rounded-2xl bg-[#ffffff] border border-black shadow-md overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-3 bg-[#f8fafc] border-b border-black">
+          <div className="flex items-center justify-between px-3 py-2">
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-[#a16207]" />
               <h3 className="font-serif font-bold text-sm text-[#0f172a]">

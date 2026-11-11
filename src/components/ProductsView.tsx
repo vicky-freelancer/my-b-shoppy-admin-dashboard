@@ -128,7 +128,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
   return (
     <div className="space-y-6">
       {/* 1. Header Section */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-black bg-[#ffffff] px-5 py-4 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-3 py-2">
         <div>
           <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#0f172a] tracking-wide uppercase border-l-4 border-[#d97706] pl-3">
             PRODUCTS
@@ -221,6 +221,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
                   </button>
                 </th>
                 <th className="py-4 px-3 font-semibold">CATEGORY</th>
+                <th className="py-4 px-3 font-semibold">STATUS</th>
                 <th className="py-4 px-3 font-semibold">
                   <button
                     type="button"
@@ -262,6 +263,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
                   const qty = Number(product.quantity) || 0;
                   const isLow = qty > 0 && qty <= 15;
                   const isOut = qty === 0;
+                  const isLive = product.is_active !== false;
 
                   return (
                     <tr
@@ -300,7 +302,25 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
                         </span>
                       </td>
 
-                      {/* 3. MRP */}
+                      {/* 3. STATUS */}
+                      <td className="py-3.5 px-3 whitespace-nowrap">
+                        {isLive ? (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            <CheckCircle2 className="w-3 h-3" />
+                            Live
+                          </span>
+                        ) : (
+                          <span
+                            className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-300"
+                            title="Draft products are not visible on the storefront."
+                          >
+                            <XCircle className="w-3 h-3" />
+                            Draft
+                          </span>
+                        )}
+                      </td>
+
+                      {/* 4. MRP */}
                       <td className="py-3.5 px-3 whitespace-nowrap font-medium text-[#475569]">
                         <span className="line-through decoration-[#475569]/60">
                           {currencySymbol} {product.mrp || product.sale_price}
@@ -398,7 +418,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
                 })
               ) : (
                 <tr>
-                  <td colSpan={7} className="py-16 px-4 text-center text-[#475569]">
+                  <td colSpan={8} className="py-16 px-4 text-center text-[#475569]">
                     <div className="max-w-md mx-auto flex flex-col items-center">
                       <div className="w-14 h-14 rounded-2xl bg-[#f1f5f9] border border-black flex items-center justify-center mb-3 text-[#a16207]">
                         <Package className="w-7 h-7" />

@@ -74,7 +74,7 @@ export const CustomersView: React.FC<CustomersViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-black bg-[#ffffff] px-5 py-4 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-3 py-2">
         <div>
           <h2 className="text-2xl font-serif font-bold text-[#0f172a] tracking-wide uppercase border-l-4 border-[#d97706] pl-3">
             CUSTOMERS

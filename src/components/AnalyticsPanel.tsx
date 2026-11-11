@@ -23,7 +23,7 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ stats }) => {
       {/* Status Pipeline Progress Bar */}
       <div className="bg-[#ffffff] rounded-2xl p-5 border border-black shadow-sm lg:col-span-2 flex flex-col justify-between overflow-hidden">
         <div>
-          <div className="-mx-5 -mt-5 mb-4 px-5 py-3 bg-[#f8fafc] border-b border-black flex items-center justify-between">
+          <div className="mb-4 px-3 py-2 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-[#a16207]" />
               <h3 className="text-sm font-semibold text-[#0f172a]">COD Fulfillment Pipeline</h3>
@@ -69,7 +69,7 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ stats }) => {
       {/* Top Delivery Hubs & Cities */}
       <div className="bg-[#ffffff] rounded-2xl p-5 border border-black shadow-sm flex flex-col justify-between overflow-hidden">
         <div>
-          <div className="-mx-5 -mt-5 mb-4 px-5 py-3 bg-[#f8fafc] border-b border-black flex items-center justify-between">
+          <div className="mb-4 px-3 py-2 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <MapPin className="w-4 h-4 text-[#a16207]" />
               <h3 className="text-sm font-semibold text-[#0f172a]">Top Delivery Destinations</h3>
