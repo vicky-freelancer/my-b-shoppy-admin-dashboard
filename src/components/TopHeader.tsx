@@ -59,7 +59,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
       {/* Brand / Admin Breadcrumb */}
       <div className="flex items-center gap-1 sm:gap-3 min-w-0">
         <button id="admin-menu-button" type="button" onClick={onOpenMenu} aria-label="Open navigation" aria-controls="admin-sidebar" className="lg:hidden p-2.5 rounded-lg text-slate-700"><Menu className="w-5 h-5" /></button>
-        <h1 className="rounded-lg bg-[#f8fafc] border border-black text-[10px] sm:text-xs font-serif uppercase tracking-[0.06em] sm:tracking-[0.2em] text-[#a16207] font-bold">
+        <h1 className="rounded-lg bg-[#f8fafc] text-[10px] sm:text-xs font-serif uppercase tracking-[0.06em] sm:tracking-[0.2em] text-[#a16207] font-bold">
           MY B SHOPPY ADMIN
         </h1>
       </div>

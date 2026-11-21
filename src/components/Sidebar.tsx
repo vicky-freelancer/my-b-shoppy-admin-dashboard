@@ -125,7 +125,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {!isCollapsed && (
-          <div className="mx-4 mt-4 mb-2 rounded-lg bg-[#f8fafc] border border-black text-[9px] font-bold uppercase tracking-[0.2em] text-[#64748b]">
+          <div className="mx-4 mt-4 mb-2 rounded-lg bg-[#f8fafc] text-[9px] font-bold uppercase tracking-[0.2em] text-[#64748b]">
             Navigation
           </div>
         )}
@@ -183,7 +183,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Bottom Profile / Quick Settings */}
       <div className="p-3 border-t border-black bg-[#f8fafc] space-y-2">
         <div
-          className={`flex items-center gap-3 rounded-xl bg-[#ffffff] border border-black shadow-sm ${
+          className={`flex items-center gap-3 rounded-xl bg-[#ffffff] shadow-sm ${
             isCollapsed ? 'justify-center' : 'justify-between'
           }`}
         >

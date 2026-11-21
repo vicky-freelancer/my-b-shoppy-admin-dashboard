@@ -39,7 +39,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   return (
     <div className="space-y-6">
       {/* 1. Welcome Banner */}
-      <div className="rounded-2xl bg-gradient-to-r from-[#ffffff] via-[#f8fafc] to-[#ffffff] border border-black shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="rounded-2xl bg-gradient-to-r from-[#ffffff] via-[#f8fafc] to-[#ffffff] shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#fffbeb] border border-[#d97706]/30 text-[#a16207] text-[11px] font-semibold mb-2">
             <Sparkles className="w-3 h-3" />
