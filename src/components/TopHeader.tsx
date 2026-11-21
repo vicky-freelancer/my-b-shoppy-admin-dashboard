@@ -11,8 +11,7 @@ import {
   RefreshCw,
   Plus,
   Gem,
-  ShoppingBag,
-  Database
+  ShoppingBag
 } from 'lucide-react';
 
 interface TopHeaderProps {
@@ -26,7 +25,6 @@ interface TopHeaderProps {
   isLoading?: boolean;
   globalSearch: string;
   onGlobalSearchChange: (value: string) => void;
-  onOpenSqlSetup?: () => void;
 }
 
 export const TopHeader: React.FC<TopHeaderProps> = ({
@@ -40,7 +38,6 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   isLoading = false,
   globalSearch,
   onGlobalSearchChange,
-  onOpenSqlSetup,
 }) => {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -62,7 +59,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
       {/* Brand / Admin Breadcrumb */}
       <div className="flex items-center gap-1 sm:gap-3 min-w-0">
         <button id="admin-menu-button" type="button" onClick={onOpenMenu} aria-label="Open navigation" aria-controls="admin-sidebar" className="lg:hidden p-2.5 rounded-lg text-slate-700"><Menu className="w-5 h-5" /></button>
-        <h1 className="px-2 sm:px-3 py-1.5 rounded-lg bg-[#f8fafc] border border-black text-[10px] sm:text-xs font-serif uppercase tracking-[0.06em] sm:tracking-[0.2em] text-[#a16207] font-bold">
+        <h1 className="rounded-lg bg-[#f8fafc] border border-black text-[10px] sm:text-xs font-serif uppercase tracking-[0.06em] sm:tracking-[0.2em] text-[#a16207] font-bold">
           MY B SHOPPY ADMIN
         </h1>
       </div>
@@ -93,20 +90,6 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
 
       {/* Right Controls */}
       <div className="flex shrink-0 items-center gap-0.5 sm:gap-3">
-        {/* SQL Schema Button */}
-        {onOpenSqlSetup && (
-          <button
-            type="button"
-            id="topheader-sql-setup-btn"
-            onClick={onOpenSqlSetup}
-            title="Supabase Unified SQL Schema Editor"
-            className="hidden sm:flex px-2.5 py-1.5 rounded-lg bg-[#f8fafc] border border-black text-[#a16207] hover:bg-[#e2e8f0] transition-colors flex items-center gap-1.5 text-xs font-medium"
-          >
-            <Database className="w-3.5 h-3.5" />
-            <span className="hidden lg:inline text-[11px]">SQL Schema</span>
-          </button>
-        )}
-
         {/* Refresh Sync button */}
         <button
           type="button"

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Category, Subcategory } from '../types';
-import { X, Upload, Image as ImageIcon, AlertCircle, Check, Database, Loader2 } from 'lucide-react';
+import { X, Upload, Image as ImageIcon, AlertCircle, Check, Loader2 } from 'lucide-react';
 
 export interface SubcategoryFormValues {
   category_id: string;
@@ -16,7 +16,6 @@ interface SubcategoryModalProps {
   onSubmit: (values: SubcategoryFormValues) => Promise<void>;
   categories: Category[];
   editingSubcategory?: Subcategory | null;
-  onOpenSqlSetup?: () => void;
   defaultCategoryId?: string;
 }
 
@@ -29,7 +28,6 @@ export const SubcategoryModal: React.FC<SubcategoryModalProps> = ({
   onSubmit,
   categories,
   editingSubcategory,
-  onOpenSqlSetup,
   defaultCategoryId,
 }) => {
   const [categoryId, setCategoryId] = useState('');
@@ -175,16 +173,6 @@ export const SubcategoryModal: React.FC<SubcategoryModalProps> = ({
                   <p className="text-[11px] text-rose-700/90 break-words mt-0.5">{formError}</p>
                 </div>
               </div>
-              {onOpenSqlSetup && (
-                <button
-                  type="button"
-                  onClick={onOpenSqlSetup}
-                  className="px-3 py-1.5 rounded-lg bg-[#fef2f2] hover:bg-[#fee2e2] text-[#a16207] border border-[#fecaca] font-medium text-[11px] flex items-center gap-1.5 shrink-0 self-start sm:self-center transition-colors"
-                >
-                  <Database className="w-3.5 h-3.5" />
-                  <span>Run Migration SQL</span>
-                </button>
-              )}
             </div>
           )}
 

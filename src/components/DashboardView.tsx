@@ -39,13 +39,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   return (
     <div className="space-y-6">
       {/* 1. Welcome Banner */}
-      <div className="p-6 rounded-2xl bg-gradient-to-r from-[#ffffff] via-[#f8fafc] to-[#ffffff] border border-black shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="rounded-2xl bg-gradient-to-r from-[#ffffff] via-[#f8fafc] to-[#ffffff] border border-black shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#fffbeb] border border-[#d97706]/30 text-[#a16207] text-[11px] font-semibold mb-2">
             <Sparkles className="w-3 h-3" />
             MY B SHOPPY STORE EXECUTIVE OVERVIEW
           </div>
-          <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#0f172a]">
+          <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#001f3f]">
             Jewellery Inventory & Order Operations
           </h2>
           <p className="text-xs text-[#475569] mt-1 max-w-xl">
@@ -57,7 +57,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <button
             type="button"
             onClick={onOpenNewProduct}
-            className="px-4 py-2 rounded-xl bg-[#a16207] hover:bg-[#854d0e] text-[#ffffff] font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-[#d97706]/20 transition-all active:scale-[0.98]"
+            className="px-4 py-2 rounded-xl bg-[#2563eb] hover:bg-[#93c5fd] text-[#ffffff] hover:text-[#001f3f] font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-blue-500/20 transition-all active:scale-[0.98]"
           >
             <Plus className="w-3.5 h-3.5 stroke-[3]" />
             <span>Add Product</span>
@@ -66,9 +66,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <button
             type="button"
             onClick={onOpenNewOrder}
-            className="px-4 py-2 rounded-xl bg-[#f8fafc] border border-black hover:border-[#d97706] text-[#0f172a] font-medium text-xs flex items-center gap-1.5 transition-colors"
+            className="px-4 py-2 rounded-xl bg-[#2563eb] hover:bg-[#93c5fd] text-[#ffffff] hover:text-[#001f3f] font-medium text-xs flex items-center gap-1.5 transition-colors"
           >
-            <ShoppingBag className="w-3.5 h-3.5 text-[#a16207]" />
+            <ShoppingBag className="w-3.5 h-3.5" />
             <span>New COD Order</span>
           </button>
         </div>

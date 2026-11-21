@@ -49,7 +49,7 @@ import { SettingsModal } from './components/SettingsModal';
 import { SupabaseSqlModal } from './components/SupabaseSqlModal';
 import { LoginView } from './components/LoginView';
 import confetti from 'canvas-confetti';
-import { CheckCircle2, AlertCircle, RefreshCw, Sparkles, X, Database } from 'lucide-react';
+import { CheckCircle2, AlertCircle, RefreshCw, Sparkles, X } from 'lucide-react';
 
 const SETTINGS_STORAGE_KEY = 'mybshoppy_admin_settings_v2';
 
@@ -588,7 +588,6 @@ export default function App() {
             setIsProductModalOpen(true);
           }}
           onOpenNewOrder={() => mariaDbMode?showToast('Checkout is temporarily unavailable.','error'):setIsNewOrderModalOpen(true)}
-          onOpenSqlSetup={() => mariaDbMode?showToast('Use catalog controls to manage products.'):setIsSqlModalOpen(true)}
           onRefresh={() => {
             loadProducts();
             loadOrders();
@@ -644,7 +643,6 @@ export default function App() {
               onToggleActive={handleToggleSubcategory}
               onRefresh={loadTaxonomy}
               isLoading={isTaxonomyLoading}
-              onOpenSqlSetup={() => mariaDbMode?showToast('Use catalog controls to manage products.'):setIsSqlModalOpen(true)}
             />
           )}
 
@@ -679,16 +677,6 @@ export default function App() {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setIsSqlModalOpen(true)}
-                    className="px-3.5 py-2 rounded-xl border border-black bg-[#ffffff] hover:bg-[#f8fafc] text-[#a16207] text-xs font-semibold flex items-center gap-1.5 transition-colors"
-                    title="View and copy Supabase SQL Schema for Orders & Products"
-                  >
-                    <Database className="w-3.5 h-3.5" />
-                    <span>SQL Schema</span>
-                  </button>
-
                   <button
                     type="button"
                     onClick={handleSeedData}
@@ -806,7 +794,6 @@ export default function App() {
         onSubmit={handleSaveSubcategory}
         categories={categories}
         editingSubcategory={editingSubcategory}
-        onOpenSqlSetup={mariaDbMode ? undefined : () => setIsSqlModalOpen(true)}
       />
 
       <DeleteSubcategoryModal

@@ -8,7 +8,6 @@ import {
   Layers,
   Package,
   RefreshCw,
-  Database,
   ChevronLeft,
   ChevronRight,
   Image as ImageIcon,
@@ -24,7 +23,6 @@ interface SubcategoriesViewProps {
   onToggleActive: (subcategory: Subcategory) => Promise<void>;
   onRefresh?: () => void;
   isLoading?: boolean;
-  onOpenSqlSetup?: () => void;
 }
 
 const PAGE_SIZE = 10;
@@ -39,7 +37,6 @@ export const SubcategoriesView: React.FC<SubcategoriesViewProps> = ({
   onToggleActive,
   onRefresh,
   isLoading = false,
-  onOpenSqlSetup,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [parentFilter, setParentFilter] = useState('all');
@@ -128,18 +125,6 @@ export const SubcategoriesView: React.FC<SubcategoriesViewProps> = ({
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
               <span>Refresh</span>
-            </button>
-          )}
-
-          {onOpenSqlSetup && (
-            <button
-              type="button"
-              onClick={onOpenSqlSetup}
-              className="px-3.5 py-2.5 rounded-xl bg-[#f8fafc] hover:bg-[#e2e8f0] text-[#a16207] border border-black font-semibold text-xs flex items-center gap-1.5 transition-colors"
-              title="View the categories & subcategories Supabase migration"
-            >
-              <Database className="w-3.5 h-3.5" />
-              <span>SQL Setup</span>
             </button>
           )}
 
