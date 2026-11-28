@@ -1,6 +1,6 @@
-import { sortCategoryNames, categoryDisplayName } from '../lib/subcategories';
+import { categoryDisplayName } from '../lib/subcategories';
 import React, { useState, useMemo } from 'react';
-import { Product } from '../types';
+import { Category, Product } from '../types';
 import {
   Search,
   Plus,
@@ -24,6 +24,7 @@ import {
 
 interface ProductsViewProps {
   products: Product[];
+  categories: Category[];
   onOpenAddModal: () => void;
   onEditProduct: (product: Product) => void;
   onDuplicateProduct: (productId: string | number) => Promise<void>;
@@ -35,6 +36,7 @@ interface ProductsViewProps {
 
 export const ProductsView: React.FC<ProductsViewProps> = ({
   products,
+  categories,
   onOpenAddModal,
   onEditProduct,
   onDuplicateProduct,
@@ -50,15 +52,6 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 8;
-
-  // Extract unique categories
-  const categories = useMemo(() => {
-    const set = new Set<string>();
-    products.forEach((p) => {
-      if (p.category) set.add(p.category);
-    });
-    return sortCategoryNames(Array.from(set));
-  }, [products]);
 
   // Filtered & Sorted products
   const filteredProducts = useMemo(() => {
@@ -78,7 +71,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
 
     // Category
     if (selectedCategory !== 'all') {
-      result = result.filter((p) => p.category.toLowerCase() === selectedCategory.toLowerCase());
+      result = result.filter((p) => categoryDisplayName(p.category).toLowerCase() === categoryDisplayName(selectedCategory).toLowerCase());
     }
 
     // Stock Filter
@@ -196,8 +189,8 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
           >
             <option value="all">All Categories</option>
             {categories.map((cat) => (
-              <option key={cat} value={cat}>
-                {categoryDisplayName(cat)}
+              <option key={cat.id} value={cat.name}>
+                {cat.name}
               </option>
             ))}
           </select>

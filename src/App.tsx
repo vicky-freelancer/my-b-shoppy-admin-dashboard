@@ -198,7 +198,9 @@ export default function App() {
     try {
       const [categoryRes, subcategoryRes] = await Promise.all([getCategories(), getSubcategories()]);
       const allowedCategoryIds = new Set(categoryRes.categories.map((category) => category.id));
-      setCategories(categoryRes.categories);
+      setCategories(categoryRes.categories.filter((category) =>
+        category.id.trim().toLowerCase() !== 'senthil' && category.name.trim().toLowerCase() !== 'senthil'
+      ));
       setSubcategories(
         subcategoryRes.subcategories.filter((subcategory) =>
           allowedCategoryIds.has(subcategory.category_id)
@@ -603,6 +605,7 @@ export default function App() {
           {activeTab === 'products' && (
             <ProductsView
               products={products}
+              categories={categories}
               onOpenAddModal={() => {
                 setEditingProduct(null);
                 setIsProductModalOpen(true);
