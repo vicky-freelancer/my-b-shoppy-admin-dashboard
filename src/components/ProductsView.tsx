@@ -19,7 +19,6 @@ import {
   AlertTriangle,
   XCircle,
   ExternalLink,
-  Database,
 } from 'lucide-react';
 
 interface ProductsViewProps {
@@ -30,7 +29,6 @@ interface ProductsViewProps {
   onDeletePrompt: (product: Product) => void;
   currencySymbol?: string;
   isLoading?: boolean;
-  onOpenSqlSetup?: () => void;
 }
 
 export const ProductsView: React.FC<ProductsViewProps> = ({
@@ -41,7 +39,6 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
   onDeletePrompt,
   currencySymbol = 'Γé╣',
   isLoading = false,
-  onOpenSqlSetup,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -139,19 +136,6 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
         </div>
 
         <div className="flex items-center gap-2.5 self-start sm:self-auto flex-wrap">
-          {onOpenSqlSetup && (
-            <button
-              type="button"
-              id="supabase-sql-btn"
-              onClick={onOpenSqlSetup}
-              className="px-3.5 py-2.5 rounded-xl bg-[#f8fafc] hover:bg-[#e2e8f0] text-[#a16207] border border-black font-semibold text-xs flex items-center gap-1.5 transition-colors shadow-sm"
-              title="View and copy Supabase SQL table setup script"
-            >
-              <Database className="w-3.5 h-3.5" />
-              <span>Supabase SQL Setup</span>
-            </button>
-          )}
-
           {/* Prominent Gold Button */}
           <button
             type="button"
@@ -220,7 +204,6 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
                     <ArrowUpDown className="w-3 h-3 opacity-60" />
                   </button>
                 </th>
-                <th className="py-4 px-3 font-semibold">CATEGORY</th>
                 <th className="py-4 px-3 font-semibold">STATUS</th>
                 <th className="py-4 px-3 font-semibold">
                   <button
@@ -295,14 +278,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
                         </div>
                       </td>
 
-                      {/* 2. CATEGORY */}
-                      <td className="py-3.5 px-3 whitespace-nowrap">
-                        <span className="inline-block px-3 py-1 rounded-md text-[11px] font-medium bg-[#f8fafc] text-[#334155] border border-black">
-                          {product.category || 'Jewellery'}
-                        </span>
-                      </td>
-
-                      {/* 3. STATUS */}
+                      {/* 2. STATUS */}
                       <td className="py-3.5 px-3 whitespace-nowrap">
                         {isLive ? (
                           <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">

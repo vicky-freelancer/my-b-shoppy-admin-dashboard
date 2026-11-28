@@ -197,7 +197,6 @@ export const SubcategoriesView: React.FC<SubcategoriesViewProps> = ({
             <thead>
               <tr className="border-b border-black bg-[#f8fafc] text-[#475569] font-mono text-[11px] uppercase tracking-wider">
                 <th className="py-4 px-4 font-semibold">Subcategory</th>
-                <th className="py-4 px-3 font-semibold">Parent Category</th>
                 <th className="py-4 px-3 font-semibold">Products</th>
                 <th className="py-4 px-3 font-semibold">Status</th>
                 <th className="py-4 px-4 font-semibold text-right">Actions</th>
@@ -208,8 +207,6 @@ export const SubcategoriesView: React.FC<SubcategoriesViewProps> = ({
               {paginated.length > 0 ? (
                 paginated.map((subcategory) => {
                   const count = productCountBySubcategory.get(String(subcategory.id)) || 0;
-                  const parentName =
-                    categoryNameById.get(subcategory.category_id) || subcategory.category_id;
 
                   return (
                     <tr key={subcategory.id} className="odd:bg-[#ffffff] even:bg-[#f8fafc] hover:bg-[#f1f5f9] transition-colors group">
@@ -235,13 +232,6 @@ export const SubcategoriesView: React.FC<SubcategoriesViewProps> = ({
                             </p>
                           </div>
                         </div>
-                      </td>
-
-                      <td className="py-3.5 px-3 whitespace-nowrap">
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-medium bg-[#f8fafc] text-[#334155] border border-black">
-                          <Layers className="w-3 h-3 text-[#475569]" />
-                          {parentName}
-                        </span>
                       </td>
 
                       <td className="py-3.5 px-3 whitespace-nowrap">
