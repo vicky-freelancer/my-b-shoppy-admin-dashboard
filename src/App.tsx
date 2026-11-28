@@ -618,6 +618,7 @@ export default function App() {
               }}
               currencySymbol={settings.currencySymbol}
               isLoading={isLoading}
+              onOpenSqlSetup={() => mariaDbMode?showToast('Use catalog controls to manage products.'):setIsSqlModalOpen(true)}
             />
           )}
 
